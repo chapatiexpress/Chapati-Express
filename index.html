@@ -550,9 +550,9 @@
 // Items: { id, catId, name, type, price, emoji, inStock }
 
 let categories = [
-  { id: 'cat-plain', name: 'Plain Chapatis', emoji: '🌾' },
-  { id: 'cat-combo', name: 'Chapati with Curry', emoji: '🍛' },
-  { id: 'cat-curry', name: 'Curries', emoji: '🥘' },
+  { id: 'cat-plain', name: 'Plain Chapatis', emoji: ' ' },
+  { id: 'cat-combo', name: 'Chapati with Curry', emoji: ' ' },
+  { id: 'cat-curry', name: 'Curries', emoji: ' ' },
 ];
 
 let items = [];
@@ -561,19 +561,19 @@ function newId() { return 'item-' + (++idCounter); }
 
 // Seed default items
 const plainRaw = [
-  { name:'Godhuma Chapati', type:'Wheat Chapati', price:10, emoji:'🌾' },
-  { name:'Jonna Chapati', type:'Sorghum Chapati', price:12, emoji:'🌿' },
-  { name:'Makka Chapati', type:'Corn Chapati', price:15, emoji:'🌽' },
-  { name:'Pacha Jonna Chapati', type:'Green Jowar Chapati', price:15, emoji:'🟢' },
+  { name:'Godhuma Chapati', type:'Wheat Chapati', price:10, emoji:' ' },
+  { name:'Jonna Chapati', type:'Sorghum Chapati', price:12, emoji:' ' },
+  { name:'Makka Chapati', type:'Corn Chapati', price:15, emoji:' ' },
+  { name:'Pacha Jonna Chapati', type:'Green Jowar Chapati', price:15, emoji:' ' },
 ];
 plainRaw.forEach(i => items.push({ id:newId(), catId:'cat-plain', ...i, inStock:true }));
 
 const comboCurries = ['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const comboChapatis = [
-  { name:'Godhuma Chapati', emoji:'🌾', price:40 },
-  { name:'Jonna Chapati', emoji:'🌿', price:40 },
-  { name:'Makka Chapati', emoji:'🌽', price:50 },
-  { name:'Pacha Jonna Chapati', emoji:'🟢', price:50 },
+  { name:'Godhuma Chapati', emoji:' ', price:40 },
+  { name:'Jonna Chapati', emoji:' ', price:40 },
+  { name:'Makka Chapati', emoji:' ', price:50 },
+  { name:'Pacha Jonna Chapati', emoji:' ', price:50 },
 ];
 comboCurries.forEach(curry => {
   comboChapatis.forEach(ch => {
@@ -582,11 +582,11 @@ comboCurries.forEach(curry => {
 });
 
 const curryTypes = ['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
-const curryEmojis = { 'Dal Curry':'🫘','Aloo Tomato Curry':'🥔','Vankaya Curry':'🍆','Tomato Curry':'🍅','Kakarakaya Curry':'🥒','Cabbage Curry':'🥬','Palakura Pappu':'🌿' };
+const curryEmojis = { 'Dal Curry':' ','Aloo Tomato Curry':' ','Vankaya Curry':' ','Tomato Curry':' ','Kakarakaya Curry':' ','Cabbage Curry':' ','Palakura Pappu':' ' };
 const currySizes = [{s:'Small',p:30},{s:'Medium',p:40},{s:'Large',p:50}];
 curryTypes.forEach(ct => {
   currySizes.forEach(sz => {
-    items.push({ id:newId(), catId:'cat-curry', name:ct, type:sz.s+' ('+sz.p+'g)', price:sz.p, emoji:curryEmojis[ct]||'🥘', inStock:true });
+    items.push({ id:newId(), catId:'cat-curry', name:ct, type:sz.s+' ('+sz.p+'g)', price:sz.p, emoji:curryEmojis[ct]||' ', inStock:true });
   });
 });
 
