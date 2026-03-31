@@ -459,7 +459,7 @@
 </div>
 
 <footer style="background:var(--brown);color:#f5ddb5;text-align:center;padding:28px;font-size:0.85rem;">
-  <strong>Chapati Express</strong> · 📍 Peddha Baazar, Sircilla · 🕐 Open Daily 7 AM – 10 PM<br>
+  <strong>Chapati Express</strong> · 📍 Peddha Baazar, Sircilla · 🕐 Open Daily 9 AM – 10 PM<br>
   <span style="font-size:0.78rem;opacity:0.7;margin-top:4px;display:block;">Pure Veg · Home Style · Freshly Made</span>
 </footer>
 
@@ -488,7 +488,7 @@
       </div>
       <div class="om-form" id="om-form-fields">
         <div><label>Your Name *</label><input type="text" id="om-name" placeholder="Full name"></div>
-        <div><label>Phone Number *</label><input type="tel" id="om-phone" placeholder="+91 XXXXX XXXXX"></div>
+        <div><label>Phone Number *</label><input type="tel" id="om-phone" placeholder="+91 9154092906"></div>
         <div class="full"><label>Delivery Address *</label><textarea id="om-address" rows="2" placeholder="House No., Street, Area..."></textarea></div>
         <div><label>Landmark</label><input type="text" id="om-landmark" placeholder="Near school / temple..."></div>
         <div class="full" style="margin-top:4px;">
@@ -550,7 +550,7 @@
 // Items: { id, catId, name, type, price, emoji, inStock }
 
 let categories = [
-  { id: 'cat-plain', name: 'Plain Chapatis', emoji: ' ' },
+  { id: 'cat-plain', name: 'Main', emoji: ' ' },
   { id: 'cat-combo', name: 'Chapati with Curry', emoji: ' ' },
   { id: 'cat-curry', name: 'Curries', emoji: ' ' },
 ];
@@ -561,10 +561,10 @@ function newId() { return 'item-' + (++idCounter); }
 
 // Seed default items
 const plainRaw = [
-  { name:'Godhuma Chapati', type:'Wheat Chapati', price:10, emoji:' ' },
-  { name:'Jonna Chapati', type:'Sorghum Chapati', price:12, emoji:' ' },
-  { name:'Makka Chapati', type:'Corn Chapati', price:15, emoji:' ' },
-  { name:'Pacha Jonna Chapati', type:'Green Jowar Chapati', price:15, emoji:' ' },
+  { name:'Godhuma Chapati', type:' ', price:10, emoji:' ' },
+  { name:'Jonna Chapati', type:' ', price:12, emoji:' ' },
+  { name:'Makka Chapati', type:' ', price:15, emoji:' ' },
+  { name:'Pacha Jonna Chapati', type:' ', price:15, emoji:' ' },
 ];
 plainRaw.forEach(i => items.push({ id:newId(), catId:'cat-plain', ...i, inStock:true }));
 
