@@ -570,10 +570,10 @@ plainRaw.forEach(i => items.push({ id:newId(), catId:'cat-plain', ...i, inStock:
 
 const comboCurries = ['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const comboChapatis = [
-  { name:'Godhuma Chapati', emoji:' ', price:40 },
-  { name:'Jonna Chapati', emoji:' ', price:40 },
-  { name:'Makka Chapati', emoji:' ', price:50 },
-  { name:'Pacha Jonna Chapati', emoji:' ', price:50 },
+  { name:'2 Godhuma Chapati', emoji:' ', price:40 },
+  { name:'2 Jonna Chapati', emoji:' ', price:40 },
+  { name:'2 Makka Chapati', emoji:' ', price:50 },
+  { name:'2 Pacha Jonna Chapati', emoji:' ', price:50 },
 ];
 comboCurries.forEach(curry => {
   comboChapatis.forEach(ch => {
@@ -583,7 +583,7 @@ comboCurries.forEach(curry => {
 
 const curryTypes = ['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const curryEmojis = { 'Dal Curry':' ','Aloo Tomato Curry':' ','Vankaya Curry':' ','Tomato Curry':' ','Kakarakaya Curry':' ','Cabbage Curry':' ','Palakura Pappu':' ' };
-const currySizes = [{s:'Small',p:30},{s:'Medium',p:40},{s:'Large',p:50}];
+const currySizes = [{s:' ',p:},{s:' ',p:},{s:' ',p:}];
  curryTypes.forEach(ct => {
   currySizes.forEach(sz => {
     items.push({ id:newId(), catId:'cat-curry', name:ct, type:sz.s+' ('+sz.p+'g)', price:sz.p, emoji:curryEmojis[ct]||' ', inStock:true });
