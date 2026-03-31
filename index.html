@@ -584,7 +584,11 @@ comboCurries.forEach(curry => {
 const curryTypes = ['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const curryEmojis = { 'Dal Curry':' ','Aloo Tomato Curry':' ','Vankaya Curry':' ','Tomato Curry':' ','Kakarakaya Curry':' ','Cabbage Curry':' ','Palakura Pappu':' ' };
 const currySizes = [{ :' ':},{:' ',:},{ :' ', : }];
-
+ curryTypes.forEach(  => {
+  currySizes.forEach(  => {
+    items.push({ id:newId(), catId:'cat-curry', name:ct, type: .+' ('+ .+')', price: ., emoji:curryEmojis[ct]||' ', inStock:true });
+  });
+});
 // Cart
 let cart = {};
 
