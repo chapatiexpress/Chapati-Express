@@ -586,7 +586,7 @@ const curryEmojis = { 'Dal Curry':' ','Aloo Tomato Curry':' ','Vankaya Curry':' 
 const currySizes = [{s:'Small',p:30},{s:'Medium',p:40},{s:'Large',p:50}];
  curryTypes.forEach(ct => {
   currySizes.forEach(sz => {
-    items.push({ id:newId(), catId:'cat-curry', name:ct, emoji:curryEmojis[ct]||'🥘', inStock:true });
+    items.push({ id:newId(), catId:'cat-curry', name:ct,price:sz.p,  emoji:curryEmojis[ct]||'🥘', inStock:true });
   });
 });
 
