@@ -94,6 +94,7 @@
   .card-qty-btn:hover { background: var(--saffron); color: #fff; }
   .card-qty-num { min-width: 28px; text-align: center; font-weight: 700; font-size: 0.9rem; color: var(--brown); }
 
+  /* delete item btn on card */
   .card-del-btn { position: absolute; top: 10px; right: 10px; background: #fff0f0; border: 1px solid #ffcccc; color: var(--red); width: 26px; height: 26px; border-radius: 50%; font-size: 0.8rem; cursor: pointer; display: none; align-items: center; justify-content: center; transition: background 0.2s; }
   .card-del-btn:hover { background: var(--red); color: #fff; }
   body.manage-mode .card-del-btn { display: flex; }
@@ -103,6 +104,7 @@
   .manage-page { display: none; }
   .manage-page.active { display: block; }
 
+  /* Category tabs inside manage */
   .cat-tabs-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; align-items: center; }
   .cat-tab { padding: 8px 20px; border-radius: 22px; border: 2px solid var(--border); background: #fff; color: var(--brown); font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s; }
   .cat-tab:hover { border-color: var(--saffron); color: var(--saffron); }
@@ -112,6 +114,7 @@
   .new-cat-btn { padding: 8px 18px; border-radius: 22px; border: 2px dashed var(--border); background: transparent; color: #888; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
   .new-cat-btn:hover { border-color: var(--saffron); color: var(--saffron); }
 
+  /* Add item form */
   .add-item-panel {
     background: var(--card-bg); border: 2px solid var(--border);
     border-radius: 20px; padding: 28px; margin-bottom: 32px;
@@ -135,6 +138,7 @@
   .aip-reset { flex: 1; background: var(--cream); border: 1.5px solid var(--border); color: var(--brown); border-radius: 12px; padding: 13px; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: background 0.2s; }
   .aip-reset:hover { background: #f0e0c8; }
 
+  /* manage item list */
   .manage-items-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
   .mng-card { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: 14px; padding: 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; transition: box-shadow 0.2s; }
   .mng-card:hover { box-shadow: var(--shadow); }
@@ -149,6 +153,7 @@
   .mng-stock-pill.in-stock { background: #E8F5E9; color: var(--green); border-color: var(--green); }
   .mng-stock-pill.out-stock { background: #FFEBEE; color: var(--red); border-color: var(--red); }
 
+  /* category new modal */
   .cat-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 500; align-items: center; justify-content: center; padding: 16px; }
   .cat-modal-overlay.open { display: flex; }
   .cat-modal { background: #fff; border-radius: 20px; width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.35); animation: modalIn 0.3s cubic-bezier(.34,1.56,.64,1); overflow: hidden; }
@@ -164,7 +169,10 @@
   .cat-save-btn { flex: 2; background: linear-gradient(90deg, var(--brown), var(--saffron)); color: #fff; border: none; border-radius: 10px; padding: 12px; font-family: 'Yeseva One', serif; font-size: 0.95rem; cursor: pointer; }
   .cat-cancel-btn { flex: 1; background: var(--cream); border: 1.5px solid var(--border); color: var(--brown); border-radius: 10px; padding: 12px; font-weight: 700; cursor: pointer; }
 
-  /* ===== ORDER / MAP pages ===== */
+  /* delete confirm */
+  .del-confirm { background: #fff3cd; border: 1.5px solid #ffc107; border-radius: 10px; padding: 10px 14px; font-size: 0.83rem; color: #856404; display: none; margin-top: 12px; }
+
+  /* ===== ORDER / MAP pages (same as before) ===== */
   .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; }
   .overlay.open { display: block; }
   .cart-panel { position: fixed; right: 0; top: 0; height: 100vh; width: 400px; max-width: 100vw; background: #fff; z-index: 201; box-shadow: -8px 0 40px rgba(0,0,0,0.2); display: flex; flex-direction: column; transform: translateX(100%); transition: transform 0.3s; }
@@ -219,6 +227,7 @@
   .fob-btn { background: var(--turmeric); color: var(--deep); border: none; border-radius: 12px; padding: 12px 28px; font-family: 'Yeseva One', serif; font-size: 1rem; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 12px rgba(0,0,0,0.25); transition: transform 0.15s; display: flex; align-items: center; gap: 8px; }
   .fob-btn:hover { transform: scale(1.04); }
 
+  /* order modal */
   .order-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 300; align-items: center; justify-content: center; padding: 16px; }
   .order-modal-overlay.open { display: flex; }
   .order-modal { background: #fff; border-radius: 24px; width: 100%; max-width: 560px; max-height: 92vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: modalIn 0.3s cubic-bezier(.34,1.56,.64,1); }
@@ -258,259 +267,19 @@
   .om-route-info { display:flex; gap:10px; flex-wrap:wrap; margin-top:6px; }
   .om-route-badge { background:#fff; border:1px solid var(--border); border-radius:8px; padding:5px 10px; font-size:0.78rem; color:var(--brown); display:flex; align-items:center; gap:4px; }
 
+  /* empty state */
   .empty-cat-msg { text-align: center; padding: 40px 20px; color: #aaa; font-size: 0.95rem; }
   .empty-cat-msg .big { font-size: 2.5rem; margin-bottom: 10px; }
 
+  /* manage banner */
   .manage-banner { background: linear-gradient(90deg, #fff8ef, #fff3e0); border: 2px solid var(--turmeric); border-radius: 14px; padding: 14px 20px; margin-bottom: 24px; display: flex; align-items: center; gap: 12px; font-size: 0.88rem; color: var(--brown); }
   .manage-banner strong { color: var(--saffron); }
 
+  /* filter bar on menu page */
   .menu-filter-bar { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; align-items: center; }
   .mfb-tab { padding: 7px 18px; border-radius: 20px; border: 2px solid var(--border); background: #fff; color: var(--brown); font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: all 0.2s; }
   .mfb-tab:hover { border-color: var(--saffron); color: var(--saffron); }
   .mfb-tab.active { background: var(--saffron); border-color: var(--saffron); color: #fff; }
-
-  /* ===== GOOGLE SSO FULL-SCREEN GATE ===== */
-
-  /* Whole-site blur when not signed in */
-  #site-content { display: none; }
-  #site-content.unlocked { display: block; }
-
-  /* Full-screen splash */
-  #gso-gate {
-    position: fixed; inset: 0; z-index: 9000;
-    display: flex; align-items: center; justify-content: center;
-    padding: 16px;
-    background: linear-gradient(145deg, #1a0800 0%, #3B1A06 40%, #7A3B10 75%, #E8820C 100%);
-    overflow: hidden;
-  }
-  /* decorative floating chapatis */
-  #gso-gate::before {
-    content: '🫓';
-    font-size: 260px; opacity: 0.06;
-    position: absolute; bottom: -40px; right: -30px;
-    animation: gsoFloat 5s ease-in-out infinite;
-    pointer-events: none;
-  }
-  #gso-gate::after {
-    content: '🫓';
-    font-size: 140px; opacity: 0.05;
-    position: absolute; top: 20px; left: -20px;
-    animation: gsoFloat 6s ease-in-out infinite reverse;
-    pointer-events: none;
-  }
-  @keyframes gsoFloat { 0%,100%{transform:translateY(0) rotate(-5deg)} 50%{transform:translateY(-22px) rotate(5deg)} }
-
-  .gso-card {
-    background: #fff;
-    border-radius: 28px;
-    width: 100%; max-width: 420px;
-    box-shadow: 0 32px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.08);
-    animation: gsoCardIn 0.55s cubic-bezier(.34,1.46,.64,1);
-    overflow: hidden;
-  }
-  @keyframes gsoCardIn {
-    from { opacity:0; transform: translateY(50px) scale(0.9); }
-    to   { opacity:1; transform: translateY(0) scale(1); }
-  }
-
-  /* Top brand strip */
-  .gso-brand {
-    background: linear-gradient(135deg, #2B1005 0%, var(--brown) 55%, #A04010 100%);
-    padding: 28px 24px 22px;
-    text-align: center;
-  }
-  .gso-brand-icon { font-size: 2.8rem; display: block; margin-bottom: 8px; animation: gsoFloat 4s ease-in-out infinite; }
-  .gso-brand-name {
-    font-family: 'Yeseva One', serif;
-    font-size: 1.55rem; color: var(--turmeric);
-    letter-spacing: 1px; line-height: 1.1;
-  }
-  .gso-brand-sub { font-size: 0.72rem; color: #f5c98a; letter-spacing: 3px; text-transform: uppercase; margin-top: 2px; }
-
-  /* Card body */
-  .gso-body { padding: 28px 28px 24px; }
-
-  .gso-heading {
-    text-align: center; margin-bottom: 6px;
-    font-family: 'Yeseva One', serif;
-    font-size: 1.2rem; color: var(--deep);
-  }
-  .gso-subheading {
-    text-align: center; font-size: 0.84rem; color: #777;
-    margin-bottom: 24px; line-height: 1.5;
-  }
-
-  /* Email field */
-  .gso-field { margin-bottom: 14px; }
-  .gso-field label {
-    display: block; font-size: 0.72rem; font-weight: 800;
-    color: var(--brown); text-transform: uppercase;
-    letter-spacing: 0.6px; margin-bottom: 5px;
-  }
-  .gso-input-wrap { position: relative; }
-  .gso-field input {
-    width: 100%;
-    border: 2px solid #e0e0e0;
-    border-radius: 12px;
-    padding: 12px 14px 12px 42px;
-    font-size: 0.92rem;
-    font-family: 'Lato', sans-serif;
-    background: #fafafa;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-    color: var(--deep);
-  }
-  .gso-field input:focus {
-    border-color: #4285F4;
-    box-shadow: 0 0 0 3px rgba(66,133,244,0.15);
-    background: #fff;
-  }
-  .gso-field input.gso-error {
-    border-color: #EA4335;
-    box-shadow: 0 0 0 3px rgba(234,67,53,0.13);
-    animation: gsoShake 0.38s ease;
-  }
-  @keyframes gsoShake {
-    0%,100%{transform:translateX(0)} 20%{transform:translateX(-7px)} 40%{transform:translateX(7px)} 60%{transform:translateX(-5px)} 80%{transform:translateX(5px)}
-  }
-  .gso-field-icon {
-    position: absolute; left: 13px; top: 50%; transform: translateY(-50%);
-    font-size: 1rem; pointer-events: none; line-height: 1;
-  }
-
-  /* Error banner */
-  .gso-error-banner {
-    background: #FFF0EE; border: 1.5px solid #FFCDD2;
-    border-radius: 10px; padding: 10px 14px;
-    color: #C62828; font-size: 0.82rem; font-weight: 700;
-    display: none; align-items: center; gap: 8px; margin-bottom: 14px;
-  }
-  .gso-error-banner.show { display: flex; animation: gsoCardIn 0.2s ease; }
-
-  /* Divider */
-  .gso-divider {
-    display: flex; align-items: center; gap: 10px;
-    margin: 18px 0; color: #bbb; font-size: 0.75rem;
-  }
-  .gso-divider::before, .gso-divider::after {
-    content: ''; flex: 1; height: 1px; background: #e8e8e8;
-  }
-
-  /* The Google button */
-  .gso-google-btn {
-    width: 100%;
-    display: flex; align-items: center; justify-content: center; gap: 12px;
-    background: #fff;
-    border: 2px solid #dadce0;
-    border-radius: 12px;
-    padding: 13px 16px;
-    font-family: 'Lato', sans-serif;
-    font-size: 0.95rem; font-weight: 700;
-    color: #3c4043;
-    cursor: pointer;
-    transition: box-shadow 0.2s, border-color 0.2s, background 0.15s;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-  }
-  .gso-google-btn:hover {
-    box-shadow: 0 3px 12px rgba(0,0,0,0.15);
-    border-color: #aaa;
-    background: #f8f9fa;
-  }
-  .gso-google-btn:active { background: #f1f3f4; }
-  /* Google G icon via SVG inline */
-  .gso-g-icon {
-    width: 20px; height: 20px; flex-shrink: 0;
-  }
-
-  /* Continue button */
-  .gso-continue-btn {
-    width: 100%;
-    background: #4285F4;
-    color: #fff; border: none; border-radius: 12px;
-    padding: 13px; font-family: 'Lato', sans-serif;
-    font-size: 0.95rem; font-weight: 700; cursor: pointer;
-    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    box-shadow: 0 3px 12px rgba(66,133,244,0.35);
-    letter-spacing: 0.3px;
-  }
-  .gso-continue-btn:hover { background: #3367d6; transform: translateY(-1px); box-shadow: 0 5px 18px rgba(66,133,244,0.4); }
-  .gso-continue-btn:active { transform: translateY(0); }
-
-  /* "Signing in..." loading state */
-  .gso-loading {
-    display: none; text-align: center; padding: 20px 0 4px;
-  }
-  .gso-loading.show { display: block; }
-  .gso-spinner {
-    width: 36px; height: 36px; margin: 0 auto 10px;
-    border: 3px solid #e8e8e8;
-    border-top-color: #4285F4;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .gso-loading p { font-size: 0.85rem; color: #777; }
-
-  /* Signed-in avatar chip in header */
-  .gso-user-chip {
-    display: none; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 24px; padding: 5px 12px 5px 5px;
-    cursor: pointer; transition: background 0.2s;
-  }
-  .gso-user-chip.show { display: flex; }
-  .gso-user-chip:hover { background: rgba(255,255,255,0.2); }
-  .gso-avatar {
-    width: 28px; height: 28px; border-radius: 50%;
-    background: var(--saffron); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 0.82rem; flex-shrink: 0;
-    text-transform: uppercase;
-  }
-  .gso-user-name { font-size: 0.78rem; color: #fff; font-weight: 700; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-  /* Sign-out dropdown */
-  .gso-signout-menu {
-    display: none; position: absolute; top: calc(100% + 10px); right: 0;
-    background: #fff; border-radius: 14px; box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-    min-width: 200px; overflow: hidden; z-index: 500;
-    animation: gsoCardIn 0.2s ease;
-  }
-  .gso-signout-menu.open { display: block; }
-  .gso-menu-user { padding: 14px 16px; border-bottom: 1px solid #f0f0f0; }
-  .gso-menu-email { font-size: 0.78rem; color: #888; margin-top: 2px; }
-  .gso-menu-name-big { font-weight: 800; color: var(--deep); font-size: 0.92rem; }
-  .gso-signout-btn-menu {
-    width: 100%; background: none; border: none; padding: 12px 16px;
-    text-align: left; font-size: 0.88rem; color: var(--red);
-    font-weight: 700; cursor: pointer; font-family: 'Lato', sans-serif;
-    display: flex; align-items: center; gap: 8px; transition: background 0.15s;
-  }
-  .gso-signout-btn-menu:hover { background: #fff5f5; }
-
-  /* chips wrapper in header needs relative for dropdown */
-  .gso-chip-wrap { position: relative; }
-
-  /* logout btn inside manage page — keep style */
-  .logout-btn {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: #fff0f0; border: 1.5px solid #ffcccc; color: var(--red);
-    border-radius: 20px; padding: 7px 16px; font-size: 0.82rem;
-    font-weight: 700; cursor: pointer; transition: all 0.2s;
-  }
-  .logout-btn:hover { background: var(--red); color: #fff; border-color: var(--red); }
-
-  /* owner badge on manage tab */
-  .manage-tab .owner-badge {
-    display: inline-block; background: var(--green); color: #fff;
-    border-radius: 8px; padding: 1px 6px; font-size: 0.65rem;
-    margin-left: 3px; font-weight: 700; vertical-align: middle;
-  }
 
   @media(max-width:700px) {
     .header-inner { gap: 8px; }
@@ -519,56 +288,10 @@
     .cart-panel { width: 100vw; }
     .hero h1 { font-size: 1.8rem; }
     .manage-items-grid { grid-template-columns: 1fr; }
-    .gso-card { border-radius: 20px; }
-    .gso-body { padding: 22px 20px 18px; }
   }
 </style>
 </head>
 <body>
-
-<!-- ===== GOOGLE SSO GATE (covers entire site) ===== -->
-<div id="gso-gate">
-  <div class="gso-card">
-    <div class="gso-brand">
-      <span class="gso-brand-icon">🫓</span>
-      <div class="gso-brand-name">Chapati Express</div>
-      <div class="gso-brand-sub">Peddha Baazar · Sircilla</div>
-    </div>
-    <div class="gso-body">
-      <div class="gso-heading">Sign in to continue</div>
-      <div class="gso-subheading">Use your Google account to access<br>the Chapati Express portal</div>
-      <div class="gso-error-banner" id="gso-error-banner">
-        <span>⚠️</span><span id="gso-error-text">Access denied. Email not authorised.</span>
-      </div>
-      <button class="gso-google-btn" id="gso-google-btn" onclick="gsoGoogleFlow()">
-        <svg class="gso-g-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-          <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-          <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-          <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-        </svg>
-        Continue with Google
-      </button>
-      <div class="gso-divider">or sign in with email</div>
-      <div class="gso-field">
-        <label>Google Account Email</label>
-        <div class="gso-input-wrap">
-          <span class="gso-field-icon">✉️</span>
-          <input type="email" id="gso-email-input" placeholder="yourname@gmail.com"
-            onkeydown="if(event.key==='Enter') gsoEmailNext()">
-        </div>
-      </div>
-      <button class="gso-continue-btn" onclick="gsoEmailNext()">Next →</button>
-      <div class="gso-loading" id="gso-loading">
-        <div class="gso-spinner"></div>
-        <p>Signing you in with Google…</p>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== ALL SITE CONTENT (hidden until signed in) ===== -->
-<div id="site-content">
 
 <!-- HEADER -->
 <header>
@@ -584,28 +307,11 @@
       <button class="nav-tab active" onclick="showPage('menu')">🍽 Menu</button>
       <button class="nav-tab" onclick="showPage('order')">📋 Order</button>
       <button class="nav-tab" onclick="showPage('delivery')">🗺 Delivery</button>
-      <button class="nav-tab manage-tab" id="manage-nav-tab" onclick="showPage('manage')">⚙️ Manage</button>
+      <button class="nav-tab manage-tab" onclick="showPage('manage')">⚙️ Manage</button>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;">
-      <!-- Signed-in user chip -->
-      <div class="gso-chip-wrap">
-        <div class="gso-user-chip" id="gso-user-chip" onclick="toggleSignoutMenu()">
-          <div class="gso-avatar" id="gso-avatar-initials">?</div>
-          <span class="gso-user-name" id="gso-chip-name">User</span>
-          <span style="color:rgba(255,255,255,0.6);font-size:0.7rem;">▾</span>
-        </div>
-        <div class="gso-signout-menu" id="gso-signout-menu">
-          <div class="gso-menu-user">
-            <div class="gso-menu-name-big" id="gso-menu-name">User</div>
-            <div class="gso-menu-email" id="gso-menu-email">user@gmail.com</div>
-          </div>
-          <button class="gso-signout-btn-menu" onclick="gsoSignOut()">🚪 Sign out</button>
-        </div>
-      </div>
-      <button class="cart-btn" onclick="openCart()">
-        🛒 Cart <span class="cart-count" id="cart-count">0</span>
-      </button>
-    </div>
+    <button class="cart-btn" onclick="openCart()">
+      🛒 Cart <span class="cart-count" id="cart-count">0</span>
+    </button>
   </div>
 </header>
 
@@ -694,16 +400,17 @@
   <div class="page" id="page-manage">
     <div class="manage-banner">
       <span style="font-size:1.6rem">⚙️</span>
-      <div style="flex:1"><strong>Owner Panel</strong> — Add categories, add items, toggle stock. Changes reflect on the Menu instantly.</div>
-      <button class="logout-btn" onclick="ownerLogout()">🔒 Lock Panel</button>
+      <div><strong>Owner Panel</strong> — Add categories, add items, toggle stock. Changes reflect on the Menu instantly.</div>
     </div>
 
+    <!-- Category tabs -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
       <div class="section-title" style="margin-bottom:0">📂 Categories</div>
       <button class="new-cat-btn" onclick="openCatModal()">➕ New Category</button>
     </div>
     <div class="cat-tabs-row" id="manage-cat-tabs"></div>
 
+    <!-- Add item form -->
     <div class="add-item-panel">
       <h3>➕ Add New Item <span id="adding-to-cat-label" style="font-size:0.85rem;color:var(--saffron);font-family:'Lato',sans-serif;font-weight:400;"></span></h3>
       <div class="aip-grid">
@@ -742,6 +449,7 @@
       </div>
     </div>
 
+    <!-- Items list for selected category -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
       <div class="section-title" style="margin-bottom:0" id="manage-items-title">📋 All Items</div>
     </div>
@@ -834,174 +542,13 @@
   </div>
 </div>
 
-</div><!-- end #site-content -->
-
 <script>
-// ===========================
-// GOOGLE SSO GATE
-// ===========================
-// Allowed Google emails — add the owner's email(s) here
-const ALLOWED_EMAILS = [
-  'owner@gmail.com',         // ← replace with your real Gmail
-  'chapatiexpress@gmail.com' // ← add as many as you need
-];
-
-let currentUser = null;
-
-// Called on page load — check sessionStorage for existing session
-function gsoInit() {
-  const saved = sessionStorage.getItem('gso_user');
-  if (saved) {
-    try {
-      const user = JSON.parse(saved);
-      if (ALLOWED_EMAILS.includes(user.email.toLowerCase())) {
-        gsoGrantAccess(user, false);
-        return;
-      }
-    } catch(e) {}
-  }
-  // Show gate — nothing to do, it's visible by default
-}
-
-// "Continue with Google" button — simulates OAuth popup flow
-function gsoGoogleFlow() {
-  const btn = document.getElementById('gso-google-btn');
-  btn.disabled = true;
-  btn.innerHTML = `<div style="width:18px;height:18px;border:2.5px solid #dadce0;border-top-color:#4285F4;border-radius:50%;animation:spin 0.7s linear infinite;flex-shrink:0"></div> Connecting to Google…`;
-  document.getElementById('gso-loading').classList.add('show');
-  hideGsoError();
-
-  // Simulate network delay then show email field for manual entry
-  setTimeout(() => {
-    btn.disabled = false;
-    btn.innerHTML = `<svg class="gso-g-icon" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg> Continue with Google`;
-    document.getElementById('gso-loading').classList.remove('show');
-    // Pre-fill email and focus it
-    document.getElementById('gso-email-input').focus();
-    showToastGate('👆 Enter your Gmail address below to continue');
-  }, 1400);
-}
-
-// "Next" on the email field
-function gsoEmailNext() {
-  const emailEl = document.getElementById('gso-email-input');
-  const email = emailEl.value.trim().toLowerCase();
-  hideGsoError();
-  emailEl.classList.remove('gso-error');
-
-  if (!email) {
-    emailEl.classList.add('gso-error');
-    showGsoError('Please enter your Gmail address.');
-    emailEl.focus();
-    return;
-  }
-  if (!email.includes('@')) {
-    emailEl.classList.add('gso-error');
-    showGsoError('Enter a valid email address.');
-    emailEl.focus();
-    return;
-  }
-
-  // Show loading
-  document.getElementById('gso-loading').classList.add('show');
-  document.querySelector('.gso-continue-btn').disabled = true;
-
-  setTimeout(() => {
-    document.getElementById('gso-loading').classList.remove('show');
-    document.querySelector('.gso-continue-btn').disabled = false;
-
-    if (ALLOWED_EMAILS.includes(email)) {
-      // Derive a display name from the email
-      const name = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-      const user = { email, name };
-      sessionStorage.setItem('gso_user', JSON.stringify(user));
-      gsoGrantAccess(user, true);
-    } else {
-      emailEl.classList.add('gso-error');
-      showGsoError('⛔ This Google account is not authorised to access Chapati Express.');
-    }
-  }, 1200);
-}
-
-function gsoGrantAccess(user, animate) {
-  currentUser = user;
-  const gate = document.getElementById('gso-gate');
-  const content = document.getElementById('site-content');
-
-  if (animate) {
-    gate.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-    gate.style.opacity = '0';
-    gate.style.transform = 'scale(1.04)';
-    setTimeout(() => {
-      gate.style.display = 'none';
-      content.classList.add('unlocked');
-      renderMenuPage();
-      updateUserChip(user);
-    }, 480);
-  } else {
-    gate.style.display = 'none';
-    content.classList.add('unlocked');
-    renderMenuPage();
-    updateUserChip(user);
-  }
-}
-
-function updateUserChip(user) {
-  const initials = user.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  document.getElementById('gso-avatar-initials').textContent = initials;
-  document.getElementById('gso-chip-name').textContent = user.name.split(' ')[0];
-  document.getElementById('gso-menu-name').textContent = user.name;
-  document.getElementById('gso-menu-email').textContent = user.email;
-  document.getElementById('gso-user-chip').classList.add('show');
-  // Show owner badge on manage tab
-  document.getElementById('manage-nav-tab').innerHTML = '⚙️ Manage <span class="owner-badge">✓</span>';
-}
-
-function toggleSignoutMenu() {
-  document.getElementById('gso-signout-menu').classList.toggle('open');
-}
-// Close dropdown if clicking outside
-document.addEventListener('click', e => {
-  const wrap = document.querySelector('.gso-chip-wrap');
-  if (wrap && !wrap.contains(e.target)) {
-    document.getElementById('gso-signout-menu').classList.remove('open');
-  }
-});
-
-function gsoSignOut() {
-  sessionStorage.removeItem('gso_user');
-  currentUser = null;
-  document.getElementById('gso-signout-menu').classList.remove('open');
-  document.getElementById('site-content').classList.remove('unlocked');
-  const gate = document.getElementById('gso-gate');
-  gate.style.display = '';
-  gate.style.opacity = '1';
-  gate.style.transform = '';
-  document.getElementById('gso-user-chip').classList.remove('show');
-  document.getElementById('gso-email-input').value = '';
-  hideGsoError();
-  document.getElementById('manage-nav-tab').innerHTML = '⚙️ Manage';
-}
-
-function showGsoError(msg) {
-  document.getElementById('gso-error-text').textContent = msg;
-  document.getElementById('gso-error-banner').classList.add('show');
-}
-function hideGsoError() {
-  document.getElementById('gso-error-banner').classList.remove('show');
-}
-function showToastGate(msg) {
-  // tiny inline toast inside gate — reuse main toast if available, else skip
-  try { showToast(msg); } catch(e) {}
-}
-
-// Manage tab — no extra gate needed, access already requires sign-in
-function handleManageClick() { showPage('manage'); }
-function ownerLogout() { gsoSignOut(); }
-
 // ===========================
 // DATA STORE
 // ===========================
+// Categories: { id, name, emoji }
+// Items: { id, catId, name, type, price, emoji, inStock }
+
 let categories = [
   { id: 'cat-plain', name: 'Main', emoji: ' ' },
   { id: 'cat-combo', name: 'Chapati with Curry', emoji: ' ' },
@@ -1012,6 +559,7 @@ let items = [];
 let idCounter = 1000;
 function newId() { return 'item-' + (++idCounter); }
 
+// Seed default items
 const plainRaw = [
   { name:'Godhuma Chapati', type:' ', price:10, emoji:' ' },
   { name:'Jonna Chapati', type:' ', price:12, emoji:' ' },
@@ -1036,13 +584,16 @@ comboCurries.forEach(curry => {
 const curryTypes = ['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const curryEmojis = { 'Dal Curry':' ','Aloo Tomato Curry':' ','Vankaya Curry':' ','Tomato Curry':' ','Kakarakaya Curry':' ','Cabbage Curry':' ','Palakura Pappu':' ' };
 const currySizes = [{s:'Small',p:30},{s:'Medium',p:40},{s:'Large',p:50}];
-curryTypes.forEach(ct => {
+ curryTypes.forEach(ct => {
   currySizes.forEach(sz => {
-    items.push({ id:newId(), catId:'cat-curry', name:ct, price:sz.p, emoji:curryEmojis[ct]||'🥘', inStock:true });
+    items.push({ id:newId(), catId:'cat-curry', name:ct,price:sz.p,  emoji:curryEmojis[ct]||'🥘', inStock:true });
   });
 });
 
+// Cart
 let cart = {};
+
+// Manage state
 let manageCatFilter = 'all';
 let selectedEmoji = '🍽';
 let selectedCatEmoji = '📂';
@@ -1057,6 +608,7 @@ const catEmojis = ['🌾','🍛','🥘','🫓','🍜','🥗','🍱','🧆','🥙
 // RENDER MENU
 // ===========================
 function renderMenuPage(filterCatId = 'all') {
+  // Filter bar
   const fb = document.getElementById('menu-filter-bar');
   fb.innerHTML = `<button class="mfb-tab ${filterCatId==='all'?'active':''}" onclick="renderMenuPage('all')">All</button>`;
   categories.forEach(cat => {
@@ -1200,25 +752,33 @@ function closeCart() { document.getElementById('cart-panel').classList.remove('o
 // MANAGE PAGE
 // ===========================
 function renderManagePage() {
+  // Category tabs
   const tabs = document.getElementById('manage-cat-tabs');
   tabs.innerHTML = `<button class="cat-tab ${manageCatFilter==='all'?'active':''}" onclick="setManageCatFilter('all')">All <span class="cat-count">${items.length}</span></button>`;
   categories.forEach(cat => {
     const cnt = items.filter(i => i.catId === cat.id).length;
     tabs.innerHTML += `<button class="cat-tab ${manageCatFilter===cat.id?'active':''}" onclick="setManageCatFilter('${cat.id}')">${cat.emoji} ${cat.name} <span class="cat-count">${cnt}</span></button>`;
   });
+  // Category select in add form
   const sel = document.getElementById('aip-cat');
   sel.innerHTML = categories.map(c => `<option value="${c.id}" ${manageCatFilter===c.id?'selected':''}>${c.emoji} ${c.name}</option>`).join('');
   refreshManageList();
+  // Emoji picker
   const ep = document.getElementById('aip-emoji-picker');
   ep.innerHTML = foodEmojis.map(e => `<span class="emoji-opt ${e===selectedEmoji?'selected':''}" onclick="selectEmoji('${e}')">${e}</span>`).join('');
 }
 
 function setManageCatFilter(catId) {
   manageCatFilter = catId;
+  // update tabs active
   document.querySelectorAll('#manage-cat-tabs .cat-tab').forEach((t,i)=>{
     t.classList.toggle('active', i === (catId==='all' ? 0 : categories.findIndex(c=>c.id===catId)+1));
   });
-  if(catId !== 'all') { const sel = document.getElementById('aip-cat'); if(sel) sel.value = catId; }
+  // Update category select
+  if(catId !== 'all') {
+    const sel = document.getElementById('aip-cat');
+    if(sel) sel.value = catId;
+  }
   refreshManageList();
 }
 
@@ -1267,9 +827,11 @@ function saveNewItem() {
   const inStock = document.getElementById('aip-stock').value === '1';
   const customEmoji = document.getElementById('aip-emoji-custom').value.trim();
   const emoji = customEmoji || selectedEmoji || '🍽';
+
   if(!catId) { showToast('⚠️ Select a category'); return; }
   if(!name) { document.getElementById('aip-name').focus(); showToast('⚠️ Enter item name'); return; }
   if(!price || price <= 0) { document.getElementById('aip-price').focus(); showToast('⚠️ Enter valid price'); return; }
+
   const newItem = { id: newId(), catId, name, type, price, emoji, inStock };
   items.push(newItem);
   renderMenuPage();
@@ -1501,7 +1063,7 @@ function showToast(msg) {
 // ===========================
 // INIT
 // ===========================
-gsoInit(); // shows gate or restores session; calls renderMenuPage on success
+renderMenuPage();
 </script>
 </body>
 </html>
