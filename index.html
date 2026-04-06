@@ -2283,15 +2283,15 @@
               ✕ Cancel
             </button>
             <button class="om-place" onclick="submitOrder()">
-              🛵 Confirm & Send via WhatsApp
+              🛵 Place Order
             </button>
           </div>
           <div class="om-success" id="om-success">
             <div class="om-success-icon">🎉</div>
-            <h3>Order Sent!</h3>
+            <h3>Order Placed!</h3>
             <p>
-              Your order has been sent via WhatsApp.<br />We'll confirm your
-              delivery shortly from<br /><strong
+              Your order was placed successfully.<br />We'll confirm your
+              order shortly from<br /><strong
                 >Peddha Baazar, Sircilla 📍</strong
               >
             </p>
@@ -2648,9 +2648,7 @@
         const manageBtn = document.getElementById("user-menu-manage-btn");
 
         if (currentUser) {
-          const firstName = currentUser.email.split("@")[0];
-          const firstLetter = firstName.charAt(0).toUpperCase();
-          userAvatar.textContent = firstLetter;
+          userAvatar.textContent = "☰";
           userAvatar.title = currentUser.email;
           userStatusDisplay.style.display = "flex";
           if (topSigninBtn) topSigninBtn.style.display = "none";
@@ -2745,6 +2743,7 @@
           roleButtonsContainer.style.display =
             currentUser && currentRole === "admin" ? "flex" : "none";
         }
+        syncAdminRealtimeFeatures();
         updateAuthUI();
       }
 
@@ -3440,40 +3439,8 @@
       // ORDER FLOW
       // ===========================
       function placeOrder() {
-        // Require authentication
-        if (!currentUser) {
-          showToast("⚠️ Please sign in to place your order", 2000);
-          openAuthModal();
-          return;
-        }
-
-        const name = document.getElementById("cust-name").value.trim();
-        const phone = document.getElementById("cust-phone").value.trim();
-        const address = document.getElementById("cust-address").value.trim();
-        if (!name || !phone || !address) {
-          alert("Please fill Name, Phone & Address");
-          return;
-        }
-        const keys = Object.keys(cart);
-        if (!keys.length) {
-          alert("Cart is empty!");
-          return;
-        }
-        const total = keys.reduce((a, k) => a + cart[k].price * cart[k].qty, 0);
-        if (total < 50) {
-          alert("⚠️ Minimum order value is ₹50");
-          return;
-        }
-        const itemStr = keys
-          .map(
-            (k) =>
-              `${cart[k].name} x${cart[k].qty} = ₹${cart[k].price * cart[k].qty}`,
-          )
-          .join("\n");
-        const msg = encodeURIComponent(
-          `🫓 *Chapati Express Order*\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n\n*Items:*\n${itemStr}\n\n*Total: ₹${total}*\n\nDelivery: ${document.getElementById("cust-time").value}`,
-        );
-        window.open(`https://wa.me/919999999999?text=${msg}`, "_blank");
+        // Unified flow: open modal and store order in Firestore from submitOrder()
+        openOrderModal();
       }
       function updateFloatingBar() {
         const keys = Object.keys(cart);
@@ -3557,33 +3524,9 @@
         }
         const keys = Object.keys(cart);
         const total = keys.reduce((a, k) => a + cart[k].price * cart[k].qty, 0);
-        const itemStr = keys
-          .map(
-            (k) =>
-              `• ${cart[k].name} x${cart[k].qty} = ₹${cart[k].price * cart[k].qty}`,
-          )
-          .join("\n");
         const landmark = document.getElementById("om-landmark").value.trim();
         const time = document.getElementById("om-time").value;
         const note = document.getElementById("om-note").value.trim();
-        const mapLink = `https://maps.google.com/?q=${omPinLatLng.lat},${omPinLatLng.lng}`;
-        const dist = (
-          omMap.distance(RESTAURANT, [omPinLatLng.lat, omPinLatLng.lng]) / 1000
-        ).toFixed(2);
-        const mins = Math.ceil(
-          (omMap.distance(RESTAURANT, [omPinLatLng.lat, omPinLatLng.lng]) /
-            1000) *
-            4 +
-            5,
-        );
-        let msg = `🫓 *CHAPATI EXPRESS ORDER*\n📍 Peddha Baazar, Sircilla\n\n👤 *Name:* ${name}\n📞 *Phone:* ${phone}\n🏠 *Address:* ${address}`;
-        if (landmark) msg += ` (Near ${landmark})`;
-        msg += `\n📍 *Location:* ${mapLink}\n📏 Distance: ${dist} km | ⏱ ~${mins} mins\n⏱ *Delivery:* ${time}\n\n🛒 *Items:*\n${itemStr}\n\n💰 *TOTAL: ₹${total}*`;
-        if (note) msg += `\n\n📝 *Note:* ${note}`;
-        window.open(
-          "https://wa.me/919999999999?text=" + encodeURIComponent(msg),
-          "_blank",
-        );
 
         // Save order to Firestore (for Orders + Admin management)
         try {
@@ -3621,7 +3564,7 @@
         document.querySelector(".om-actions").style.display = "none";
         document.getElementById("om-success").style.display = "block";
 
-        // Close popup in 5s and go home
+        // Close popup in 3s and go home
         setTimeout(() => {
           closeOrderModal();
           showPage("menu");
@@ -3629,7 +3572,7 @@
           cart = {};
           renderCart();
           updateFloatingBar();
-        }, 5000);
+        }, 3000);
       }
 
       // ===========================
@@ -4038,6 +3981,10 @@
       // ORDERS (Firestore)
       // ===========================
       let _ordersUnsub = null;
+      let _adminFeedUnsub = null;
+      let _adminFeedInitialized = false;
+      let _autoRejectTicker = null;
+      const ORDER_AUTO_REJECT_MINUTES = 5;
 
       function openOrdersModal() {
         closeUserMenu();
@@ -4060,13 +4007,13 @@
       function subscribeOrders() {
         if (!db || !currentUser?.email) return;
         if (_ordersUnsub) _ordersUnsub();
-        const q = db
-          .collection("orders")
-          .where("customerEmail", "==", currentUser.email)
-          .orderBy("createdAt", "desc")
-          .limit(30);
+        const q = db.collection("orders").orderBy("createdAt", "desc").limit(200);
         _ordersUnsub = q.onSnapshot((snap) => {
-          renderOrdersList(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+          let orders = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+          if (currentRole !== "admin") {
+            orders = orders.filter((o) => o.customerEmail === currentUser.email);
+          }
+          renderOrdersList(orders);
         });
       }
       function badgeForStatus(s) {
@@ -4108,6 +4055,11 @@
                 </div>
               </div>
               <div style="margin-top:8px;color:#555;line-height:1.35;">
+                <div><strong>Customer:</strong> ${(o.customerName || "—")
+                  .toString()
+                  .replace(/</g, "&lt;")} (${(o.customerEmail || "—")
+                  .toString()
+                  .replace(/</g, "&lt;")})</div>
                 <div><strong>Address:</strong> ${(o.addressText || "—")
                   .toString()
                   .replace(/</g, "&lt;")}</div>
@@ -4115,9 +4067,119 @@
                   itemLine || "—"
                 }${items.length > 4 ? "…" : ""}</div>
               </div>
+              ${
+                currentRole === "admin"
+                  ? `<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                      <button class="cat-save-btn" onclick="updateOrderStatus('${o.id}','accepted')" ${
+                        o.status === "accepted" ? "disabled" : ""
+                      }>✅ Accept</button>
+                      <button class="cat-cancel-btn" onclick="updateOrderStatus('${o.id}','rejected')" ${
+                        o.status === "rejected" ? "disabled" : ""
+                      }>❌ Reject</button>
+                    </div>`
+                  : ""
+              }
             </div>`;
           })
           .join("");
+      }
+
+      async function updateOrderStatus(orderId, status) {
+        if (currentRole !== "admin" || !db) {
+          showToast("⚠️ Only admin can update order status");
+          return;
+        }
+        await db.collection("orders").doc(orderId).set(
+          {
+            status,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          },
+          { merge: true },
+        );
+        showToast(
+          status === "accepted" ? "✅ Order accepted" : "❌ Order rejected",
+          1800,
+        );
+      }
+
+      function startAdminOrderNotifications() {
+        if (!db || currentRole !== "admin") return;
+        if (_adminFeedUnsub) _adminFeedUnsub();
+        _adminFeedInitialized = false;
+        _adminFeedUnsub = db
+          .collection("orders")
+          .orderBy("createdAt", "desc")
+          .limit(40)
+          .onSnapshot((snap) => {
+            const changes = snap.docChanges();
+            if (!_adminFeedInitialized) {
+              _adminFeedInitialized = true;
+              return;
+            }
+            changes.forEach((ch) => {
+              if (ch.type === "added") {
+                const d = ch.doc.data() || {};
+                if ((d.status || "pending") === "pending") {
+                  playOrderPlacedSound();
+                  showToast("🔔 New order received", 1600);
+                }
+              }
+            });
+          });
+      }
+      function stopAdminOrderNotifications() {
+        if (_adminFeedUnsub) {
+          _adminFeedUnsub();
+          _adminFeedUnsub = null;
+        }
+      }
+      async function runOrderAutoRejectSweep() {
+        if (!db || currentRole !== "admin") return;
+        const cutoffMs = Date.now() - ORDER_AUTO_REJECT_MINUTES * 60 * 1000;
+        const snap = await db
+          .collection("orders")
+          .where("status", "==", "pending")
+          .get();
+        const pending = snap.docs.filter((d) => {
+          const data = d.data() || {};
+          if (!data.createdAt || !data.createdAt.toDate) return false;
+          return data.createdAt.toDate().getTime() <= cutoffMs;
+        });
+        await Promise.all(
+          pending.map((d) =>
+            d.ref.set(
+              {
+                status: "rejected",
+                autoRejected: true,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              },
+              { merge: true },
+            ),
+          ),
+        );
+      }
+      function startAutoRejectTicker() {
+        stopAutoRejectTicker();
+        if (!db || currentRole !== "admin") return;
+        runOrderAutoRejectSweep().catch(() => {});
+        _autoRejectTicker = setInterval(() => {
+          runOrderAutoRejectSweep().catch(() => {});
+        }, 60 * 1000);
+      }
+      function stopAutoRejectTicker() {
+        if (_autoRejectTicker) {
+          clearInterval(_autoRejectTicker);
+          _autoRejectTicker = null;
+        }
+      }
+      function syncAdminRealtimeFeatures() {
+        if (currentUser && currentRole === "admin") {
+          if (!_adminFeedUnsub) startAdminOrderNotifications();
+          if (!_autoRejectTicker) startAutoRejectTicker();
+        } else {
+          stopAdminOrderNotifications();
+          stopAutoRejectTicker();
+        }
       }
 
       // ===========================
