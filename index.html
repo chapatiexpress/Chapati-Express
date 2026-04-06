@@ -1813,7 +1813,13 @@
               <button class="user-menu-item" onclick="userMenuGo('menu')">🍽 Menu</button>
               <button class="user-menu-item" onclick="userMenuGo('order')">📋 Order</button>
               <button class="user-menu-item" onclick="userMenuGo('delivery')">🗺 Delivery</button>
-              <button class="user-menu-item" onclick="openOrdersModal()">🧾 Orders</button>
+              <button
+                class="user-menu-item"
+                id="user-menu-orders-btn"
+                onclick="openOrdersModal()"
+              >
+                🧾 My Orders
+              </button>
               <button class="user-menu-item" onclick="openAddressModal()">🏠 Addresses</button>
               <button
                 class="user-menu-item"
@@ -2469,8 +2475,8 @@
     <div class="auth-overlay" id="orders-overlay">
       <div class="auth-modal" style="max-width: 860px">
         <div class="auth-modal-header">
-          <h2>🧾 Your Orders</h2>
-          <p>Pending / Accepted / Rejected</p>
+          <h2 id="orders-modal-title">🧾 My Orders</h2>
+          <p id="orders-modal-subtitle">Pending / Accepted / Rejected / Completed</p>
         </div>
         <div class="auth-modal-body">
           <div style="display: flex; justify-content: space-between; gap: 10px">
@@ -2618,6 +2624,63 @@
           o.stop(now + 0.36);
           setTimeout(() => ctx.close().catch(() => {}), 600);
         } catch (_) {}
+      }
+      let _adminRingtonePlaying = false;
+      function playAdminNewOrderRingtone() {
+        if (_adminRingtonePlaying) return;
+        _adminRingtonePlaying = true;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) {
+            _adminRingtonePlaying = false;
+            return;
+          }
+          const ctx = new AudioCtx();
+          // Zomato-like pattern: bright paired chimes, repeated in quick bursts.
+          const pattern = [
+            { t: 0.0, f1: 784, f2: 1175, d: 0.10, v: 0.28 },
+            { t: 0.14, f1: 880, f2: 1319, d: 0.10, v: 0.28 },
+            { t: 0.35, f1: 784, f2: 1175, d: 0.10, v: 0.26 },
+            { t: 0.49, f1: 988, f2: 1480, d: 0.12, v: 0.26 },
+            { t: 0.80, f1: 784, f2: 1175, d: 0.10, v: 0.28 },
+            { t: 0.94, f1: 880, f2: 1319, d: 0.10, v: 0.28 },
+            { t: 1.15, f1: 1047, f2: 1568, d: 0.14, v: 0.26 },
+          ];
+          const start = ctx.currentTime;
+          pattern.forEach((n) => {
+            const master = ctx.createGain();
+            master.gain.setValueAtTime(0.0001, start + n.t);
+            master.gain.exponentialRampToValueAtTime(
+              n.v,
+              start + n.t + 0.012,
+            );
+            master.gain.exponentialRampToValueAtTime(
+              0.0001,
+              start + n.t + n.d,
+            );
+            master.connect(ctx.destination);
+
+            const osc1 = ctx.createOscillator();
+            osc1.type = "triangle";
+            osc1.frequency.setValueAtTime(n.f1, start + n.t);
+            osc1.connect(master);
+            osc1.start(start + n.t);
+            osc1.stop(start + n.t + n.d + 0.01);
+
+            const osc2 = ctx.createOscillator();
+            osc2.type = "sine";
+            osc2.frequency.setValueAtTime(n.f2, start + n.t);
+            osc2.connect(master);
+            osc2.start(start + n.t);
+            osc2.stop(start + n.t + n.d + 0.01);
+          });
+          setTimeout(() => {
+            ctx.close().catch(() => {});
+            _adminRingtonePlaying = false;
+          }, 2200);
+        } catch (_) {
+          _adminRingtonePlaying = false;
+        }
       }
 
       // Wait for Firebase to load
@@ -2832,7 +2895,13 @@
           roleButtonsContainer.style.display =
             currentUser && currentRole === "admin" ? "flex" : "none";
         }
+        const ordersBtn = document.getElementById("user-menu-orders-btn");
+        if (ordersBtn) {
+          ordersBtn.textContent =
+            currentUser && currentRole === "admin" ? "🧾 Orders" : "🧾 My Orders";
+        }
         syncAdminRealtimeFeatures();
+        syncCustomerOrderWatcher();
         updateAuthUI();
       }
 
@@ -4070,6 +4139,8 @@
       // ORDERS (Firestore)
       // ===========================
       let _ordersUnsub = null;
+      let _customerOrderStatusUnsub = null;
+      let _customerOrderWatcherReady = false;
       let _adminFeedUnsub = null;
       let _adminFeedInitialized = false;
       let _autoRejectTicker = null;
@@ -4083,6 +4154,12 @@
         }
         document.getElementById("orders-user-email").textContent =
           currentUser.email || "—";
+        document.getElementById("orders-modal-title").textContent =
+          currentRole === "admin" ? "🧾 All Orders" : "🧾 My Orders";
+        document.getElementById("orders-modal-subtitle").textContent =
+          currentRole === "admin"
+            ? "All customer orders"
+            : "Pending / Accepted / Rejected / Completed";
         document.getElementById("orders-overlay").classList.add("open");
         subscribeOrders();
       }
@@ -4234,7 +4311,7 @@
         }</div>
         `;
         popup.style.display = "block";
-        playOrderPlacedSound();
+        playAdminNewOrderRingtone();
       }
       function closeAdminOrderPopup() {
         document.getElementById("admin-order-popup").style.display = "none";
@@ -4317,6 +4394,47 @@
           clearInterval(_autoRejectTicker);
           _autoRejectTicker = null;
         }
+      }
+      function syncCustomerOrderWatcher() {
+        if (
+          !db ||
+          !currentUser ||
+          currentRole === "admin" ||
+          !currentUser.email
+        ) {
+          if (_customerOrderStatusUnsub) {
+            _customerOrderStatusUnsub();
+            _customerOrderStatusUnsub = null;
+          }
+          _customerOrderWatcherReady = false;
+          return;
+        }
+        if (_customerOrderStatusUnsub) return;
+
+        _customerOrderWatcherReady = false;
+        _customerOrderStatusUnsub = db
+          .collection("orders")
+          .where("customerEmail", "==", currentUser.email)
+          .orderBy("updatedAt", "desc")
+          .limit(30)
+          .onSnapshot((snap) => {
+            if (!_customerOrderWatcherReady) {
+              _customerOrderWatcherReady = true;
+              return;
+            }
+            snap.docChanges().forEach((ch) => {
+              if (ch.type !== "modified") return;
+              const data = ch.doc.data() || {};
+              const st = (data.status || "").toLowerCase();
+              if (st === "accepted") {
+                showToast("✅ Your order was accepted", 2200);
+              } else if (st === "rejected") {
+                showToast("❌ Your order was rejected", 2400);
+              } else if (st === "completed") {
+                showToast("🎉 Your order is completed", 2200);
+              }
+            });
+          });
       }
       function syncAdminRealtimeFeatures() {
         if (currentUser && currentRole === "admin") {
