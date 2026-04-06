@@ -2303,7 +2303,7 @@
       </div>
     </div>
 
-    <!-- NEW CATEGORY MODAL -->
+    <!-- NEW CATEGORY MODAL -->a
     <div class="cat-modal-overlay" id="cat-modal-overlay">
       <div class="cat-modal">
         <div class="cat-modal-head">
@@ -2464,6 +2464,73 @@
             style="display: grid; gap: 10px; margin-top: 12px"
           ></div>
         </div>
+      </div>
+    </div>
+
+    <!-- ADMIN INCOMING ORDER POPUP -->
+    <div
+      id="admin-order-popup"
+      style="
+        position: fixed;
+        right: 18px;
+        bottom: 18px;
+        width: min(420px, calc(100vw - 24px));
+        background: #fff;
+        border: 2px solid #f0dcc0;
+        border-radius: 16px;
+        box-shadow: 0 10px 26px rgba(0, 0, 0, 0.18);
+        z-index: 260;
+        display: none;
+      "
+    >
+      <div
+        style="
+          padding: 10px 14px;
+          border-bottom: 1px solid #f0dcc0;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: #fff7ea;
+          border-top-left-radius: 14px;
+          border-top-right-radius: 14px;
+        "
+      >
+        <strong style="color: #7a3b10">🔔 New Order</strong>
+        <button
+          onclick="closeAdminOrderPopup()"
+          style="
+            border: none;
+            background: transparent;
+            font-size: 1rem;
+            cursor: pointer;
+          "
+        >
+          ✕
+        </button>
+      </div>
+      <div id="admin-order-popup-body" style="padding: 12px 14px; color: #333"></div>
+      <div style="display: flex; gap: 8px; padding: 0 14px 14px">
+        <button
+          class="cat-save-btn"
+          style="flex: 1"
+          onclick="adminPopupUpdateStatus('accepted')"
+        >
+          ✅ Accept
+        </button>
+        <button
+          class="cat-cancel-btn"
+          style="flex: 1"
+          onclick="adminPopupUpdateStatus('rejected')"
+        >
+          ❌ Reject
+        </button>
+        <button
+          class="cat-save-btn"
+          style="flex: 1; background: #1565c0"
+          onclick="adminPopupUpdateStatus('completed')"
+        >
+          🎯 Complete
+        </button>
       </div>
     </div>
 
@@ -4022,6 +4089,8 @@
           return `<span class="om-route-badge" style="background:#e9f7ee;color:#1b5e20;border-color:#cdebd7;">✅ Accepted</span>`;
         if (t === "rejected")
           return `<span class="om-route-badge" style="background:#fff0f0;color:#8b1b1b;border-color:#ffd1d1;">❌ Rejected</span>`;
+        if (t === "completed")
+          return `<span class="om-route-badge" style="background:#e8f1ff;color:#0d47a1;border-color:#cddfff;">🎯 Completed</span>`;
         return `<span class="om-route-badge" style="background:#fff7ea;color:#7a3b10;border-color:#f0dcc0;">⏳ Pending</span>`;
       }
       function renderOrdersList(orders) {
@@ -4076,6 +4145,9 @@
                       <button class="cat-cancel-btn" onclick="updateOrderStatus('${o.id}','rejected')" ${
                         o.status === "rejected" ? "disabled" : ""
                       }>❌ Reject</button>
+                      <button class="cat-save-btn" style="background:#1565C0;" onclick="updateOrderStatus('${o.id}','completed')" ${
+                        o.status === "completed" ? "disabled" : ""
+                      }>🎯 Complete</button>
                     </div>`
                   : ""
               }
@@ -4096,10 +4168,62 @@
           },
           { merge: true },
         );
-        showToast(
-          status === "accepted" ? "✅ Order accepted" : "❌ Order rejected",
-          1800,
-        );
+        const map = {
+          accepted: "✅ Order accepted",
+          rejected: "❌ Order rejected",
+          completed: "🎯 Order completed",
+        };
+        showToast(map[status] || "✅ Order updated", 1800);
+      }
+
+      let _adminOrderPopupQueue = [];
+      let _adminPopupOrder = null;
+      function showAdminOrderPopup(order) {
+        if (!order || !order.id) return;
+        if (_adminPopupOrder) {
+          _adminOrderPopupQueue.push(order);
+          return;
+        }
+        _adminPopupOrder = order;
+        const popup = document.getElementById("admin-order-popup");
+        const body = document.getElementById("admin-order-popup-body");
+        const items = Array.isArray(order.items) ? order.items : [];
+        const itemText = items
+          .slice(0, 6)
+          .map((it) => `${it.name} × ${it.qty}`)
+          .join(", ");
+        body.innerHTML = `
+          <div><strong>Customer:</strong> ${(order.customerName || "—")
+            .toString()
+            .replace(/</g, "&lt;")} (${(order.customerEmail || "—")
+            .toString()
+            .replace(/</g, "&lt;")})</div>
+          <div style="margin-top:6px;"><strong>Phone:</strong> ${(order.customerPhone ||
+            "—")
+            .toString()
+            .replace(/</g, "&lt;")}</div>
+          <div style="margin-top:6px;"><strong>Address:</strong> ${(order.addressText ||
+            "—")
+            .toString()
+            .replace(/</g, "&lt;")}</div>
+          <div style="margin-top:6px;"><strong>Total:</strong> ₹${order.total || 0}</div>
+          <div style="margin-top:6px;"><strong>Items:</strong> ${itemText || "—"}${
+          items.length > 6 ? "…" : ""
+        }</div>
+        `;
+        popup.style.display = "block";
+        playOrderPlacedSound();
+      }
+      function closeAdminOrderPopup() {
+        document.getElementById("admin-order-popup").style.display = "none";
+        _adminPopupOrder = null;
+        const next = _adminOrderPopupQueue.shift();
+        if (next) setTimeout(() => showAdminOrderPopup(next), 120);
+      }
+      async function adminPopupUpdateStatus(status) {
+        if (!_adminPopupOrder) return;
+        await updateOrderStatus(_adminPopupOrder.id, status);
+        closeAdminOrderPopup();
       }
 
       function startAdminOrderNotifications() {
@@ -4120,8 +4244,8 @@
               if (ch.type === "added") {
                 const d = ch.doc.data() || {};
                 if ((d.status || "pending") === "pending") {
-                  playOrderPlacedSound();
                   showToast("🔔 New order received", 1600);
+                  showAdminOrderPopup({ id: ch.doc.id, ...d });
                 }
               }
             });
