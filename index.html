@@ -1617,9 +1617,10 @@
         .user-menu-popup {
           position: fixed;
           top: 86px;
-          left: 10px;
-          right: 10px;
-          width: auto;
+          left: 50%;
+          right: auto;
+          transform: translateX(-50%);
+          width: min(360px, calc(100vw - 20px));
           max-height: calc(100vh - 110px);
           overflow-y: auto;
           z-index: 1005;
@@ -2014,7 +2015,7 @@
             ></div>
           </div>
           <button class="place-order-btn" onclick="placeOrder()">
-            🚴 Place Order via WhatsApp
+            🚴 Place Order
           </button>
         </div>
       </div>
