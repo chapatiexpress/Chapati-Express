@@ -180,6 +180,80 @@
         border-color: var(--turmeric);
       }
 
+      /* ===== USER MENU (avatar dropdown) ===== */
+      .user-menu {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .signin-top-btn {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        padding: 9px 14px;
+        border-radius: 18px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 800;
+      }
+      .signin-top-btn:hover {
+        background: rgba(255, 255, 255, 0.18);
+        border-color: rgba(255, 255, 255, 0.4);
+      }
+      .user-menu-popup {
+        position: absolute;
+        top: 46px;
+        right: 0;
+        width: 240px;
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        display: none;
+        overflow: hidden;
+        z-index: 120;
+      }
+      .user-menu-popup.open {
+        display: block;
+      }
+      .user-menu-head {
+        padding: 12px 14px;
+        background: linear-gradient(135deg, #fff7ea 0%, #fff 70%);
+        border-bottom: 1px solid var(--border);
+      }
+      .user-menu-head .email {
+        font-weight: 900;
+        color: var(--brown);
+        font-size: 0.82rem;
+        word-break: break-all;
+      }
+      .user-menu-actions {
+        padding: 8px;
+        display: grid;
+        gap: 8px;
+      }
+      .user-menu-item {
+        width: 100%;
+        text-align: left;
+        padding: 10px 12px;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        background: #fff;
+        cursor: pointer;
+        font-weight: 800;
+        color: var(--deep);
+      }
+      .user-menu-item:hover {
+        border-color: rgba(232, 130, 12, 0.5);
+        transform: translateY(-1px);
+      }
+      .user-menu-item.danger {
+        border-color: #ffcccc;
+        color: #a31212;
+        background: #fff5f5;
+      }
+
       /* ===== HERO ===== */
       .hero {
         background: linear-gradient(
@@ -851,190 +925,6 @@
         color: #856404;
         display: none;
         margin-top: 12px;
-      }
-
-      /* ===== ORDERS DASHBOARD ===== */
-      .orders-section {
-        margin-top: 20px;
-      }
-      .orders-header {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-      }
-      .order-filter-btn {
-        padding: 8px 16px;
-        border-radius: 20px;
-        border: 2px solid var(--border);
-        background: #fff;
-        color: var(--brown);
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s;
-        font-size: 0.85rem;
-      }
-      .order-filter-btn.active {
-        background: var(--saffron);
-        border-color: var(--saffron);
-        color: #fff;
-      }
-      .order-filter-btn:hover {
-        border-color: var(--saffron);
-        color: var(--saffron);
-      }
-      .orders-list {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-      }
-      .order-card {
-        background: var(--card-bg);
-        border: 1.5px solid var(--border);
-        border-radius: 14px;
-        padding: 18px;
-        box-shadow: var(--shadow);
-      }
-      .order-card.urgent {
-        border-color: var(--red);
-        background: #fff5f5;
-        animation: pulse 1s infinite;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          box-shadow: var(--shadow);
-        }
-        50% {
-          box-shadow: 0 0 20px rgba(198, 40, 40, 0.4);
-        }
-      }
-      .order-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-      .order-id {
-        font-family: "Yeseva One", serif;
-        font-weight: 700;
-        color: var(--brown);
-        font-size: 1.05rem;
-      }
-      .order-status-badge {
-        padding: 6px 14px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-      .status-pending {
-        background: #fff3cd;
-        color: #856404;
-      }
-      .status-accepted {
-        background: #d1ecf1;
-        color: #0c5460;
-      }
-      .status-in-progress {
-        background: #cce5ff;
-        color: #004085;
-      }
-      .status-sent {
-        background: #d4edda;
-        color: #155724;
-      }
-      .status-delivered {
-        background: #e8f5e9;
-        color: #2e7d32;
-      }
-      .order-customer {
-        font-weight: 700;
-        color: var(--brown);
-        margin-bottom: 8px;
-      }
-      .order-details {
-        font-size: 0.9rem;
-        color: #666;
-        margin-bottom: 10px;
-        line-height: 1.5;
-      }
-      .order-items {
-        background: #f9f9f9;
-        padding: 10px;
-        border-radius: 8px;
-        margin: 10px 0;
-        font-size: 0.85rem;
-      }
-      .order-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 4px 0;
-      }
-      .order-total {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--saffron);
-        margin: 8px 0;
-      }
-      .order-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-top: 12px;
-      }
-      .order-action-btn {
-        padding: 8px 14px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 700;
-        cursor: pointer;
-        font-size: 0.8rem;
-        transition: all 0.2s;
-      }
-      .btn-accept {
-        background: #d4edda;
-        color: #155724;
-      }
-      .btn-accept:hover {
-        background: #155724;
-        color: #fff;
-      }
-      .btn-progress {
-        background: #cce5ff;
-        color: #004085;
-      }
-      .btn-progress:hover {
-        background: #004085;
-        color: #fff;
-      }
-      .btn-sent {
-        background: #d1ecf1;
-        color: #0c5460;
-      }
-      .btn-sent:hover {
-        background: #0c5460;
-        color: #fff;
-      }
-      .btn-delivered {
-        background: #e8f5e9;
-        color: #2e7d32;
-      }
-      .btn-delivered:hover {
-        background: #2e7d32;
-        color: #fff;
-      }
-      .orders-empty {
-        text-align: center;
-        padding: 40px 20px;
-        color: #999;
-      }
-      .orders-empty-icon {
-        font-size: 3rem;
-        margin-bottom: 10px;
       }
 
       /* ===== ORDER / MAP pages (same as before) ===== */
@@ -1881,67 +1771,56 @@
             <div class="logo-sub">Fresh · Hot · Delivered</div>
           </div>
         </div>
-        <div class="nav-tabs">
-          <button class="nav-tab active" onclick="showPage('menu')">
-            🍽 Menu
-          </button>
+        <div class="user-menu">
           <button
-            class="nav-tab"
-            id="order-nav"
-            onclick="showPage('order')"
+            id="signin-top-btn"
+            class="signin-top-btn"
+            onclick="signInWithGoogle()"
             style="display: none"
           >
-            📋 Order
+            Sign in with Google
           </button>
-          <button
-            class="nav-tab"
-            id="delivery-nav"
-            onclick="showPage('delivery')"
-            style="display: none"
-          >
-            🗺 Delivery
-          </button>
-          <button
-            class="nav-tab"
-            id="my-orders-nav"
-            onclick="showPage('my-orders')"
-            style="display: none"
-          >
-            📦 My Orders
-          </button>
-          <button
-            class="nav-tab manage-tab"
-            id="manage-nav"
-            onclick="showPage('manage')"
-            style="display: none"
-          >
-            ⚙️ Manage
-          </button>
-        </div>
-        <div style="display: flex; gap: 8px; align-items: center">
-          <div id="role-buttons-container" style="display: none; gap: 8px">
-            <button
-              id="customer-btn"
-              class="role-btn active"
-              onclick="switchRole('customer')"
-            >
-              👤 Customer
-            </button>
-            <button
-              id="admin-btn"
-              class="role-btn"
-              onclick="switchRole('admin')"
-            >
-              👨‍💼 Admin
-            </button>
+          <div id="user-status-display" class="user-status" style="display: none">
+            <div class="user-avatar" id="user-avatar" onclick="toggleUserMenu()"></div>
           </div>
-          <div
-            id="user-status-display"
-            class="user-status"
-            style="display: none"
-          >
-            <div class="user-avatar" id="user-avatar"></div>
-            <button class="logout-btn" onclick="logoutUser()">Logout</button>
+          <div class="user-menu-popup" id="user-menu-popup">
+            <div class="user-menu-head">
+              <div class="email" id="user-menu-email">—</div>
+            </div>
+            <div class="user-menu-actions">
+              <button class="user-menu-item" onclick="userMenuGo('menu')">🍽 Menu</button>
+              <button class="user-menu-item" onclick="userMenuGo('order')">📋 Order</button>
+              <button class="user-menu-item" onclick="userMenuGo('delivery')">🗺 Delivery</button>
+              <button class="user-menu-item" onclick="openOrdersModal()">🧾 Orders</button>
+              <button class="user-menu-item" onclick="openAddressModal()">🏠 Addresses</button>
+              <button
+                class="user-menu-item"
+                id="user-menu-manage-btn"
+                onclick="userMenuGo('manage')"
+                style="display: none"
+              >
+                ⚙️ Manage
+              </button>
+              <div id="role-buttons-container" style="display: none; gap: 8px">
+                <button
+                  id="customer-btn"
+                  class="role-btn active"
+                  onclick="switchRole('customer')"
+                  style="width: 100%"
+                >
+                  👤 Customer
+                </button>
+                <button
+                  id="admin-btn"
+                  class="role-btn"
+                  onclick="switchRole('admin')"
+                  style="width: 100%"
+                >
+                  👨‍💼 Admin
+                </button>
+              </div>
+              <button class="user-menu-item danger" onclick="logoutUser()">Logout</button>
+            </div>
           </div>
         </div>
         <button class="cart-btn" onclick="openCart()">
@@ -2055,37 +1934,12 @@
               />
             </div>
             <div class="form-group full">
-              <label>Delivery Address</label>
-              <select
-                class="address-dropdown"
+              <label>Delivery Address</label
+              ><textarea
                 id="cust-address"
-                style="
-                  width: 100%;
-                  padding: 8px;
-                  border: 1px solid #ccc;
-                  border-radius: 6px;
-                  font-family: &quot;Lato&quot;, sans-serif;
-                "
-              >
-                <option value="">-- Select saved address --</option>
-              </select>
-              <button
-                type="button"
-                onclick="openAddManAModal('cust')"
-                style="
-                  width: 100%;
-                  margin-top: 8px;
-                  padding: 10px;
-                  background: #2196f3;
-                  color: #fff;
-                  border: none;
-                  border-radius: 6px;
-                  cursor: pointer;
-                  font-weight: 700;
-                "
-              >
-                + Add New Address
-              </button>
+                rows="2"
+                placeholder="House No., Street, Area, Sircilla..."
+              ></textarea>
             </div>
             <div class="form-group">
               <label>Landmark</label
@@ -2139,7 +1993,7 @@
             ></div>
           </div>
           <button class="place-order-btn" onclick="placeOrder()">
-            🚴 Place Your Order
+            🚴 Place Order via WhatsApp
           </button>
         </div>
       </div>
@@ -2179,30 +2033,6 @@
               font-weight: 700;
             "
           ></div>
-        </div>
-      </div>
-
-      <!-- ===== MY ORDERS PAGE (CUSTOMER) ===== -->
-      <div class="page" id="page-my-orders">
-        <div style="max-width: 900px; margin: 0 auto">
-          <h2
-            style="
-              margin-bottom: 24px;
-              font-family: &quot;Yeseva One&quot;, serif;
-              color: var(--brown);
-              font-size: 1.8rem;
-            "
-          >
-            📦 My Orders
-          </h2>
-          <div id="my-orders-list" style="display: grid; gap: 16px"></div>
-          <div
-            id="my-orders-empty"
-            style="text-align: center; padding: 40px 20px; color: #999"
-          >
-            <div style="font-size: 3rem; margin-bottom: 12px">🛒</div>
-            <p>No orders yet. <strong>Start ordering now!</strong></p>
-          </div>
         </div>
       </div>
 
@@ -2330,85 +2160,6 @@
           </div>
         </div>
         <div class="manage-items-grid" id="manage-items-list"></div>
-
-        <!-- Orders Dashboard -->
-        <div class="orders-section">
-          <div
-            style="
-              display: flex;
-              align-items: center;
-              gap: 10px;
-              margin-bottom: 20px;
-              border-bottom: 3px solid var(--saffron);
-              padding-bottom: 10px;
-            "
-          >
-            <span style="font-size: 1.6rem">📦</span>
-            <h2
-              style="
-                margin: 0;
-                color: var(--brown);
-                font-family: &quot;Yeseva One&quot;, serif;
-                font-size: 1.4rem;
-              "
-            >
-              Orders
-            </h2>
-            <span
-              id="orders-count"
-              style="
-                background: var(--red);
-                color: #fff;
-                border-radius: 50%;
-                width: 28px;
-                height: 28px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: 700;
-                font-size: 0.85rem;
-              "
-              >0</span
-            >
-          </div>
-
-          <div class="orders-header">
-            <button
-              class="order-filter-btn active"
-              onclick="filterOrders('pending')"
-            >
-              🔴 Pending
-            </button>
-            <button class="order-filter-btn" onclick="filterOrders('accepted')">
-              ✅ Accepted
-            </button>
-            <button
-              class="order-filter-btn"
-              onclick="filterOrders('in-progress')"
-            >
-              👨‍🍳 In Progress
-            </button>
-            <button class="order-filter-btn" onclick="filterOrders('sent')">
-              🚴 Sent
-            </button>
-            <button
-              class="order-filter-btn"
-              onclick="filterOrders('delivered')"
-            >
-              ✓ Delivered
-            </button>
-            <button class="order-filter-btn" onclick="filterOrders('all')">
-              📋 All
-            </button>
-          </div>
-
-          <div class="orders-list" id="orders-list">
-            <div class="orders-empty">
-              <div class="orders-empty-icon">📦</div>
-              <div>No orders yet</div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -2532,15 +2283,17 @@
               ✕ Cancel
             </button>
             <button class="om-place" onclick="submitOrder()">
-              ✅ Confirm & Place Order
+              🛵 Confirm & Send via WhatsApp
             </button>
           </div>
           <div class="om-success" id="om-success">
             <div class="om-success-icon">🎉</div>
-            <h3>Order Confirmed!</h3>
+            <h3>Order Sent!</h3>
             <p>
-              Your order has been received.<br />We'll confirm your delivery
-              shortly from<br /><strong>Peddha Baazar, Sircilla 📍</strong>
+              Your order has been sent via WhatsApp.<br />We'll confirm your
+              delivery shortly from<br /><strong
+                >Peddha Baazar, Sircilla 📍</strong
+              >
             </p>
             <button class="om-done-btn" onclick="closeOrderModal()">
               Done
@@ -2586,6 +2339,134 @@
       </div>
     </div>
 
+    <!-- ADDRESSES MODAL -->
+    <div class="auth-overlay" id="address-overlay">
+      <div class="auth-modal" style="max-width: 740px">
+        <div class="auth-modal-header">
+          <h2>🏠 Your Addresses</h2>
+          <p>Max 5 saved addresses · Only within 4km service area</p>
+        </div>
+        <div class="auth-modal-body">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 12px;
+            "
+          >
+            <div style="font-weight: 800; color: var(--brown)">
+              Signed in as: <span id="addr-user-email">—</span>
+            </div>
+            <div style="display: flex; gap: 8px">
+              <button class="cat-cancel-btn" onclick="closeAddressModal()">
+                Close
+              </button>
+              <button class="cat-save-btn" onclick="openAddressEditor()">
+                ➕ Add Address
+              </button>
+            </div>
+          </div>
+          <div id="address-list" style="display: grid; gap: 10px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADDRESS EDITOR MODAL -->
+    <div class="auth-overlay" id="address-editor-overlay">
+      <div class="auth-modal" style="max-width: 760px">
+        <div class="auth-modal-header">
+          <h2 id="addr-editor-title">➕ Add Address</h2>
+          <p>Pick a location and fill address details</p>
+        </div>
+        <div class="auth-modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Label *</label
+              ><input id="addr-label" type="text" placeholder="Home / Office" />
+            </div>
+            <div class="form-group">
+              <label>Phone (optional)</label
+              ><input id="addr-phone" type="tel" placeholder="+91 XXXXX XXXXX" />
+            </div>
+            <div class="form-group full">
+              <label>Full Address *</label
+              ><textarea
+                id="addr-line"
+                rows="2"
+                placeholder="House No., Street, Area, Sircilla..."
+              ></textarea>
+            </div>
+            <div class="form-group full">
+              <div class="om-map-shell" style="margin-top: 4px">
+                <div class="om-map-head">
+                  <div style="font-weight: 900; color: var(--brown)">
+                    📍 Pin Location (must be within 4km)
+                  </div>
+                  <div style="display: flex; gap: 8px">
+                    <button class="om-gps-btn" onclick="addrUseMyLocation()">
+                      🎯 Use My Current Location
+                    </button>
+                  </div>
+                </div>
+                <div
+                  id="addr-map"
+                  style="height: 260px; border-radius: 12px"
+                ></div>
+                <div
+                  id="addr-map-info"
+                  style="
+                    margin-top: 10px;
+                    font-size: 0.88rem;
+                    color: #444;
+                    display: flex;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <span class="om-route-badge" id="addr-coords">—</span>
+                  <span class="om-route-badge" id="addr-distance">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="cat-modal-actions" style="margin-top: 10px">
+            <button class="cat-cancel-btn" onclick="closeAddressEditor()">
+              Cancel
+            </button>
+            <button class="cat-save-btn" onclick="saveAddressFromEditor()">
+              ✅ Save Address
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ORDERS MODAL -->
+    <div class="auth-overlay" id="orders-overlay">
+      <div class="auth-modal" style="max-width: 860px">
+        <div class="auth-modal-header">
+          <h2>🧾 Your Orders</h2>
+          <p>Pending / Accepted / Rejected</p>
+        </div>
+        <div class="auth-modal-body">
+          <div style="display: flex; justify-content: space-between; gap: 10px">
+            <div style="font-weight: 800; color: var(--brown)">
+              Signed in as: <span id="orders-user-email">—</span>
+            </div>
+            <button class="cat-cancel-btn" onclick="closeOrdersModal()">
+              Close
+            </button>
+          </div>
+          <div
+            id="orders-list"
+            style="display: grid; gap: 10px; margin-top: 12px"
+          ></div>
+        </div>
+      </div>
+    </div>
+
     <script>
       // ===========================
       // FIREBASE AUTHENTICATION
@@ -2604,6 +2485,52 @@
       let currentUser = null;
       let db = null;
 
+      const SERVICE_CENTER = { lat: 18.38973, lng: 78.812042 };
+      const MAX_SERVICE_DISTANCE_M = 4000;
+
+      function distanceMeters(a, b) {
+        const R = 6371000;
+        const toRad = (deg) => (deg * Math.PI) / 180;
+        const dLat = toRad(b.lat - a.lat);
+        const dLng = toRad(b.lng - a.lng);
+        const lat1 = toRad(a.lat);
+        const lat2 = toRad(b.lat);
+        const sinDLat = Math.sin(dLat / 2);
+        const sinDLng = Math.sin(dLng / 2);
+        const h =
+          sinDLat * sinDLat +
+          Math.cos(lat1) * Math.cos(lat2) * sinDLng * sinDLng;
+        return 2 * R * Math.asin(Math.sqrt(h));
+      }
+      function isServiceableLatLng(lat, lng) {
+        return (
+          distanceMeters(SERVICE_CENTER, { lat, lng }) <= MAX_SERVICE_DISTANCE_M
+        );
+      }
+
+      function playOrderPlacedSound() {
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (!AudioCtx) return;
+          const ctx = new AudioCtx();
+          const now = ctx.currentTime;
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.type = "sine";
+          o.connect(g);
+          g.connect(ctx.destination);
+          g.gain.setValueAtTime(0.0001, now);
+          g.gain.exponentialRampToValueAtTime(0.18, now + 0.02);
+          o.frequency.setValueAtTime(784, now);
+          o.frequency.setValueAtTime(988, now + 0.10);
+          o.frequency.setValueAtTime(784, now + 0.22);
+          g.gain.exponentialRampToValueAtTime(0.0001, now + 0.35);
+          o.start(now);
+          o.stop(now + 0.36);
+          setTimeout(() => ctx.close().catch(() => {}), 600);
+        } catch (_) {}
+      }
+
       // Wait for Firebase to load
       function initFirebase() {
         if (typeof firebase === "undefined" || !firebase.app) {
@@ -2619,7 +2546,7 @@
           }
           auth = firebase.auth();
           db = firebase.firestore();
-          console.log("✅ Firebase Auth & Firestore ready");
+          console.log("✅ Firebase Auth ready");
 
           // Check if user is authenticated
           auth.onAuthStateChanged((user) => {
@@ -2650,7 +2577,9 @@
         }
 
         const btn = document.getElementById("google-signin-btn");
-        btn.disabled = true;
+        const topBtn = document.getElementById("signin-top-btn");
+        if (btn) btn.disabled = true;
+        if (topBtn) topBtn.disabled = true;
 
         try {
           const provider = new firebase.auth.GoogleAuthProvider();
@@ -2662,17 +2591,20 @@
               closeAuthModal();
               assignRoleByEmail(currentUser.email);
               showToast("✅ Signed in as " + currentUser.email, 2000);
-              btn.disabled = false; // Re-enable button for future use
+              if (btn) btn.disabled = false; // Re-enable button for future use
+              if (topBtn) topBtn.disabled = false;
             })
             .catch((error) => {
               console.error("Google Sign-In Error:", error);
               showToast("❌ Sign in failed: " + error.message, 3000);
-              btn.disabled = false;
+              if (btn) btn.disabled = false;
+              if (topBtn) topBtn.disabled = false;
             });
         } catch (error) {
           console.error("Error:", error);
           showToast("❌ Error: " + error.message, 3000);
-          btn.disabled = false;
+          if (btn) btn.disabled = false;
+          if (topBtn) topBtn.disabled = false;
         }
       }
 
@@ -2711,9 +2643,9 @@
           "user-status-display",
         );
         const userAvatar = document.getElementById("user-avatar");
-        const roleButtons = document.querySelector(
-          "div[style*='display:flex']",
-        );
+        const topSigninBtn = document.getElementById("signin-top-btn");
+        const emailEl = document.getElementById("user-menu-email");
+        const manageBtn = document.getElementById("user-menu-manage-btn");
 
         if (currentUser) {
           const firstName = currentUser.email.split("@")[0];
@@ -2721,8 +2653,15 @@
           userAvatar.textContent = firstLetter;
           userAvatar.title = currentUser.email;
           userStatusDisplay.style.display = "flex";
+          if (topSigninBtn) topSigninBtn.style.display = "none";
+          if (emailEl) emailEl.textContent = currentUser.email;
+          if (manageBtn)
+            manageBtn.style.display = currentRole === "admin" ? "block" : "none";
         } else {
           userStatusDisplay.style.display = "none";
+          if (topSigninBtn) topSigninBtn.style.display = "inline-flex";
+          if (emailEl) emailEl.textContent = "—";
+          if (manageBtn) manageBtn.style.display = "none";
         }
       }
 
@@ -2744,9 +2683,36 @@
           callback();
         } else {
           showToast("⚠️ Please sign in to place your order", 2000);
-          openAuthModal();
+          // Google sign-in button is always available at the top now
         }
       }
+
+      // User menu
+      function toggleUserMenu() {
+        const pop = document.getElementById("user-menu-popup");
+        if (!pop) return;
+        pop.classList.toggle("open");
+      }
+      function closeUserMenu() {
+        const pop = document.getElementById("user-menu-popup");
+        if (pop) pop.classList.remove("open");
+      }
+      function userMenuGo(page) {
+        closeUserMenu();
+        showPage(page);
+      }
+      document.addEventListener("click", (e) => {
+        const pop = document.getElementById("user-menu-popup");
+        const avatar = document.getElementById("user-avatar");
+        if (!pop || !avatar) return;
+        if (
+          pop.classList.contains("open") &&
+          !pop.contains(e.target) &&
+          e.target !== avatar
+        ) {
+          pop.classList.remove("open");
+        }
+      });
 
       // ===========================
       // ROLE MANAGEMENT
@@ -2766,28 +2732,10 @@
           "role-btn" + (currentRole === "admin" ? " active" : "");
         document.getElementById("customer-btn").className =
           "role-btn" + (currentRole === "customer" ? " active" : "");
-
-        // Show/Hide tabs based on role and auth
-        const manageTab = document.getElementById("manage-nav");
-        const orderTab = document.getElementById("order-nav");
-        const deliveryTab = document.getElementById("delivery-nav");
-        const myOrdersTab = document.getElementById("my-orders-nav");
-
-        if (manageTab)
-          manageTab.style.display = currentRole === "admin" ? "block" : "none";
-
-        // Show Order & Delivery tabs for ADMIN only
-        if (orderTab)
-          orderTab.style.display =
+        const manageBtn = document.getElementById("user-menu-manage-btn");
+        if (manageBtn)
+          manageBtn.style.display =
             currentUser && currentRole === "admin" ? "block" : "none";
-        if (deliveryTab)
-          deliveryTab.style.display =
-            currentUser && currentRole === "admin" ? "block" : "none";
-
-        // Show My Orders tab for CUSTOMER only
-        if (myOrdersTab)
-          myOrdersTab.style.display =
-            currentUser && currentRole === "customer" ? "block" : "none";
 
         // Show role buttons only for authenticated admin users
         const roleButtonsContainer = document.getElementById(
@@ -2797,6 +2745,7 @@
           roleButtonsContainer.style.display =
             currentUser && currentRole === "admin" ? "flex" : "none";
         }
+        updateAuthUI();
       }
 
       // ===========================
@@ -3164,359 +3113,6 @@
       }
 
       // ===========================
-      // ===========================
-      // MANAGE PAGE - ORDERS
-      // ===========================
-      let allOrders = [];
-      let currentOrderFilter = "pending";
-      let previousPendingOrderIds = new Set(); // Track pending orders to detect new ones
-      let orderPollingInterval = null; // Polling timer
-
-      // Load orders from Firestore
-      function loadOrders() {
-        if (!db) return;
-
-        db.collection("orders")
-          .orderBy("createdAt", "desc")
-          .onSnapshot((snapshot) => {
-            allOrders = [];
-            snapshot.forEach((doc) => {
-              allOrders.push({ id: doc.id, ...doc.data() });
-            });
-            updateOrdersCount();
-            displayOrders(currentOrderFilter);
-          });
-      }
-
-      // Start polling for new pending orders (Admin only)
-      function startOrderPolling() {
-        console.log("📊 Starting order polling every 60 seconds...");
-
-        // Initialize previousPendingOrderIds with current pending orders
-        allOrders.forEach((order) => {
-          if (order.status === "pending") {
-            previousPendingOrderIds.add(order.id);
-          }
-        });
-        console.log(
-          "📝 Initialized known pending orders:",
-          previousPendingOrderIds.size,
-        );
-
-        // Clear any existing interval
-        if (orderPollingInterval) clearInterval(orderPollingInterval);
-
-        // Poll every 60 seconds
-        orderPollingInterval = setInterval(() => {
-          if (!db) {
-            console.warn("⚠️ DB not ready");
-            return;
-          }
-
-          console.log("🔍 Polling for new pending orders...");
-
-          db.collection("orders")
-            .orderBy("createdAt", "desc")
-            .limit(20)
-            .get()
-            .then((snapshot) => {
-              let newPendingOrderFound = false;
-
-              snapshot.forEach((doc) => {
-                const order = doc.data();
-                const orderId = doc.id;
-
-                // Check if pending AND NEW
-                if (
-                  order.status === "pending" &&
-                  !previousPendingOrderIds.has(orderId)
-                ) {
-                  console.log(
-                    "🚨 NEW PENDING ORDER DETECTED:",
-                    orderId,
-                    order.customerName,
-                  );
-                  newPendingOrderFound = true;
-                }
-                previousPendingOrderIds.add(orderId);
-              });
-
-              // Trigger 10 INTENSE siren blasts if new pending order found
-              if (newPendingOrderFound) {
-                console.log("🔊 TRIGGERING 10 SIREN BLASTS!");
-                playSound("siren");
-                setTimeout(() => playSound("siren"), 4000);
-                setTimeout(() => playSound("siren"), 8000);
-                setTimeout(() => playSound("siren"), 12000);
-                setTimeout(() => playSound("siren"), 16000);
-                setTimeout(() => playSound("siren"), 20000);
-                setTimeout(() => playSound("siren"), 24000);
-                setTimeout(() => playSound("siren"), 28000);
-                setTimeout(() => playSound("siren"), 32000);
-                setTimeout(() => playSound("siren"), 36000);
-              }
-            })
-            .catch((error) => {
-              console.error("❌ Polling error:", error);
-            });
-        }, 60000); // Poll every 60 seconds
-      }
-
-      // Stop polling when leaving admin dashboard
-      function stopOrderPolling() {
-        if (orderPollingInterval) {
-          clearInterval(orderPollingInterval);
-          orderPollingInterval = null;
-          console.log("⏹ Order polling stopped");
-        }
-      }
-
-      // Filter orders by status
-      function filterOrders(status) {
-        currentOrderFilter = status;
-        document.querySelectorAll(".order-filter-btn").forEach((btn) => {
-          btn.classList.remove("active");
-        });
-        event.target.classList.add("active");
-        displayOrders(status);
-      }
-
-      // Display orders on dashboard
-      function displayOrders(filterStatus) {
-        const ordersList = document.getElementById("orders-list");
-        let filtered = allOrders;
-
-        if (filterStatus !== "all") {
-          filtered = allOrders.filter((order) => order.status === filterStatus);
-        }
-
-        if (filtered.length === 0) {
-          ordersList.innerHTML = `
-            <div class="orders-empty">
-              <div class="orders-empty-icon">📦</div>
-              <div>No ${filterStatus} orders</div>
-            </div>
-          `;
-          return;
-        }
-
-        ordersList.innerHTML = filtered
-          .map((order) => createOrderCard(order))
-          .join("");
-      }
-
-      // Create order card HTML
-      function createOrderCard(order) {
-        const statusLabels = {
-          pending: "🔴 Pending",
-          accepted: "✅ Accepted",
-          "in-progress": "👨‍🍳 In Progress",
-          sent: "🚴 Sent for Delivery",
-          delivered: "✓ Delivered",
-        };
-
-        const itemsHtml = order.items
-          .map(
-            (item) =>
-              `<div class="order-item"><span>${item.name} × ${item.qty}</span><span>₹${item.subtotal}</span></div>`,
-          )
-          .join("");
-
-        const orderTime = new Date(order.createdAt.toDate()).toLocaleString();
-
-        return `
-          <div class="order-card ${order.status === "pending" ? "urgent" : ""}">
-            <div class="order-header">
-              <div class="order-id">${order.orderId}</div>
-              <span class="order-status-badge status-${order.status}">${statusLabels[order.status]}</span>
-            </div>
-            <div class="order-customer">👤 ${order.customerName}</div>
-            <div class="order-details">
-              📞 ${order.phone}<br/>
-              📍 ${order.address}<br/>
-              🕐 ${order.deliveryTime}<br/>
-              ⏰ ${orderTime}
-            </div>
-            <div class="order-items">${itemsHtml}</div>
-            <div class="order-total">Total: ₹${order.total}</div>
-            <div class="order-actions">
-              ${order.status === "pending" ? `<button class="order-action-btn btn-accept" onclick="updateOrderStatus('${order.id}', 'accepted')">✅ Accept</button>` : ""}
-              ${order.status === "accepted" ? `<button class="order-action-btn btn-progress" onclick="updateOrderStatus('${order.id}', 'in-progress')">👨‍🍳 In Progress</button>` : ""}
-              ${order.status === "in-progress" ? `<button class="order-action-btn btn-sent" onclick="updateOrderStatus('${order.id}', 'sent')">🚴 Sent for Delivery</button>` : ""}
-              ${order.status === "sent" ? `<button class="order-action-btn btn-delivered" onclick="updateOrderStatus('${order.id}', 'delivered')">✓ Delivered</button>` : ""}
-            </div>
-          </div>
-        `;
-      }
-
-      // Update order status
-      function updateOrderStatus(orderId, newStatus) {
-        if (!db) return;
-
-        db.collection("orders")
-          .doc(orderId)
-          .update({ status: newStatus })
-          .then(() => {
-            playSound("success");
-            showToast("✅ Order status updated!", 2000);
-          })
-          .catch((error) => {
-            alert("Error: " + error.message);
-          });
-      }
-
-      // Update orders count
-      function updateOrdersCount() {
-        const pendingCount = allOrders.filter(
-          (o) => o.status === "pending",
-        ).length;
-        const countBadge = document.getElementById("orders-count");
-        if (countBadge) {
-          countBadge.textContent = pendingCount;
-          countBadge.style.display = pendingCount > 0 ? "flex" : "none";
-        }
-      }
-
-      // ===========================
-      // CUSTOMER ORDER TRACKING
-      // ===========================
-      function loadCustomerOrders() {
-        if (!currentUser || !db) return;
-
-        db.collection("orders")
-          .where("email", "==", currentUser.email)
-          .orderBy("createdAt", "desc")
-          .onSnapshot((snapshot) => {
-            const customerOrders = [];
-            snapshot.forEach((doc) => {
-              customerOrders.push({ id: doc.id, ...doc.data() });
-            });
-            displayCustomerOrders(customerOrders);
-          });
-      }
-
-      function displayCustomerOrders(orders) {
-        const ordersList = document.getElementById("my-orders-list");
-        const emptyState = document.getElementById("my-orders-empty");
-
-        if (orders.length === 0) {
-          ordersList.innerHTML = "";
-          emptyState.style.display = "block";
-          return;
-        }
-
-        emptyState.style.display = "none";
-        ordersList.innerHTML = orders
-          .map((order) => {
-            const createdAt = order.createdAt
-              ? new Date(order.createdAt.toDate()).toLocaleString()
-              : "N/A";
-
-            const statusEmoji = {
-              pending: "⏳",
-              accepted: "✅",
-              "in-progress": "👨‍🍳",
-              sent: "🚴",
-              delivered: "✓",
-            };
-
-            const itemsHtml = order.items
-              .map(
-                (item) =>
-                  `<div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee;">
-                <span>${item.name} × ${item.qty}</span>
-                <span>₹${item.subtotal}</span>
-              </div>`,
-              )
-              .join("");
-
-            return `
-          <div style="border: 1px solid #ddd; border-radius: 12px; padding: 16px; background: #f9f9f9;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <div>
-                <strong style="color: var(--brown);">Order #${order.orderId}</strong>
-                <div style="font-size: 0.85rem; color: #666; margin-top: 4px;">${createdAt}</div>
-              </div>
-              <div style="background: #fff; padding: 8px 12px; border-radius: 8px; font-weight: 700;">
-                <span>${statusEmoji[order.status] || "?"} ${order.status.toUpperCase()}</span>
-              </div>
-            </div>
-            <div style="background: #fff; padding: 12px; border-radius: 8px; margin-bottom: 12px; font-size: 0.9rem;">
-              <strong>Items:</strong>
-              <div style="margin-top: 8px;">${itemsHtml}</div>
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 0.9rem; color: #666;">
-              <div>
-                📍 <strong>${order.address}</strong><br/>
-                📞 ${order.phone}
-              </div>
-              <div>
-                💰 <strong>₹${order.total}</strong><br/>
-                🕐 ${order.deliveryTime || "N/A"}
-              </div>
-            </div>
-          </div>
-          `;
-          })
-          .join("");
-      }
-
-      // ===========================
-      // ADDRESS MANAGEMENT
-      // ===========================
-      function getSavedAddresses() {
-        const saved = localStorage.getItem(
-          "chapati_addresses_" + (currentUser?.email || ""),
-        );
-        return saved ? JSON.parse(saved) : [];
-      }
-
-      function saveAddresses(addresses) {
-        localStorage.setItem(
-          "chapati_addresses_" + currentUser.email,
-          JSON.stringify(addresses),
-        );
-      }
-
-      function addAddress(label, address, phone) {
-        const addresses = getSavedAddresses();
-        addresses.push({
-          id: Date.now(),
-          label: label || "My Address",
-          address: address,
-          phone: phone,
-          createdAt: new Date(),
-        });
-        saveAddresses(addresses);
-        showToast("✅ Address saved!");
-        updateAddressDropdowns();
-      }
-
-      function deleteAddress(id) {
-        let addresses = getSavedAddresses();
-        addresses = addresses.filter((a) => a.id !== id);
-        saveAddresses(addresses);
-        showToast("✅ Address deleted!");
-        updateAddressDropdowns();
-      }
-
-      function updateAddressDropdowns() {
-        const dropdowns = document.querySelectorAll(".address-dropdown");
-        dropdowns.forEach((dropdown) => {
-          const currentValue = dropdown.value;
-          const addresses = getSavedAddresses();
-          dropdown.innerHTML = `<option value="">-- Select saved address --</option>`;
-          addresses.forEach((addr) => {
-            const option = document.createElement("option");
-            option.value = JSON.stringify(addr);
-            option.textContent = `${addr.label} - ${addr.address}`;
-            dropdown.appendChild(option);
-          });
-          if (currentValue) dropdown.value = currentValue;
-        });
-      }
-
-      // ===========================
       // MANAGE PAGE
       // ===========================
       function renderManagePage() {
@@ -3768,17 +3364,6 @@
           showToast("⚠️ Only admin can access manage section");
           return;
         }
-
-        if (page === "my-orders" && currentRole !== "customer") {
-          showToast("⚠️ Only customers can view orders");
-          return;
-        }
-
-        // Stop polling when leaving manage page
-        if (page !== "manage") {
-          stopOrderPolling();
-        }
-
         document
           .querySelectorAll(".page")
           .forEach((p) => p.classList.remove("active"));
@@ -3786,52 +3371,11 @@
           .querySelectorAll(".nav-tab")
           .forEach((t) => t.classList.remove("active"));
         document.getElementById("page-" + page).classList.add("active");
-        const tabIdx = [
-          "menu",
-          "order",
-          "delivery",
-          "my-orders",
-          "manage",
-        ].indexOf(page);
+        const tabIdx = ["menu", "order", "delivery", "manage"].indexOf(page);
         const tabs = document.querySelectorAll(".nav-tab");
         if (tabIdx >= 0 && tabs[tabIdx]) tabs[tabIdx].classList.add("active");
         if (page === "delivery") initMap();
-        if (page === "my-orders") {
-          loadCustomerOrders();
-        }
-        if (page === "order" || page === "delivery") {
-          autoFillCustomerInfo();
-          updateAddressDropdowns();
-        }
-        if (page === "manage") {
-          renderManagePage();
-          loadOrders();
-          startOrderPolling(); // Start polling for new orders
-        }
-      }
-
-      function autoFillCustomerInfo() {
-        if (!currentUser) return;
-        const nameParts = currentUser.displayName
-          ? currentUser.displayName.split(" ")
-          : currentUser.email.split("@")[0].split(".");
-        const firstName = nameParts[0] || "Guest";
-
-        const nameField = document.getElementById("cust-name");
-        const omNameField = document.getElementById("om-name");
-        if (nameField && !nameField.value) nameField.value = firstName;
-        if (omNameField && !omNameField.value) omNameField.value = firstName;
-      }
-
-      function openAddManAModal(formType) {
-        const label = prompt("Address label (e.g., Home, Office):");
-        if (!label) return;
-        const address = prompt("Enter full address:");
-        if (!address) return;
-        const phone = prompt("Enter phone number:");
-        if (!phone) return;
-
-        addAddress(label, address, phone);
+        if (page === "manage") renderManagePage();
       }
 
       // ===========================
@@ -3905,24 +3449,8 @@
 
         const name = document.getElementById("cust-name").value.trim();
         const phone = document.getElementById("cust-phone").value.trim();
-        const addressSelect = document.getElementById("cust-address").value;
-
-        if (!addressSelect) {
-          alert("Please select or add a delivery address");
-          return;
-        }
-
-        let address, selectedPhone;
-        try {
-          const addressObj = JSON.parse(addressSelect);
-          address = addressObj.address;
-          selectedPhone = addressObj.phone || phone;
-        } catch {
-          address = addressSelect;
-          selectedPhone = phone;
-        }
-
-        if (!name || !selectedPhone || !address) {
+        const address = document.getElementById("cust-address").value.trim();
+        if (!name || !phone || !address) {
           alert("Please fill Name, Phone & Address");
           return;
         }
@@ -3936,166 +3464,17 @@
           alert("⚠️ Minimum order value is ₹50");
           return;
         }
-
-        // Create order object
-        const orderItems = keys.map((k) => ({
-          id: k,
-          name: cart[k].name,
-          qty: cart[k].qty,
-          price: cart[k].price,
-          subtotal: cart[k].price * cart[k].qty,
-        }));
-
-        const order = {
-          orderId: "ORD-" + Date.now(),
-          customerName: name,
-          phone: selectedPhone,
-          address: address,
-          email: currentUser.email,
-          items: orderItems,
-          total: total,
-          deliveryTime: document.getElementById("cust-time").value,
-          status: "pending",
-          createdAt: new Date(),
-          notes: "",
-        };
-
-        // Save to Firestore
-        if (!db) {
-          alert("Database not ready. Please refresh and try again.");
-          return;
-        }
-
-        db.collection("orders")
-          .add(order)
-          .then((docRef) => {
-            showToast("✅ Order placed successfully!", 2000);
-            // Show order confirmation
-            showOrderConfirmation(order, docRef.id);
-            // Clear cart
-            cart = {};
-            updateFloatingBar();
-            renderMenuPage("all");
-            // Play success sound
-            playSound("success");
-            // Trigger admin alert
-            triggerAdminAlert();
-          })
-          .catch((error) => {
-            console.error("Error placing order:", error);
-            alert("❌ Error: " + error.message);
-          });
-      }
-
-      // Show order confirmation modal
-      function showOrderConfirmation(order, firebaseId) {
-        const itemsHtml = order.items
+        const itemStr = keys
           .map(
-            (item) =>
-              `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
-            <span>${item.name} × ${item.qty}</span>
-            <span>₹${item.subtotal}</span>
-          </div>`,
+            (k) =>
+              `${cart[k].name} x${cart[k].qty} = ₹${cart[k].price * cart[k].qty}`,
           )
-          .join("");
-
-        const confirmationHTML = `
-        <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; z-index: 2000;">
-          <div style="background: #fff; border-radius: 20px; padding: 30px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.3s ease;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <h2 style="color: #2e7d32; font-size: 1.8rem; margin: 0;">✅ Order Confirmed!</h2>
-            </div>
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
-              <div style="font-size: 1.2rem; font-weight: 700; color: #5c2d0a; margin-bottom: 8px;">Order ID: ${order.orderId}</div>
-              <div style="font-size: 0.9rem; color: #666;">We'll notify you when your order is accepted</div>
-            </div>
-            <div style="margin-bottom: 20px;">
-              <div style="font-weight: 700; color: #5c2d0a; margin-bottom: 10px;">Order Details:</div>
-              ${itemsHtml}
-              <div style="display: flex; justify-content: space-between; padding: 10px 0; font-size: 1.1rem; font-weight: 700; color: #e8820c;">
-                <span>Total:</span>
-                <span>₹${order.total}</span>
-              </div>
-            </div>
-            <div style="background: #f0f8ff; padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;">
-              <strong>📍 Delivery to:</strong> ${order.address}<br/>
-              <strong>🕐 Delivery Time:</strong> ${order.deliveryTime}
-            </div>
-            <button onclick="closeOrderConfirmation()" style="width: 100%; background: linear-gradient(90deg, #5c2d0a, #e8820c); color: #fff; border: none; border-radius: 10px; padding: 12px; font-weight: 700; cursor: pointer; font-size: 1rem;">
-              Close
-            </button>
-          </div>
-        </div>
-        `;
-
-        const div = document.createElement("div");
-        div.id = "order-confirmation-modal";
-        div.innerHTML = confirmationHTML;
-        document.body.appendChild(div);
+          .join("\n");
+        const msg = encodeURIComponent(
+          `🫓 *Chapati Express Order*\n\n*Name:* ${name}\n*Phone:* ${phone}\n*Address:* ${address}\n\n*Items:*\n${itemStr}\n\n*Total: ₹${total}*\n\nDelivery: ${document.getElementById("cust-time").value}`,
+        );
+        window.open(`https://wa.me/919999999999?text=${msg}`, "_blank");
       }
-
-      function closeOrderConfirmation() {
-        const modal = document.getElementById("order-confirmation-modal");
-        if (modal) modal.remove();
-        closeOrderModal();
-      }
-
-      // Play sound alert
-      function playSound(type) {
-        const audioContext = new (
-          window.AudioContext || window.webkitAudioContext
-        )();
-        const oscillator = audioContext.createOscillator();
-        const gainNode = audioContext.createGain();
-
-        oscillator.connect(gainNode);
-        gainNode.connect(audioContext.destination);
-
-        if (type === "success") {
-          oscillator.frequency.value = 800;
-          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-          gainNode.gain.exponentialRampToValueAtTime(
-            0.01,
-            audioContext.currentTime + 0.5,
-          );
-          oscillator.start(audioContext.currentTime);
-          oscillator.stop(audioContext.currentTime + 0.5);
-        } else if (type === "siren") {
-          // MAXIMUM INTENSITY siren - 20 ultra-aggressive cycles
-          const currentTime = audioContext.currentTime;
-          gainNode.gain.setValueAtTime(1.0, currentTime); // MAXIMUM VOLUME
-
-          // Create 20 ultra-extreme rapid siren cycles with HUGE frequency range
-          for (let i = 0; i < 20; i++) {
-            const cycleStart = currentTime + i * 0.2; // Very fast cycles
-            // EXTREME up sweep (350Hz → 1400Hz) - MAXIMUM range
-            oscillator.frequency.setValueAtTime(350, cycleStart);
-            oscillator.frequency.linearRampToValueAtTime(
-              1400,
-              cycleStart + 0.1,
-            );
-            // EXTREME down sweep (1400Hz → 350Hz)
-            oscillator.frequency.linearRampToValueAtTime(350, cycleStart + 0.2);
-          }
-
-          gainNode.gain.exponentialRampToValueAtTime(0.01, currentTime + 4.0);
-          oscillator.start(currentTime);
-          oscillator.stop(currentTime + 4.0);
-        }
-      }
-
-      // Trigger admin alert for new order - ZOMATO LEVEL INTENSE
-      function triggerAdminAlert() {
-        // Siren is now triggered by polling only on admin side
-        // This function just sends browser notification for customer confirmation
-        if ("Notification" in window && Notification.permission === "granted") {
-          new Notification("✅ Order Confirmed!", {
-            body: "Your order has been received. Waiting for confirmation...",
-            icon: "🫓",
-          });
-        }
-      }
-
       function updateFloatingBar() {
         const keys = Object.keys(cart);
         const count = keys.reduce((a, k) => a + cart[k].qty, 0);
@@ -4148,26 +3527,14 @@
         document.body.style.overflow = "";
       }
       function submitOrder() {
-        console.log("submitOrder called, currentUser:", currentUser);
-
         // Require authentication
         if (!currentUser) {
           showToast("⚠️ Please sign in to place your order", 2000);
-          openAuthModal();
           return;
         }
-
         const name = document.getElementById("om-name").value.trim();
         const phone = document.getElementById("om-phone").value.trim();
         const address = document.getElementById("om-address").value.trim();
-
-        console.log("Order details:", {
-          name,
-          phone,
-          address,
-          hasCart: Object.keys(cart).length,
-        });
-
         if (!name) {
           showToast("⚠️ Enter your name");
           return;
@@ -4184,26 +3551,18 @@
           showToast("⚠️ Pin your delivery location on the map");
           return;
         }
+        if (!isServiceableLatLng(omPinLatLng.lat, omPinLatLng.lng)) {
+          showToast("⚠️ Location not serviceable (must be within 4km)", 2600);
+          return;
+        }
         const keys = Object.keys(cart);
-        if (!keys.length) {
-          alert("Cart is empty!");
-          return;
-        }
         const total = keys.reduce((a, k) => a + cart[k].price * cart[k].qty, 0);
-        if (total < 50) {
-          alert("⚠️ Minimum order value is ₹50");
-          return;
-        }
-
-        // Create order object
-        const orderItems = keys.map((k) => ({
-          id: k,
-          name: cart[k].name,
-          qty: cart[k].qty,
-          price: cart[k].price,
-          subtotal: cart[k].price * cart[k].qty,
-        }));
-
+        const itemStr = keys
+          .map(
+            (k) =>
+              `• ${cart[k].name} x${cart[k].qty} = ₹${cart[k].price * cart[k].qty}`,
+          )
+          .join("\n");
         const landmark = document.getElementById("om-landmark").value.trim();
         const time = document.getElementById("om-time").value;
         const note = document.getElementById("om-note").value.trim();
@@ -4217,101 +3576,60 @@
             4 +
             5,
         );
+        let msg = `🫓 *CHAPATI EXPRESS ORDER*\n📍 Peddha Baazar, Sircilla\n\n👤 *Name:* ${name}\n📞 *Phone:* ${phone}\n🏠 *Address:* ${address}`;
+        if (landmark) msg += ` (Near ${landmark})`;
+        msg += `\n📍 *Location:* ${mapLink}\n📏 Distance: ${dist} km | ⏱ ~${mins} mins\n⏱ *Delivery:* ${time}\n\n🛒 *Items:*\n${itemStr}\n\n💰 *TOTAL: ₹${total}*`;
+        if (note) msg += `\n\n📝 *Note:* ${note}`;
+        window.open(
+          "https://wa.me/919999999999?text=" + encodeURIComponent(msg),
+          "_blank",
+        );
 
-        const order = {
-          orderId: "ORD-" + Date.now(),
-          customerName: name,
-          phone: phone,
-          address: address,
-          email: currentUser.email,
-          items: orderItems,
-          total: total,
-          deliveryTime: time,
-          landmark: landmark,
-          mapLocation: mapLink,
-          estimatedDistance: dist,
-          estimatedMins: mins,
-          status: "pending",
-          notes: note,
-          createdAt: new Date(),
-        };
-
-        console.log("Order object created:", order);
-        console.log("db available?", typeof db, db);
-
-        // Save to Firestore
-        if (!db) {
-          console.error("Database not initialized!");
-          alert("Database not ready. Please refresh and try again.");
-          return;
+        // Save order to Firestore (for Orders + Admin management)
+        try {
+          if (db) {
+            const orderItems = keys.map((k) => ({
+              id: k,
+              name: cart[k].name,
+              qty: cart[k].qty,
+              price: cart[k].price,
+              lineTotal: cart[k].price * cart[k].qty,
+            }));
+            db.collection("orders").add({
+              status: "pending",
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+              customerEmail: currentUser.email || null,
+              customerName: name,
+              customerPhone: phone,
+              addressText: address,
+              landmark: landmark || "",
+              deliveryTime: time,
+              note: note || "",
+              pin: { lat: omPinLatLng.lat, lng: omPinLatLng.lng },
+              total,
+              items: orderItems,
+              source: "web",
+            });
+          }
+        } catch (e) {
+          console.warn("Order save failed:", e);
         }
 
-        console.log("Attempting to save order to Firestore...");
+        playOrderPlacedSound();
+        document.getElementById("om-form-fields").style.display = "none";
+        document.querySelector(".om-actions").style.display = "none";
+        document.getElementById("om-success").style.display = "block";
 
-        const addPromise = db.collection("orders").add(order);
-        console.log("Promise created:", addPromise);
-
-        addPromise
-          .then((docRef) => {
-            console.log("✅ Order saved with ID:", docRef.id);
-            showToast("✅ Order placed successfully!", 2000);
-            showOrderConfirmationModal(order, docRef.id);
-            cart = {};
-            updateFloatingBar();
-            playSound("success");
-            triggerAdminAlert();
-            document.getElementById("om-form-fields").style.display = "none";
-            document.querySelector(".om-actions").style.display = "none";
-            document.getElementById("om-success").style.display = "block";
-          })
-          .catch((error) => {
-            console.error("❌ Error placing order:", error);
-            console.error("Error code:", error.code);
-            console.error("Error message:", error.message);
-            alert("❌ Error: " + error.message);
-          });
-      }
-
-      function showOrderConfirmationModal(order, firebaseId) {
-        const itemsHtml = order.items
-          .map(
-            (item) =>
-              `<div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee;">
-            <span>${item.name} × ${item.qty}</span>
-            <span>₹${item.subtotal}</span>
-          </div>`,
-          )
-          .join("");
-
-        const modal = document.createElement("div");
-        modal.style.cssText =
-          "position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 16px;";
-        modal.innerHTML = `
-        <div style="background: #fff; border-radius: 16px; max-width: 420px; width: 100%; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-          <div style="background: linear-gradient(135deg, #3b1a06, #7a3b10); color: #fff; padding: 20px; text-align: center;">
-            <div style="font-size: 2.4rem; margin-bottom: 10px;">🎉</div>
-            <h2 style="margin: 0; font-size: 1.6rem; font-family: 'Yeseva One', serif;">Order Confirmed!</h2>
-            <p style="margin: 8px 0 0 0; opacity: 0.9;">Order ID: <strong>${order.orderId}</strong></p>
-          </div>
-          <div style="padding: 20px;">
-            <div style="margin-bottom: 16px;">
-              <strong style="color: #5c2d0a;">Items:</strong>
-              <div style="margin-top: 8px; font-size: 0.9rem;">${itemsHtml}</div>
-            </div>
-            <div style="padding: 12px; background: #fdf6ec; border-radius: 8px; text-align: right;">
-              <strong style="color: #5c2d0a;">Total: ₹${order.total}</strong>
-            </div>
-            <div style="margin-top: 12px; font-size: 0.85rem; color: #666;">
-              <div>📍 ${order.address}</div>
-              <div>⏱ Delivery: ${order.deliveryTime}</div>
-            </div>
-          </div>
-          <div style="padding: 16px; border-top: 1px solid #eee; text-align: center;">
-            <button onclick="this.closest('div').parentElement.remove()" style="background: #e8820c; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 700; cursor: pointer;">Close</button>
-          </div>
-        </div>
-      `;
-        document.body.appendChild(modal);
+        // Close popup in 5s and go home
+        setTimeout(() => {
+          closeOrderModal();
+          showPage("menu");
+          // clear cart
+          cart = {};
+          renderCart();
+          updateFloatingBar();
+        }, 5000);
       }
 
       // ===========================
@@ -4345,6 +3663,10 @@
         setTimeout(() => omMap.invalidateSize(), 200);
       }
       function omSetPin(latlng) {
+        if (!isServiceableLatLng(latlng.lat, latlng.lng)) {
+          showToast("⚠️ Not serviceable (within 4km only)", 2600);
+          return;
+        }
         if (omPinMarker) omMap.removeLayer(omPinMarker);
         if (omRouteLayer) omMap.removeLayer(omRouteLayer);
         const ci = L.divIcon({
@@ -4454,13 +3776,353 @@
       }
 
       // ===========================
-      // INIT
+      // ADDRESSES (Firestore)
       // ===========================
-      // Request notification permission for admins
-      if ("Notification" in window && Notification.permission === "default") {
-        Notification.requestPermission();
+      let _addressesUnsub = null;
+      let _addrEditorId = null;
+      let addrMap = null,
+        addrMapInited = false,
+        addrPin = null,
+        addrLatLng = null;
+
+      function openAddressModal() {
+        closeUserMenu();
+        if (!currentUser) {
+          showToast("⚠️ Please sign in to manage addresses", 2200);
+          return;
+        }
+        document.getElementById("addr-user-email").textContent =
+          currentUser.email || "—";
+        document.getElementById("address-overlay").classList.add("open");
+        subscribeAddresses();
+      }
+      function closeAddressModal() {
+        document.getElementById("address-overlay").classList.remove("open");
+        if (_addressesUnsub) {
+          _addressesUnsub();
+          _addressesUnsub = null;
+        }
       }
 
+      function subscribeAddresses() {
+        if (!db || !currentUser?.email) return;
+        if (_addressesUnsub) _addressesUnsub();
+        const col = db
+          .collection("users")
+          .doc(currentUser.email)
+          .collection("addresses")
+          .orderBy("updatedAt", "desc");
+        _addressesUnsub = col.onSnapshot((snap) => {
+          renderAddressList(
+            snap.docs.map((d) => ({ id: d.id, ...d.data() })),
+          );
+        });
+      }
+
+      function renderAddressList(addresses) {
+        const list = document.getElementById("address-list");
+        if (!addresses.length) {
+          list.innerHTML =
+            '<div class="empty-cat-msg"><div class="big">🏠</div>No saved addresses yet.</div>';
+          return;
+        }
+        list.innerHTML = addresses
+          .map((a) => {
+            const safeLabel = (a.label || "Address").toString();
+            const line = (a.line || a.addressText || "").toString();
+            const distM =
+              a.pin && typeof a.pin.lat === "number"
+                ? distanceMeters(SERVICE_CENTER, a.pin).toFixed(0)
+                : null;
+            const distBadge =
+              distM !== null
+                ? `<span class="om-route-badge">📏 ${(distM / 1000).toFixed(
+                    2,
+                  )} km</span>`
+                : "";
+            return `
+            <div class="menu-card" style="padding:14px 14px 12px;">
+              <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+                <div>
+                  <div style="font-weight:900;color:var(--brown);font-size:0.95rem;">${safeLabel}</div>
+                  <div style="color:#555;margin-top:4px;line-height:1.35;">${line}</div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                    ${distBadge}
+                    ${
+                      a.phone
+                        ? `<span class="om-route-badge">📞 ${a.phone}</span>`
+                        : ""
+                    }
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;min-width:140px;">
+                  <button class="cat-save-btn" style="width:100%" onclick="openAddressEditor('${a.id}')">✏️ Edit</button>
+                  <button class="cat-cancel-btn" style="width:100%" onclick="deleteAddress('${a.id}')">🗑 Delete</button>
+                </div>
+              </div>
+            </div>`;
+          })
+          .join("");
+      }
+
+      async function deleteAddress(id) {
+        if (!db || !currentUser?.email) return;
+        if (!confirm("Delete this address?")) return;
+        await db
+          .collection("users")
+          .doc(currentUser.email)
+          .collection("addresses")
+          .doc(id)
+          .delete();
+        showToast("🗑 Address deleted", 1800);
+      }
+
+      async function openAddressEditor(id = null) {
+        if (!currentUser) return;
+        _addrEditorId = id;
+        document.getElementById("addr-editor-title").textContent = id
+          ? "✏️ Edit Address"
+          : "➕ Add Address";
+        document.getElementById("addr-label").value = "";
+        document.getElementById("addr-phone").value = "";
+        document.getElementById("addr-line").value = "";
+        addrLatLng = null;
+        if (addrPin && addrMap) addrMap.removeLayer(addrPin);
+        addrPin = null;
+        document.getElementById("addr-coords").textContent = "—";
+        document.getElementById("addr-distance").textContent = "—";
+        document.getElementById("address-editor-overlay").classList.add("open");
+        setTimeout(() => initAddrMap(), 200);
+
+        if (id && db && currentUser?.email) {
+          const doc = await db
+            .collection("users")
+            .doc(currentUser.email)
+            .collection("addresses")
+            .doc(id)
+            .get();
+          if (doc.exists) {
+            const a = doc.data();
+            document.getElementById("addr-label").value = a.label || "";
+            document.getElementById("addr-phone").value = a.phone || "";
+            document.getElementById("addr-line").value = a.line || "";
+            if (a.pin && typeof a.pin.lat === "number") {
+              const ll = L.latLng(a.pin.lat, a.pin.lng);
+              addrMap.setView(ll, 16);
+              addrSetPin(ll, true);
+            }
+          }
+        }
+      }
+      function closeAddressEditor() {
+        document
+          .getElementById("address-editor-overlay")
+          .classList.remove("open");
+      }
+
+      function initAddrMap() {
+        if (addrMapInited) {
+          if (addrMap) addrMap.invalidateSize();
+          return;
+        }
+        addrMapInited = true;
+        addrMap = L.map("addr-map").setView(
+          [SERVICE_CENTER.lat, SERVICE_CENTER.lng],
+          14,
+        );
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap",
+        }).addTo(addrMap);
+        addrMap.on("click", (e) => addrSetPin(e.latlng));
+        setTimeout(() => addrMap.invalidateSize(), 150);
+      }
+
+      function addrSetPin(latlng, silent = false) {
+        if (!isServiceableLatLng(latlng.lat, latlng.lng)) {
+          if (!silent) showToast("⚠️ Not serviceable (within 4km only)", 2600);
+          return;
+        }
+        if (addrPin) addrMap.removeLayer(addrPin);
+        addrPin = L.marker(latlng, { draggable: true }).addTo(addrMap);
+        addrPin.on("dragend", (e) => addrSetPin(e.target.getLatLng()));
+        addrLatLng = latlng;
+        const d = distanceMeters(SERVICE_CENTER, {
+          lat: latlng.lat,
+          lng: latlng.lng,
+        });
+        document.getElementById("addr-coords").textContent =
+          "📍 " + latlng.lat.toFixed(5) + ", " + latlng.lng.toFixed(5);
+        document.getElementById("addr-distance").textContent =
+          "📏 " + (d / 1000).toFixed(2) + " km from service center";
+      }
+
+      function addrUseMyLocation() {
+        const btn = document.querySelector("#address-editor-overlay .om-gps-btn");
+        if (!navigator.geolocation) {
+          showToast("⚠️ GPS not supported");
+          return;
+        }
+        btn.textContent = "⏳ Getting location...";
+        btn.disabled = true;
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const ll = L.latLng(pos.coords.latitude, pos.coords.longitude);
+            addrMap.setView(ll, 16);
+            addrSetPin(ll);
+            btn.textContent = "✅ Location Set!";
+            btn.disabled = false;
+          },
+          () => {
+            showToast("⚠️ Location access denied");
+            btn.textContent = "🎯 Use My Current Location";
+            btn.disabled = false;
+          },
+        );
+      }
+
+      async function saveAddressFromEditor() {
+        if (!db || !currentUser?.email) return;
+        const label = document.getElementById("addr-label").value.trim();
+        const phone = document.getElementById("addr-phone").value.trim();
+        const line = document.getElementById("addr-line").value.trim();
+        if (!label || !line) {
+          showToast("⚠️ Please enter Label and Address");
+          return;
+        }
+        if (!addrLatLng) {
+          showToast("⚠️ Please pin a serviceable location");
+          return;
+        }
+        if (!isServiceableLatLng(addrLatLng.lat, addrLatLng.lng)) {
+          showToast("⚠️ Not serviceable (within 4km only)", 2600);
+          return;
+        }
+
+        const col = db
+          .collection("users")
+          .doc(currentUser.email)
+          .collection("addresses");
+
+        if (!_addrEditorId) {
+          const snap = await col.get();
+          if (snap.size >= 5) {
+            showToast("⚠️ Max 5 addresses allowed", 2400);
+            return;
+          }
+          await col.add({
+            label,
+            phone: phone || "",
+            line,
+            pin: { lat: addrLatLng.lat, lng: addrLatLng.lng },
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          });
+          showToast("✅ Address saved", 1800);
+        } else {
+          await col.doc(_addrEditorId).set(
+            {
+              label,
+              phone: phone || "",
+              line,
+              pin: { lat: addrLatLng.lat, lng: addrLatLng.lng },
+              updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            },
+            { merge: true },
+          );
+          showToast("✅ Address updated", 1800);
+        }
+        closeAddressEditor();
+      }
+
+      // ===========================
+      // ORDERS (Firestore)
+      // ===========================
+      let _ordersUnsub = null;
+
+      function openOrdersModal() {
+        closeUserMenu();
+        if (!currentUser) {
+          showToast("⚠️ Please sign in to view orders", 2200);
+          return;
+        }
+        document.getElementById("orders-user-email").textContent =
+          currentUser.email || "—";
+        document.getElementById("orders-overlay").classList.add("open");
+        subscribeOrders();
+      }
+      function closeOrdersModal() {
+        document.getElementById("orders-overlay").classList.remove("open");
+        if (_ordersUnsub) {
+          _ordersUnsub();
+          _ordersUnsub = null;
+        }
+      }
+      function subscribeOrders() {
+        if (!db || !currentUser?.email) return;
+        if (_ordersUnsub) _ordersUnsub();
+        const q = db
+          .collection("orders")
+          .where("customerEmail", "==", currentUser.email)
+          .orderBy("createdAt", "desc")
+          .limit(30);
+        _ordersUnsub = q.onSnapshot((snap) => {
+          renderOrdersList(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        });
+      }
+      function badgeForStatus(s) {
+        const t = (s || "pending").toLowerCase();
+        if (t === "accepted")
+          return `<span class="om-route-badge" style="background:#e9f7ee;color:#1b5e20;border-color:#cdebd7;">✅ Accepted</span>`;
+        if (t === "rejected")
+          return `<span class="om-route-badge" style="background:#fff0f0;color:#8b1b1b;border-color:#ffd1d1;">❌ Rejected</span>`;
+        return `<span class="om-route-badge" style="background:#fff7ea;color:#7a3b10;border-color:#f0dcc0;">⏳ Pending</span>`;
+      }
+      function renderOrdersList(orders) {
+        const el = document.getElementById("orders-list");
+        if (!orders.length) {
+          el.innerHTML =
+            '<div class="empty-cat-msg"><div class="big">🧾</div>No orders yet.</div>';
+          return;
+        }
+        el.innerHTML = orders
+          .map((o) => {
+            const created =
+              o.createdAt && o.createdAt.toDate
+                ? o.createdAt.toDate()
+                : null;
+            const dt = created ? created.toLocaleString() : "—";
+            const items = Array.isArray(o.items) ? o.items : [];
+            const itemLine = items
+              .slice(0, 4)
+              .map((it) => `${it.name} × ${it.qty}`)
+              .join(", ");
+            return `
+            <div class="menu-card" style="padding:14px;">
+              <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;">
+                <div style="font-weight:900;color:var(--brown);">Order • ₹${
+                  o.total || 0
+                }</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                  ${badgeForStatus(o.status)}
+                  <span class="om-route-badge">🕒 ${dt}</span>
+                </div>
+              </div>
+              <div style="margin-top:8px;color:#555;line-height:1.35;">
+                <div><strong>Address:</strong> ${(o.addressText || "—")
+                  .toString()
+                  .replace(/</g, "&lt;")}</div>
+                <div style="margin-top:6px;"><strong>Items:</strong> ${
+                  itemLine || "—"
+                }${items.length > 4 ? "…" : ""}</div>
+              </div>
+            </div>`;
+          })
+          .join("");
+      }
+
+      // ===========================
+      // INIT
+      // ===========================
       // Restore role from localStorage
       const savedRole = localStorage.getItem("chapatiRole");
       if (savedRole) currentRole = savedRole;
