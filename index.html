@@ -1792,6 +1792,14 @@
               <button class="user-menu-item" onclick="userMenuGo('order')">📋 Order</button>
               <button class="user-menu-item" onclick="userMenuGo('delivery')">🗺 Delivery</button>
               <button class="user-menu-item" onclick="openOrdersModal()">🧾 Orders</button>
+              <button
+                class="user-menu-item"
+                id="user-menu-dashboard-btn"
+                onclick="openAdminDashboard()"
+                style="display: none"
+              >
+                📊 Dashboard
+              </button>
               <button class="user-menu-item" onclick="openAddressModal()">🏠 Addresses</button>
               <button
                 class="user-menu-item"
@@ -2720,6 +2728,14 @@
         closeUserMenu();
         showPage(page);
       }
+      function openAdminDashboard() {
+        closeUserMenu();
+        if (currentRole !== "admin") {
+          showToast("⚠️ Only admin can access dashboard");
+          return;
+        }
+        openOrdersModal();
+      }
       document.addEventListener("click", (e) => {
         const pop = document.getElementById("user-menu-popup");
         const avatar = document.getElementById("user-avatar");
@@ -2752,8 +2768,12 @@
         document.getElementById("customer-btn").className =
           "role-btn" + (currentRole === "customer" ? " active" : "");
         const manageBtn = document.getElementById("user-menu-manage-btn");
+        const dashboardBtn = document.getElementById("user-menu-dashboard-btn");
         if (manageBtn)
           manageBtn.style.display =
+            currentUser && currentRole === "admin" ? "block" : "none";
+        if (dashboardBtn)
+          dashboardBtn.style.display =
             currentUser && currentRole === "admin" ? "block" : "none";
 
         // Show role buttons only for authenticated admin users
