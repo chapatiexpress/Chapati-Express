@@ -1292,16 +1292,16 @@ const plainRaw=[
   {name:'Makka Chapati',type:' ',price:15,emoji:' '},
   {name:'Pacha Jonna Chapati',type:' ',price:15,emoji:' '}
 ];
-plainRaw.forEach(i=>items.push({id:newId(),catId:'cat-plain',...i,inStock:true,rating:4.5,ratingCount:12}));
+plainRaw.forEach(i=>items.push({id:newId(),catId:'cat-plain',...i,inStock:true,rating:5.0,ratingCount: }));
 
 const comboCurries=['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const comboChapatis=[{name:'2 Godhuma Chapati',emoji:' ',price:40},{name:'2 Jonna Chapati',emoji:' ',price:40},{name:'2 Makka Chapati',emoji:' ',price:50},{name:'2 Pacha Jonna Chapati',emoji:' ',price:50}];
-comboCurries.forEach(curry=>comboChapatis.forEach(ch=>items.push({id:newId(),catId:'cat-combo',name:ch.name+' with '+curry,type:' ',price:ch.price,emoji:ch.emoji,inStock:true,rating:4.3,ratingCount:8})));
+comboCurries.forEach(curry=>comboChapatis.forEach(ch=>items.push({id:newId(),catId:'cat-combo',name:ch.name+' with '+curry,type:' ',price:ch.price,emoji:ch.emoji,inStock:true,rating:5.0,ratingCount:8})));
 
 const curryTypes=['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
-const curryEmojis={'Dal Curry':'🫘','Aloo Tomato Curry':' ','Vankaya Curry':' ','Tomato Curry':' ','Kakarakaya Curry':' ','Cabbage Curry':' ','Palakura Pappu':' '};
+const curryEmojis={'Dal Curry':' ','Aloo Tomato Curry':' ','Vankaya Curry':' ','Tomato Curry':' ','Kakarakaya Curry':' ','Cabbage Curry':' ','Palakura Pappu':' '};
 const currySizes=[{ },{  },{ }];
-curryTypes.forEach(ct=>currySizes.forEach(sz=>items.push({id:newId(),catId:'cat-curry',name:ct+' ('+sz.s+')',price:sz.p,emoji:curryEmojis[ct]||' ',inStock:true,type:sz.s+' portion',rating:4.4,ratingCount:6})));
+curryTypes.forEach(ct=>currySizes.forEach(sz=>items.push({id:newId(),catId:'cat-curry',name:ct+' ('+sz.s+')',price:sz.p,emoji:curryEmojis[ct]||' ',inStock:true,type:sz.s+' ',rating:5.0,ratingCount: })));
 
 let cart={};
 let manageCatFilter='all',selectedEmoji='🍽',selectedCatEmoji='📂';
