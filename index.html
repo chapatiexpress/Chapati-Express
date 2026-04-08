@@ -513,7 +513,7 @@
   <h1>Garam Garam Chapati! 🔥</h1>
   <p>Freshly made, delivered to your door from Peddha Baazar, Sircilla</p>
   <div class="hero-badges">
-    <span class="badge">🌾 Godhuma · Jonna · Makka · Pacha Jonna</span>
+    <span class="badge"> Godhuma · Jonna · Makka · Pacha Jonna</span>
     <span class="badge">🚴 Fast Delivery</span>
     <span class="badge">⭐ Pure Veg</span>
     <span class="badge">💳 UPI · COD · Cards</span>
@@ -1278,30 +1278,30 @@ function updateRoleUI(){
 // DATA STORE
 // ============================================================
 let categories=[
-  {id:'cat-plain',name:'Main Chapatis',emoji:'🌾'},
-  {id:'cat-combo',name:'Chapati with Curry',emoji:'🍛'},
-  {id:'cat-curry',name:'Curries',emoji:'🥘'}
+  {id:'cat-plain',name:'Main Chapatis',emoji:' '},
+  {id:'cat-combo',name:'Chapati with Curry',emoji:' '},
+  {id:'cat-curry',name:'Curries',emoji:' '}
 ];
 let items=[],idCounter=1000;
 function newId(){return 'item-'+ ++idCounter;}
 
 // Seed data
 const plainRaw=[
-  {name:'Godhuma Chapati',type:'Wheat Chapati',price:10,emoji:'🌾'},
-  {name:'Jonna Chapati',type:'Sorghum Chapati',price:12,emoji:'🌾'},
-  {name:'Makka Chapati',type:'Corn Chapati',price:15,emoji:'🌽'},
-  {name:'Pacha Jonna Chapati',type:'Green Sorghum',price:15,emoji:'🌿'}
+  {name:'Godhuma Chapati',type:'Wheat Chapati',price:10,emoji:' '},
+  {name:'Jonna Chapati',type:'Sorghum Chapati',price:12,emoji:' '},
+  {name:'Makka Chapati',type:'Corn Chapati',price:15,emoji:' '},
+  {name:'Pacha Jonna Chapati',type:'Green Sorghum',price:15,emoji:' '}
 ];
 plainRaw.forEach(i=>items.push({id:newId(),catId:'cat-plain',...i,inStock:true,rating:4.5,ratingCount:12}));
 
 const comboCurries=['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
-const comboChapatis=[{name:'2 Godhuma Chapati',emoji:'🌾',price:40},{name:'2 Jonna Chapati',emoji:'🌾',price:40},{name:'2 Makka Chapati',emoji:'🌽',price:50},{name:'2 Pacha Jonna Chapati',emoji:'🌿',price:50}];
+const comboChapatis=[{name:'2 Godhuma Chapati',emoji:' ',price:40},{name:'2 Jonna Chapati',emoji:' ',price:40},{name:'2 Makka Chapati',emoji:' ',price:50},{name:'2 Pacha Jonna Chapati',emoji:'🌿',price:50}];
 comboCurries.forEach(curry=>comboChapatis.forEach(ch=>items.push({id:newId(),catId:'cat-combo',name:ch.name+' with '+curry,type:'Combo Meal',price:ch.price,emoji:ch.emoji,inStock:true,rating:4.3,ratingCount:8})));
 
 const curryTypes=['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
-const curryEmojis={'Dal Curry':'🫘','Aloo Tomato Curry':'🥔','Vankaya Curry':'🍆','Tomato Curry':'🍅','Kakarakaya Curry':'🥒','Cabbage Curry':'🥬','Palakura Pappu':'🌿'};
+const curryEmojis={'Dal Curry':'🫘','Aloo Tomato Curry':' ','Vankaya Curry':' ','Tomato Curry':' ','Kakarakaya Curry':' ','Cabbage Curry':' ','Palakura Pappu':' '};
 const currySizes=[{s:'Small',p:30},{s:'Medium',p:40},{s:'Large',p:50}];
-curryTypes.forEach(ct=>currySizes.forEach(sz=>items.push({id:newId(),catId:'cat-curry',name:ct+' ('+sz.s+')',price:sz.p,emoji:curryEmojis[ct]||'🥘',inStock:true,type:sz.s+' portion',rating:4.4,ratingCount:6})));
+curryTypes.forEach(ct=>currySizes.forEach(sz=>items.push({id:newId(),catId:'cat-curry',name:ct+' ('+sz.s+')',price:sz.p,emoji:curryEmojis[ct]||' ',inStock:true,type:sz.s+' portion',rating:4.4,ratingCount:6})));
 
 let cart={};
 let manageCatFilter='all',selectedEmoji='🍽',selectedCatEmoji='📂';
@@ -1309,8 +1309,8 @@ let selectedPaymentMethod='cod';
 let currentOrderId=null;
 let currentRatingOrderId=null;
 
-const foodEmojis=['🌾','🌽','🌿','🟢','🍛','🥘','🫘','🥔','🍆','🍅','🥒','🥬','🍞','🫓','🥙','🍱','🥗','🍲','🫕','🥣','🧆','🧇','🥞','🍜','🍝','🥫','🧅','🧄','🌶','🥦','🥕','🧀','🍳','🥚','🫙','🫚','🧈','🥛','☕','🍵'];
-const catEmojis=['🌾','🍛','🥘','🫓','🍜','🥗','🍱','🧆','🥙','🍝','🥞','🍲','🫕','🧇','🍣','🥪','🌯','🥨','🧁','🍰'];
+const foodEmojis=[' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '];
+const catEmojis=[' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' '];
 
 // ============================================================
 // SEARCH
