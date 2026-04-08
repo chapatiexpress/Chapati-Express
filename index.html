@@ -1287,20 +1287,20 @@ function newId(){return 'item-'+ ++idCounter;}
 
 // Seed data
 const plainRaw=[
-  {name:'Godhuma Chapati',type:'Wheat Chapati',price:10,emoji:' '},
-  {name:'Jonna Chapati',type:'Sorghum Chapati',price:12,emoji:' '},
-  {name:'Makka Chapati',type:'Corn Chapati',price:15,emoji:' '},
-  {name:'Pacha Jonna Chapati',type:'Green Sorghum',price:15,emoji:' '}
+  {name:'Godhuma Chapati',type:' ',price:10,emoji:' '},
+  {name:'Jonna Chapati',type:' ',price:12,emoji:' '},
+  {name:'Makka Chapati',type:' ',price:15,emoji:' '},
+  {name:'Pacha Jonna Chapati',type:' ',price:15,emoji:' '}
 ];
 plainRaw.forEach(i=>items.push({id:newId(),catId:'cat-plain',...i,inStock:true,rating:4.5,ratingCount:12}));
 
 const comboCurries=['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
-const comboChapatis=[{name:'2 Godhuma Chapati',emoji:' ',price:40},{name:'2 Jonna Chapati',emoji:' ',price:40},{name:'2 Makka Chapati',emoji:' ',price:50},{name:'2 Pacha Jonna Chapati',emoji:'🌿',price:50}];
-comboCurries.forEach(curry=>comboChapatis.forEach(ch=>items.push({id:newId(),catId:'cat-combo',name:ch.name+' with '+curry,type:'Combo Meal',price:ch.price,emoji:ch.emoji,inStock:true,rating:4.3,ratingCount:8})));
+const comboChapatis=[{name:'2 Godhuma Chapati',emoji:' ',price:40},{name:'2 Jonna Chapati',emoji:' ',price:40},{name:'2 Makka Chapati',emoji:' ',price:50},{name:'2 Pacha Jonna Chapati',emoji:' ',price:50}];
+comboCurries.forEach(curry=>comboChapatis.forEach(ch=>items.push({id:newId(),catId:'cat-combo',name:ch.name+' with '+curry,type:' ',price:ch.price,emoji:ch.emoji,inStock:true,rating:4.3,ratingCount:8})));
 
 const curryTypes=['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const curryEmojis={'Dal Curry':'🫘','Aloo Tomato Curry':' ','Vankaya Curry':' ','Tomato Curry':' ','Kakarakaya Curry':' ','Cabbage Curry':' ','Palakura Pappu':' '};
-const currySizes=[{s:'Small',p:30},{s:'Medium',p:40},{s:'Large',p:50}];
+const currySizes=[{ },{  },{ }];
 curryTypes.forEach(ct=>currySizes.forEach(sz=>items.push({id:newId(),catId:'cat-curry',name:ct+' ('+sz.s+')',price:sz.p,emoji:curryEmojis[ct]||' ',inStock:true,type:sz.s+' portion',rating:4.4,ratingCount:6})));
 
 let cart={};
@@ -2297,7 +2297,7 @@ function sendPromoNotification(){
   document.getElementById('promo-body').value='';
 }
 // Auto-show promos periodically
-setTimeout(()=>showPromoNotification('🔥 Today\'s Special!','Fresh Makka Chapati + Dal Curry Combo at ₹45 only!','🫓'),10000);
+setTimeout(()=>showPromoNotification('🔥 Today\'s Special!','Fresh Chapatis + Dal Curry Combo at ₹40 only!','🫓'),10000);
 
 // ============================================================
 // ADDRESSES
