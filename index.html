@@ -1243,15 +1243,15 @@ const plainRaw=[
   {name:'Godhuma Chapati',type:' ',price:10,emoji:' '},
   {name:'Jonna Chapati',type:' ',price:12,emoji:' '},
   {name:'Makka Chapati',type:' ',price:15,emoji:' '},
-  {name:'Pacha Jonna Chapati',type:' ',price:15,emoji:'🌾'}
+  {name:'Pacha Jonna Chapati',type:' ',price:15,emoji:' '}
 ];
-plainRaw.forEach(i=>items.push({id:newId(),catId:'cat-plain',...i,inStock:true,rating:4.5,ratingCount:12}));
+plainRaw.forEach(i=>items.push({id:newId(),catId:'cat-plain',...i,inStock:true,rating:5.0,ratingCount:12}));
 
 // Seed: Combo - Chapati + Curry
 const comboCurries=['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const comboChapatis=[
-  {name:'2 Godhuma Chapati',emoji:'🫓',price:40,type:'Wheat'},
-  {name:'2 Jonna Chapati',emoji:'🫓',price:40,type:'Sorghum'},
+  {name:'2 Godhuma Chapati',emoji:' ',price:40,type:'Wheat'},
+  {name:'2 Jonna Chapati',emoji:' ',price:40,type:'Sorghum'},
   {name:'2 Makka Chapati',emoji:' ',price:50,type:'Corn'},
   {name:'2 Pacha Jonna Chapati',emoji:' ',price:50,type:'Green Sorghum'}
 ];
@@ -1296,7 +1296,7 @@ comboCurries.forEach(ct=>{
       emoji:curryEmojis[ct]||'🥘',
       inStock:true,
       type:sz.s+' portion',
-      rating:4.4,
+      rating:4.8,
       ratingCount:6
     });
   });
