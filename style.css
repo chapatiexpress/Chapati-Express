@@ -1284,9 +1284,10 @@ const curryEmojis={
   'Palakura Pappu':' '
 };
 comboCurries.forEach(curry=>{
+  comboChapatis.forEach(ch=>{
     items.push({
       id:newId(),
-      catId:'cat-curry',
+      catId:'cat-combo',
       name:ch.name+' with '+curry,
       type:ch.type+' chapati with '+curry,
       price:ch.price,
