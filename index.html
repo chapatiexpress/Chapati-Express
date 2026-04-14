@@ -1275,6 +1275,7 @@ const comboChapatis=[
   {name:'2 Pacha Jonna Chapati',emoji:' ',price:50,type:' '}
 ];
 const curryEmojis={
+  'Dal Curry':'🫘',
   'Aloo Tomato Curry':' ',
   'Vankaya Curry':' ',
   'Tomato Curry':' ',
@@ -1305,14 +1306,15 @@ const currySizes=[
   {s:'Large',p:80}
 ];
 comboCurries.forEach(ct=>{
+  currySizes.forEach(sz=>{
     items.push({
       id:newId(),
       catId:'cat-curry',
-      name:ct+' - ' Dal Curry,
+      name:ct+' - '+sz.s,
       price:sz.p,
       emoji:curryEmojis[ct]||'🥘',
       inStock:true,
-      type: ' Regular ',
+      type:sz.s+' portion',
       rating:4.8,
       ratingCount:6
     });
