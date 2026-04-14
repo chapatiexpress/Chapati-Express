@@ -2,9 +2,96 @@ body {
   background-color: #fdf5e6;
   font-family: Arial, sans-serif;
   text-align: center;
+  margin: 0;
+  padding: 0;
 }
 
 h1 {
   color: #d35400;
   font-size: 50px;
+}
+
+/* 🔷 Payment Section Styling */
+.payment-section {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 15px;
+}
+
+.payment-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.payment-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.payment-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid #ddd;
+  padding: 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.payment-opt.selected {
+  border-color: #0a66ff;
+}
+
+/* 🔷 Razorpay QR Box */
+.razorpay-box {
+  background: linear-gradient(135deg,#ffffff,#f5f7fb);
+  border: 2px solid #ddd;
+  border-radius: 16px;
+  padding: 14px;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* QR Image */
+.razorpay-qr {
+  width: 100%;
+  max-width: 220px;
+  border-radius: 10px;
+  margin: 10px 0;
+}
+
+/* Pay Button */
+.razorpay-btn {
+  display: inline-block;
+  background: linear-gradient(90deg,#0a66ff,#0044cc);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+/* UPI App Buttons */
+.upi-apps {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.upi-app-btn {
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.upi-app-btn:hover {
+  opacity: 0.8;
 }
