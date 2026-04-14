@@ -833,38 +833,42 @@
         <div class="full"><label>Special Instructions</label><textarea id="om-note" rows="2" placeholder="Extra spicy, less oil..."></textarea></div>
         <div class="full">
           <div class="payment-section">
-            <div class="payment-title">💳 Payment Method</div>
-            <div class="payment-options">
-              <div class="payment-opt selected" id="pay-cod" onclick="selectPayment('cod')">
+             <div class="payment-title">💳 Payment Method</div>
+
+             <div class="payment-options">
+               <div class="payment-opt selected" id="pay-cod" onclick="selectPayment('cod')">
                 <div class="po-icon">💵</div>
-                <div><div class="po-label">Cash on Delivery</div><div class="po-sub">Pay when delivered</div></div>
-              </div>
-              <div class="payment-opt" id="pay-upi" onclick="selectPayment('upi')">
-                <div class="po-icon">📱</div>
-                <div><div class="po-label">UPI Payment</div><div class="po-sub">GPay, PhonePe</div></div>
+                <div>
+                  <div class="po-label">Cash on Delivery</div>
+                  <div class="po-sub">Pay when delivered</div>
               </div>
             </div>
-            <div id="upi-apps-section" style="display:none;margin-top:10px">
-              <div style="font-size:.75rem;color:#888;margin-bottom:7px;font-weight:700">Choose UPI App:</div>
-              <div class="upi-apps">
-                <button class="upi-app-btn" onclick="launchUPIApp('gpay')">🟢 Google Pay</button>
-                <button class="upi-app-btn" onclick="launchUPIApp('phonepe')">💜 PhonePe</button>
-                <button class="upi-app-btn" onclick="launchUPIApp('paytm')">🔵 Paytm</button>
-                <button class="upi-app-btn" onclick="launchUPIApp('bhim')">🇮🇳 BHIM</button>
-              </div>
-            </div>
-          </div>
+               
+            <div class="payment-opt" id="pay-upi" onclick="selectPayment('upi')">
+              <div class="po-icon">📱</div>
+              <div>
+                <div class="po-label">UPI Payment</div>
+                <div class="po-sub">Scan QR or Pay Online</div>
+                </div>
+               </div>
+             </div>
+            
+             <!-- 🔽 UPI SECTION WITH QR -->
+             <div id="upi-apps-section" style="display:none;margin-top:12px">
+              <!-- QR BOX -->
+              <div class="razorpay-box">
+               <img src="QrCode (1).jpeg" class="razorpay-qr" alt="UPI QR">
+                
+        <a href="https://razorpay.me/@chapatiexpress" target="_blank" class="razorpay-btn">
+          Pay Now
+        </a>
+      </div>
+               <!-- UPI APPS -->
+        <div style="font-size:.75rem;color:#888;margin:10px 0 6px;font-weight:700">
+           Or open app directly:
         </div>
-      </div>
-      <div class="om-actions" id="om-actions-row">
-        <button class="om-cancel" onclick="closeOrderModal()">✕ Cancel</button>
-        <button class="om-place" onclick="submitOrder()">🛵 Place Order</button>
-      </div>
-      <div class="om-success" id="om-success">
-        <div class="om-success-icon">🎉</div>
-        <h3>Order Placed!</h3>
-        <div class="order-id-display" id="success-order-id">CE-000000</div>
-        <div class="delivery-estimate">
+               
+        <div class="upi-apps">
           <span class="om-route-badge">⏱ ~30 mins</span>
           <span class="om-route-badge">📍 Peddha Baazar</span>
           <span class="om-route-badge" id="success-payment-badge">💵 COD</span>
@@ -899,13 +903,12 @@
       <div class="qr-label">UPI ID: chapatiexpress@ybl<br/>Scan with any UPI app</div>
     </div>
     <div class="upi-redirect-btns">
-      <div class="upi-app-redirect-btn" onclick="deepLinkUPI('gpay')"><div class="uar-icon">🟢</div><div class="uar-name">Google Pay</div></div>
-      <div class="upi-app-redirect-btn" onclick="deepLinkUPI('phonepe')"><div class="uar-icon">💜</div><div class="uar-name">PhonePe</div></div>
-      <div class="upi-app-redirect-btn" onclick="deepLinkUPI('paytm')"><div class="uar-icon">🔵</div><div class="uar-name">Paytm</div></div>
-      <div class="upi-app-redirect-btn" onclick="deepLinkUPI('bhim')"><div class="uar-icon">🇮🇳</div><div class="uar-name">BHIM</div></div>
+      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🟢 Google Pay</button>
+      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">💜 PhonePe</button>
+      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🔵 Paytm</button>
+      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
     </div>
-    <button class="upi-paid-btn" onclick="confirmUPIPaid()">✅ I've Paid Successfully</button>
-    <button class="om-cancel" style="width:100%;margin-top:8px" onclick="closeUPIRedirect()">✕ Cancel</button>
+    
   </div>
 </div>
 
