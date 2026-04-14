@@ -228,48 +228,19 @@
     .om-route-info{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
     .om-route-badge{background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:.76rem;color:var(--brown);display:flex;align-items:center;gap:3px}
 
-    <div id="payment-section" style="text-align:center; margin-top:30px;">
-
-    <h2>Select Payment Method</h2>
-
-    <p>Total Amount: ₹100</p>
-
-    <button onclick="payNow()" 
-        style="padding:12px 20px; background:purple; color:white; border:none; border-radius:5px; font-size:16px;">
-        Pay Online (UPI / QR / Card)
-    </button>
-
-    <p id="msg" style="color:green; margin-top:10px;"></p>
-
-</div>
-<!-- 💳 PAYMENT SECTION END -->
-
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<script>
-function payNow() {
-
-    var options = {
-        "key": "YOUR_KEY_ID",  // 🔴 Replace with your Razorpay Key
-        "amount": 10000, // ₹100 = 10000 paise
-        "currency": "INR",
-        "name": "Your Store Name",
-        "description": "Order Payment",
-
-        "handler": function (response) {
-            document.getElementById("msg").innerText =
-                "Payment Successful! Order Confirmed ✅";
-        },
-
-        "theme": {
-            "color": "#6a0dad"
-        }
-    };
-
-    var rzp = new Razorpay(options);
-    rzp.open();
-}
-</script>
+    /* ===== PAYMENT SECTION ===== */
+    .payment-section{margin-top:16px}
+    .payment-title{font-size:.75rem;font-weight:800;color:var(--brown);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+    .payment-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .payment-opt{background:#fff;border:2px solid var(--border);border-radius:12px;padding:10px 12px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:all .2s;font-size:.84rem;font-weight:700;color:var(--brown);touch-action:manipulation}
+    .payment-opt:hover{border-color:var(--saffron)}
+    .payment-opt.selected{border-color:var(--saffron);background:#fff8ef}
+    .payment-opt .po-icon{font-size:1.3rem;flex-shrink:0}
+    .payment-opt .po-label{font-size:.8rem;font-weight:700;color:var(--brown)}
+    .payment-opt .po-sub{font-size:.68rem;color:#888}
+    .upi-apps{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+    .upi-app-btn{background:#fff;border:2px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;transition:all .2s;touch-action:manipulation}
+    .upi-app-btn:hover{border-color:var(--saffron);background:#fff8ef}
 
     /* ===== ORDER SUCCESS ===== */
     .om-success{display:none;text-align:center;padding:28px 16px}
