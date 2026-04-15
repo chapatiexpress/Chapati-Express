@@ -797,7 +797,7 @@
     <div class="fob-items" id="fob-items-text">0 items</div>
     <strong id="fob-total-text">₹0</strong>
   </div>
-  <button class="om-place" onclick="handlePlaceOrder()">Place Order</button>
+  <button class="fob-btn" onclick="openOrderModal()">🚴 Place Order</button>
 </div>
 
 <!-- ORDER MODAL -->
@@ -847,7 +847,10 @@
             <div id="upi-apps-section" style="display:none;margin-top:10px">
               <div style="font-size:.75rem;color:#888;margin-bottom:7px;font-weight:700">Choose UPI App:</div>
               <div class="upi-apps">
-                
+                <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Google Pay</button>
+                <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> PhonePe</button>
+                <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Paytm</button>
+                <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
               </div>
             </div>
           </div>
@@ -855,7 +858,7 @@
       </div>
       <div class="om-actions" id="om-actions-row">
         <button class="om-cancel" onclick="closeOrderModal()">✕ Cancel</button>
-        <button class="om-place" onclick="handlePlaceOrder()">Place Order</button>
+        <button class="om-place" onclick="submitOrder()">🛵 Place Order</button>
       </div>
       <div class="om-success" id="om-success">
         <div class="om-success-icon">🎉</div>
@@ -901,6 +904,7 @@
       <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Paytm</button>
       <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
     </div>
+    <button class="upi-paid-btn" onclick="confirmUPIPaid()">✅ I've Paid Successfully</button>
     <button class="om-cancel" style="width:100%;margin-top:8px" onclick="closeUPIRedirect()">✕ Cancel</button>
   </div>
 </div>
@@ -2463,72 +2467,6 @@ function showToast(msg,duration=2400,type=''){
   t.textContent=msg;t.className='toast '+(type||'');
   t.classList.add('show');clearTimeout(t._to);
   t._to=setTimeout(()=>t.classList.remove('show'),duration);
-}
-
-function getCartTotal() {
-  const el = document.querySelector(".om-total-row");
-  if (!el) return 0;
-
-  const match = el.innerText.match(/₹\\s*(\\d+)/);
-  return match ? parseInt(match[1]) : 0;
-}
-
-function handlePlaceOrder() {
-  const totalAmount = getCartTotal();
-
-  if (!totalAmount || totalAmount <= 0) {
-    showToast("Invalid amount", "error");
-    return;
-  }
-
-  // detect selected payment
-  const selected = document.querySelector(".payment-opt.selected");
-
-  if (!selected) {
-    showToast("Select payment method", "error");
-    return;
-  }
-
-  const method = selected.innerText.toLowerCase();
-
-  if (method.includes("upi") || method.includes("online")) {
-    payWithRazorpay(totalAmount);
-  } else {
-    handleCODOrder(totalAmount);
-  }
-}
-
-function handleCODOrder(amount) {
-  showToast("Order placed with Cash on Delivery ✅");
-
-  showOrderSuccessUI("COD-" + Date.now());
-}
-
-function payWithRazorpay(amount) {
-  const options = {
-    key: "YOUR_RAZORPAY_KEY",
-    amount: amount * 100,
-    currency: "INR",
-    name: "Chapati Express",
-    description: "Food Order",
-
-    handler: function (response) {
-      showToast("Payment Successful ✅");
-      showOrderSuccessUI(response.razorpay_payment_id);
-    },
-
-    modal: {
-      ondismiss: function () {
-        showToast("Payment Cancelled ❌", "error");
-      }
-    },
-
-    theme: {
-      color: "#e8820c"
-    }
-  };
-
-  new Razorpay(options).open();
 }
 
 // ============================================================
