@@ -905,6 +905,150 @@
     <button class="om-cancel" style="width:100%;margin-top:8px" onclick="closeUPIRedirect()">✕ Cancel</button>
   </div>
 </div>
+  require("dotenv").config();
+const express = require("express");
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
+const http = require("http");
+const { Server } = require("socket.io");
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: { origin: "*" },
+});
+
+app.use(express.json());
+
+// 🔐 Razorpay instance
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
+
+// 🗂️ Temporary DB (replace with MongoDB later)
+let orders = [];
+
+// 🔌 Socket connection
+io.on("connection", (socket) => {
+  console.log("⚡ User connected");
+});
+
+// 🧾 1. Place Order + Create Razorpay Order
+app.post("/place-order", async (req, res) => {
+  try {
+    const { items, totalAmount, customer } = req.body;
+
+    const orderId = "ORD_" + Date.now();
+
+    const newOrder = {
+      id: orderId,
+      items,
+      amount: totalAmount,
+      status: "pending",
+      customer,
+    };
+
+    orders.push(newOrder);
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: totalAmount * 100,
+      currency: "INR",
+      receipt: orderId,
+    });
+
+    res.json({-
+      success: true,
+      order: newOrder,
+      razorpayOrder,
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Order failed");
+  }
+});
+
+// 🔐 2. Verify Payment + Update Order + Notify
+app.post("/verify-payment", (req, res) => {
+  try {
+    const {
+      razorpay_order_id,
+      razorpay_payment_id,
+      razorpay_signature,
+      receipt,
+    } = req.body;
+
+    const body = razorpay_order_id + "|" + rzp_live_Sd4xGVwfDjtJXr,CL0zxRb72WkDU1LhLsjP45gj;
+
+    const expectedSignature = crypto
+      .createHmac("sha256", process.env.rzp_live_Sd4xGVwfDjtJXr,CL0zxRb72WkDU1LhLsjP45gj)
+      .update(body)
+      .digest("hex");
+
+    if (expectedSignature === razorpay_signature) {
+
+      // ✅ Update order
+      const order = orders.find((o) => o.id === receipt);
+      if (order) {
+        order.status = "paid";
+      }
+
+      // 🔔 Send real-time notification
+      io.emit("payment-success", {
+        orderId: receipt,
+        message: "✅ Payment Successful",
+      });
+
+      console.log("✅ Payment verified:", receipt);
+
+      res.json({ success: true });
+
+    } else {
+      res.status(400).json({ success: false });
+    }
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Verification failed");
+  }
+});
+
+// 📡 3. Razorpay Webhook (Recommended for production)
+app.post("/webhook", express.json(), (req, res) => {
+  const event = req.body;
+
+  if (event.event === "payment.captured") {
+    const payment = event.payload.payment.entity;
+
+    const receipt = payment.notes?.receipt;
+
+    const order = orders.find((o) => o.id === receipt);
+    if (order) {
+      order.status = "paid";
+
+      io.emit("payment-success", {
+        orderId: receipt,
+        message: "✅ Payment Captured (Webhook)",
+      });
+    }
+
+    console.log("📡 Webhook payment captured:", payment.id);
+  }
+
+  res.sendStatus(200);
+});
+
+// 📦 4. Get Orders (for admin panel)
+app.get("/orders", (req, res) => {
+  res.json(orders);
+});
+
+// 🚀 Start server
+const PORT = 5000;
+server.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
 
 <!-- RATING MODAL -->
 <div class="rating-modal-overlay" id="rating-modal-overlay">
