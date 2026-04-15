@@ -847,7 +847,10 @@
             <div id="upi-apps-section" style="display:none;margin-top:10px">
               <div style="font-size:.75rem;color:#888;margin-bottom:7px;font-weight:700">Choose UPI App:</div>
               <div class="upi-apps">
-                
+                <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Google Pay</button>
+                <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> PhonePe</button>
+                <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Paytm</button>
+                <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
               </div>
             </div>
           </div>
@@ -901,47 +904,27 @@
       <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Paytm</button>
       <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
     </div>
-    <div id="payment-container">
-    <button id="rzp-button" class="upi-paid-btn">Pay Now with UPI</button>
-    <div id="payment-status" style="margin-top: 15px; font-weight: bold; display: none;">
-        Checking payment status... <span class="loader"></span>
-    </div>
+    <button class="upi-paid-btn" onclick="confirmUPIPaid()">✅ I've Paid Successfully</button>
+    <button class="om-cancel" style="width:100%;margin-top:8px" onclick="closeUPIRedirect()">✕ Cancel</button>
+  </div>
 </div>
 
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-<script>
-var options = {
-    "key": "YOUR_KEY_ID", 
-    "amount": "50000", 
-    "currency": "INR",
-    "handler": function (response){
-        // 1. Hide the button and show the "Checking" status
-        document.getElementById('rzp-button').style.display = 'none';
-        document.getElementById('payment-status').style.display = 'block';
-
-        // 2. Start Polling: Check the server every 2 seconds
-        var checkInterval = setInterval(function() {
-            fetch('check_admin_status.php?payment_id=' + response.razorpay_payment_id)
-                .then(res => res.json())
-                .then(data => {
-                    if(data.received === true) {
-                        // 3. Stop checking and redirect on success
-                        clearInterval(checkInterval);
-                        window.location.href = "success_page.html";
-                    }
-                })
-                .catch(err => console.log("Waiting for bank confirmation..."));
-        }, 2000); 
-    }
-};
-
-var rzp1 = new Razorpay(options);
-document.getElementById('rzp-button').onclick = function(e){
-    rzp1.open();
-    e.preventDefault();
-}
-</script>
+<!-- RATING MODAL -->
+<div class="rating-modal-overlay" id="rating-modal-overlay">
+  <div class="rating-modal">
+    <div style="font-size:2.2rem;margin-bottom:7px">😋</div>
+    <h3>Rate Your Order</h3>
+    <p style="color:#888;font-size:.85rem;margin-top:3px">How was your Chapati Express experience?</p>
+    <div class="rating-stars-row" id="rating-stars">
+      <span class="rating-star" onclick="setRating(1)">⭐</span>
+      <span class="rating-star" onclick="setRating(2)">⭐</span>
+      <span class="rating-star" onclick="setRating(3)">⭐</span>
+      <span class="rating-star" onclick="setRating(4)">⭐</span>
+      <span class="rating-star" onclick="setRating(5)">⭐</span>
+    </div>
+    <textarea class="rating-feedback" id="rating-feedback" rows="3" placeholder="Tell us about your experience..."></textarea>
+    <button class="rating-submit" onclick="submitRating()">Submit Review</button>
+    <br/><button style="background:none;border:none;color:#888;cursor:pointer;margin-top:10px;font-size:.82rem" onclick="closeRatingModal()">Skip</button>
   </div>
 </div>
 
