@@ -901,8 +901,33 @@
       <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Paytm</button>
       <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
     </div>
-    <button class="upi-paid-btn" onclick="confirmUPIPaid()">✅ I've Paid Successfully</button>
-    <button class="om-cancel" style="width:100%;margin-top:8px" onclick="closeUPIRedirect()">✕ Cancel</button>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "PASTE_YOUR_KEY_HERE", // Example: rzp_test_abcdef123
+    "amount": "50000",            // In paise (50000 = ₹500)
+    "currency": "INR",
+    "name": "Your Business Name",
+    "handler": function (response){
+        /* This is the "Automatic" part. 
+           This function ONLY runs after a successful payment.
+        */
+        console.log("Payment ID: " + response.razorpay_payment_id);
+        
+        // Redirect the customer immediately
+        window.location.href = "success_page.html"; 
+    },
+    "theme": { "color": "#3399cc" }
+};
+
+var rzp1 = new Razorpay(options);
+
+// Link this to your button's ID
+document.getElementById('upi-paid-btn').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+</script>
   </div>
 </div>
 
