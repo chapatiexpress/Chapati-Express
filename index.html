@@ -797,7 +797,7 @@
     <div class="fob-items" id="fob-items-text">0 items</div>
     <strong id="fob-total-text">₹0</strong>
   </div>
-  <button class="fob-btn" onclick="openOrderModal()">🚴 Place Order</button>
+  <button class="om-place" onclick="handlePlaceOrder()">Place Order</button>
 </div>
 
 <!-- ORDER MODAL -->
@@ -855,7 +855,7 @@
       </div>
       <div class="om-actions" id="om-actions-row">
         <button class="om-cancel" onclick="closeOrderModal()">✕ Cancel</button>
-        <button class="om-place" onclick="submitOrder()">🛵 Place Order</button>
+        <button class="om-place" onclick="handlePlaceOrder()">Place Order</button>
       </div>
       <div class="om-success" id="om-success">
         <div class="om-success-icon">🎉</div>
@@ -2463,6 +2463,85 @@ function showToast(msg,duration=2400,type=''){
   t.textContent=msg;t.className='toast '+(type||'');
   t.classList.add('show');clearTimeout(t._to);
   t._to=setTimeout(()=>t.classList.remove('show'),duration);
+}
+
+function getCartTotal() {
+  let total = 0;
+
+  // your cart is stored in memory (global array usually)
+  if (window.cart && Array.isArray(cart)) {
+    cart.forEach(item => {
+      total += item.price * item.qty;
+    });
+  }
+
+  // fallback: read from UI (safe for your current structure)
+  const totalEl = document.querySelector(".om-total-row");
+  if (totalEl) {
+    const text = totalEl.innerText;
+    const match = text.match(/₹\\s*(\\d+)/);
+    if (match) total = parseInt(match[1]);
+  }
+
+  return total;
+}
+
+function handlePlaceOrder() {
+  const totalAmount = getCartTotal();
+
+  if (!totalAmount || totalAmount <= 0) {
+    showToast("Invalid amount", "error");
+    return;
+  }
+
+  // detect selected payment
+  const selected = document.querySelector(".payment-opt.selected");
+
+  if (!selected) {
+    showToast("Select payment method", "error");
+    return;
+  }
+
+  const method = selected.innerText.toLowerCase();
+
+  if (method.includes("upi") || method.includes("online")) {
+    payWithRazorpay(totalAmount);
+  } else {
+    handleCODOrder(totalAmount);
+  }
+}
+
+function handleCODOrder(amount) {
+  showToast("Order placed with Cash on Delivery ✅");
+
+  showOrderSuccessUI("COD-" + Date.now());
+}
+
+function payWithRazorpay(amount) {
+  const options = {
+    key: "rzp_live_Sd4xGVwfDjtJXr,CL0zxRb72WkDU1LhLsjP45gj",
+    amount: amount * 100,
+    currency: "INR",
+    name: "Chapati Express",
+    description: "Food Order",
+
+    handler: function (response) {
+      showToast("Payment Successful ✅");
+      showOrderSuccessUI(response.razorpay_payment_id);
+    },
+
+    modal: {
+      ondismiss: function () {
+        showToast("Payment Cancelled ❌", "error");
+      }
+    },
+
+    theme: {
+      color: "#e8820c"
+    }
+  };
+
+  new Razorpay(options).open();
 }
 
 // ============================================================
