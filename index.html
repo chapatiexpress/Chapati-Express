@@ -1818,89 +1818,209 @@ function closeOrderModal(){
   document.body.style.overflow='';
 }
 function submitOrder(){
-  if(!currentUser){showToast('⚠️ Please sign in',2000);return;}
+  if(!currentUser){
+    showToast('⚠️ Please sign in',2000);
+    return;
+  }
+
   const name=document.getElementById('om-name').value.trim();
   const phone=document.getElementById('om-phone').value.trim();
   const address=document.getElementById('om-address').value.trim();
+
   if(!name){showToast('⚠️ Enter your name');return;}
   if(!phone){showToast('⚠️ Enter phone number');return;}
   if(!address){showToast('⚠️ Enter delivery address');return;}
-  if(!omPinLatLng){showToast('⚠️ Pin your delivery location on the map');return;}
-  if(!isServiceableLatLng(omPinLatLng.lat,omPinLatLng.lng)){showToast('⚠️ Location not serviceable (within 4km)',2600);return;}
-  if(selectedPaymentMethod==='qr'){const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);showPhonePeQR(total);return;}
-if(selectedPaymentMethod==='upi'){
-  const total = Object.keys(cart).reduce(
-    (a,k)=>a+cart[k].price*cart[k].qty,0
+
+  if(!omPinLatLng){
+    showToast('⚠️ Pin your delivery location on the map');
+    return;
+  }
+
+  if(!isServiceableLatLng(omPinLatLng.lat,omPinLatLng.lng)){
+    showToast('⚠️ Location not serviceable (within 4km)',2600);
+    return;
+  }
+
+  const total = Object.values(cart).reduce(
+    (a,item)=>a+item.price*item.qty,0
   );
 
-  payWithRazorpay(total); 
-  return;
-}  finalizeOrder(selectedPaymentMethod,false);
-}
+  if(total <= 0){
+    showToast('⚠️ Invalid cart amount');
+    return;
+  }
 
+  // 🔥 generate order ID BEFORE payment
+  currentOrderId='CE-'+Date.now().toString().slice(-6);
+
+  if(selectedPaymentMethod==='qr'){
+    showPhonePeQR(total);
+    return;
+  }
+
+  if(selectedPaymentMethod==='upi'){
+    payWithRazorpay(total);
+    return;
+  }
+
+  // COD flow
+  finalizeOrder(selectedPaymentMethod,false,null);
+}
 function payWithRazorpay(amount) {
   const options = {
-    key: "CL0zxRb72WkDU1LhLsjP45gj",
-    amount: amount * 100,
+    key: "CL0zxRb72WkDU1LhLsjP45gj", // 🔴 replace
+    amount: Math.round(amount * 100),
     currency: "INR",
     name: "Chapati Express",
+    description: "Order Payment",
+
+    // ✅ Enable only UPI
+    method: {
+      upi: true,
+      card: false,
+      netbanking: false,
+      wallet: false
+    },
+
+    // 🔥 FORCE UPI APPS UI
+    config: {
+      display: {
+        blocks: {
+          upi: {
+            name: "Pay using UPI",
+            instruments: [{ method: "upi" }]
+          }
+        },
+        sequence: ["block.upi"],
+        preferences: {
+          show_default_blocks: false
+        }
+      }
+    },
+
+    prefill: {
+      name: document.getElementById('om-name').value,
+      contact: document.getElementById('om-phone').value
+    },
 
     handler: function (response) {
       console.log("Payment success:", response);
 
-      // ✅ THIS IS THE FIX
-      finalizeOrder('upi', true);
+      // ✅ save order after payment
+      finalizeOrder('upi', true, response);
     },
 
     modal: {
       ondismiss: function () {
         showToast("Payment Cancelled ❌", "error");
       }
+    },
+
+    theme: {
+      color: "#e8820c"
     }
   };
 
-  new Razorpay(options).open();
+  const rzp = new Razorpay(options);
+  rzp.open();
 }
-  function finalizeOrder(paymentMethod,paymentDone){
-  const keys=Object.keys(cart),total=keys.reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
+  function finalizeOrder(paymentMethod,paymentDone,paymentResponse){
+
+  const keys=Object.keys(cart);
+
+  const total=keys.reduce(
+    (a,k)=>a+cart[k].price*cart[k].qty,0
+  );
+
   const name=document.getElementById('om-name').value.trim();
   const phone=document.getElementById('om-phone').value.trim();
   const address=document.getElementById('om-address').value.trim();
   const landmark=document.getElementById('om-landmark').value.trim();
   const time=document.getElementById('om-time').value;
   const note=document.getElementById('om-note').value.trim();
-  currentOrderId='CE-'+Date.now().toString().slice(-6);
-  const orderItems=keys.map(k=>({id:k,name:cart[k].name,qty:cart[k].qty,price:cart[k].price,lineTotal:cart[k].price*cart[k].qty}));
-  const payLabels={'cod':'💵 Cash on Delivery','upi':'📱 UPI','card':'💳 Card'};
+
+  const razorpayPaymentId = paymentResponse?.razorpay_payment_id || null;
+
+  const orderItems=keys.map(k=>({
+    id:k,
+    name:cart[k].name,
+    qty:cart[k].qty,
+    price:cart[k].price,
+    lineTotal:cart[k].price*cart[k].qty
+  }));
+
+  const payLabels={
+    'cod':'💵 Cash on Delivery',
+    'upi':'📱 UPI',
+    'card':'💳 Card'
+  };
+
   try{
     if(db){
       db.collection('orders').add({
-        orderId:currentOrderId,status:'pending',
+        orderId:currentOrderId,
+        razorpayPaymentId, // 🔥 important
+        status:'pending',
+
         createdAt:firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
         autoRejectAt:new Date(Date.now()+ORDER_AUTO_CANCEL_MS),
+
         customerEmail:currentUser.email||null,
-        customerName:name,customerPhone:phone,
-        addressText:address,landmark:landmark||'',
-        deliveryTime:time,note:note||'',
-        pin:{lat:omPinLatLng.lat,lng:omPinLatLng.lng},
-        total,items:orderItems,paymentMethod,paymentDone,source:'web'
+        customerName:name,
+        customerPhone:phone,
+
+        addressText:address,
+        landmark:landmark||'',
+
+        deliveryTime:time,
+        note:note||'',
+
+        pin:{
+          lat:omPinLatLng.lat,
+          lng:omPinLatLng.lng
+        },
+
+        total,
+        items:orderItems,
+
+        paymentMethod,
+        paymentDone,
+
+        source:'web'
       });
     }
-  }catch(e){console.warn('Order save failed:',e);}
+  }catch(e){
+    console.warn('Order save failed:',e);
+  }
+
   localStorage.setItem('lastOrder',JSON.stringify({
-    orderId:currentOrderId,total,items:orderItems,paymentMethod,
-    name,phone,address,createdAt:Date.now(),status:'pending'
+    orderId:currentOrderId,
+    total,
+    items:orderItems,
+    paymentMethod,
+    name,phone,address,
+    createdAt:Date.now(),
+    status:'pending'
   }));
+
   playOrderPlacedSound();
+
   document.getElementById('om-form-fields').style.display='none';
   document.getElementById('om-actions-row').style.display='none';
-  document.getElementById('success-order-id').textContent=currentOrderId;
-  document.getElementById('success-payment-badge').textContent=payLabels[paymentMethod]||paymentMethod;
-  document.getElementById('om-success').style.display='block';
-  setTimeout(()=>{cart={};updateCart();updateFloatingBar();},3000);
-}
 
+  document.getElementById('success-order-id').textContent=currentOrderId;
+  document.getElementById('success-payment-badge').textContent=
+    payLabels[paymentMethod]||paymentMethod;
+
+  document.getElementById('om-success').style.display='block';
+
+  setTimeout(()=>{
+    cart={};
+    updateCart();
+    updateFloatingBar();
+  },3000);
+}
 // ============================================================
 // ORDER TRACKING
 // ============================================================
