@@ -855,7 +855,7 @@
       </div>
       <div class="om-actions" id="om-actions-row">
         <button class="om-cancel" onclick="closeOrderModal()">✕ Cancel</button>
-        <button class="om-place" onclick="submitOrder()">🛵 Place Order</button>
+        <button class="om-place" onclick="()">🛵 Place Order</button>
       </div>
       <div class="om-success" id="om-success">
         <div class="om-success-icon">🎉</div>
@@ -1840,7 +1840,7 @@ if(selectedPaymentMethod==='upi'){
 
 function payWithRazorpay(amount) {
   const options = {
-    
+    key: "CL0zxRb72WkDU1LhLsjP45gj",
     amount: amount * 100,
     currency: "INR",
     name: "Chapati Express",
