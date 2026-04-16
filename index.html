@@ -22,6 +22,7 @@
     *{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
     body{background:var(--cream);font-family:"Lato",sans-serif;color:var(--deep);overflow-x:hidden}
+
     /* ===== HEADER ===== */
     header{background:linear-gradient(135deg,var(--brown) 0%,#3b1a06 60%,#7a3b10 100%);color:#fff;padding:0;position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(0,0,0,0.35)}
     .header-inner{max-width:1200px;margin:auto;display:flex;align-items:center;justify-content:space-between;padding:0 16px;height:var(--header-h);gap:10px}
@@ -30,6 +31,7 @@
     .logo-text{font-family:"Yeseva One",serif;font-size:1.4rem;letter-spacing:.5px;color:var(--turmeric);line-height:1.1}
     .logo-sub{font-size:.65rem;color:#f5c98a;letter-spacing:2px;text-transform:uppercase}
     .header-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
     /* Search Bar */
     .search-bar-wrap{position:relative;display:flex;align-items:center}
     .search-bar{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);color:#fff;padding:8px 12px 8px 34px;border-radius:20px;font-size:.82rem;font-family:"Lato",sans-serif;width:180px;transition:all .3s;outline:none}
@@ -45,6 +47,7 @@
     .search-result-item .sri-info .sri-name{font-weight:700;color:var(--brown);font-size:.85rem}
     .search-result-item .sri-info .sri-meta{font-size:.72rem;color:#888}
     .search-result-item .sri-price{font-family:"Yeseva One",serif;color:var(--saffron);font-size:.9rem;margin-left:auto;white-space:nowrap}
+
     .cart-btn{background:var(--turmeric);color:var(--deep);border:none;padding:8px 14px;border-radius:20px;font-weight:700;cursor:pointer;font-size:.82rem;display:flex;align-items:center;gap:5px;transition:transform .15s;white-space:nowrap}
     .cart-btn:hover{transform:scale(1.05)}
     .cart-count{background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:.68rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -60,6 +63,7 @@
     .user-menu-item.danger{border-color:#ffcccc;color:#a31212;background:#fff5f5}
     .user-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--turmeric),var(--saffron));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1rem;color:var(--deep);border:2px solid rgba(255,255,255,0.3);box-shadow:0 2px 8px rgba(0,0,0,0.2);cursor:pointer;flex-shrink:0}
     .user-status{display:flex;align-items:center;gap:8px;color:#fff;font-size:.82rem}
+
     /* Mobile search toggle */
     .mob-search-btn{display:none;background:none;border:none;color:#fff;font-size:1.3rem;cursor:pointer;padding:6px;flex-shrink:0}
     .mob-search-overlay{display:none;position:fixed;top:0;left:0;right:0;z-index:200;background:var(--brown);padding:12px 14px;gap:10px;align-items:center}
@@ -68,6 +72,7 @@
     .mob-search-input::placeholder{color:rgba(255,255,255,0.55)}
     .mob-search-close{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer}
     .mob-search-results{position:fixed;top:60px;left:0;right:0;z-index:199;background:#fff;max-height:60vh;overflow-y:auto;border-bottom:2px solid var(--border);box-shadow:0 8px 24px rgba(0,0,0,0.18)}
+
     /* ===== HERO ===== */
     .hero{background:linear-gradient(160deg,#3b1a06 0%,#7a3b10 40%,#e8820c 100%);padding:44px 20px 38px;text-align:center;position:relative;overflow:hidden}
     .hero::before{content:"🫓";font-size:140px;opacity:.07;position:absolute;top:-20px;right:-10px;animation:float 4s ease-in-out infinite;pointer-events:none}
@@ -76,6 +81,7 @@
     .hero p{color:#f5ddb5;font-size:1rem;margin-top:8px;font-style:italic}
     .hero-badges{display:flex;gap:10px;justify-content:center;margin-top:16px;flex-wrap:wrap}
     .badge{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:5px 12px;border-radius:20px;font-size:.78rem;backdrop-filter:blur(6px)}
+
     /* ===== MAIN ===== */
     .main{max-width:1200px;margin:0 auto;padding:24px 14px 120px}
     .section-title{font-family:"Yeseva One",serif;font-size:1.5rem;color:var(--brown);margin-bottom:18px;display:flex;align-items:center;gap:10px;border-left:4px solid var(--saffron);padding-left:12px}
@@ -85,6 +91,7 @@
     .back-btn:hover{background:rgba(255,255,255,0.28)}
     .back-btn-light{background:var(--cream);border:1.5px solid var(--border);color:var(--brown);border-radius:20px;padding:8px 16px;font-size:.85rem;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:background .2s;font-family:"Lato",sans-serif;margin-bottom:16px}
     .back-btn-light:hover{background:#f0e0c8}
+
     /* ===== MENU CARDS ===== */
     .menu-section{margin-bottom:40px}
     .menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
@@ -110,6 +117,7 @@
     .card-qty-num{min-width:26px;text-align:center;font-weight:700;font-size:.9rem;color:var(--brown)}
     .item-rating{display:flex;align-items:center;gap:4px;font-size:.72rem;color:#888;margin-top:2px}
     .item-rating .stars{color:#f5a623}
+
     /* ===== CART ===== */
     .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200}
     .overlay.open{display:block}
@@ -128,6 +136,7 @@
     .cart-total{font-family:"Yeseva One",serif;font-size:1.3rem;color:var(--brown);display:flex;justify-content:space-between;margin-bottom:14px}
     .checkout-btn{width:100%;background:var(--saffron);color:#fff;border:none;border-radius:12px;padding:14px;font-size:.98rem;font-weight:700;cursor:pointer;font-family:"Yeseva One",serif;transition:background .2s;touch-action:manipulation}
     .checkout-btn:hover{background:var(--brown)}
+
     /* ===== MANAGE ===== */
     .cat-tabs-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;align-items:center}
     .cat-tab{padding:7px 16px;border-radius:22px;border:2px solid var(--border);background:#fff;color:var(--brown);font-weight:700;font-size:.82rem;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s}
@@ -172,6 +181,7 @@
     .mfb-tab{padding:7px 16px;border-radius:20px;border:2px solid var(--border);background:#fff;color:var(--brown);font-weight:700;font-size:.8rem;cursor:pointer;transition:all .2s;white-space:nowrap;flex-shrink:0;touch-action:manipulation}
     .mfb-tab:hover{border-color:var(--saffron);color:var(--saffron)}
     .mfb-tab.active{background:var(--saffron);border-color:var(--saffron);color:#fff}
+
     /* ===== MODALS ===== */
     .auth-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;padding:14px}
     .auth-overlay.open{display:flex}
@@ -183,6 +193,7 @@
     .google-signin-btn{width:100%;background:#fff;border:2px solid #e0e0e0;border-radius:12px;padding:13px 18px;font-size:.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;color:var(--brown);font-family:"Lato",sans-serif}
     .google-signin-btn:hover{background:#f8f8f8;border-color:var(--saffron)}
     @keyframes modalIn{from{opacity:0;transform:scale(0.9) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+
     /* ===== ORDER MODAL ===== */
     .order-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;align-items:center;justify-content:center;padding:10px}
     .order-modal-overlay.open{display:flex}
@@ -216,6 +227,7 @@
     .om-map-pin-info.visible{display:flex}
     .om-route-info{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
     .om-route-badge{background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:.76rem;color:var(--brown);display:flex;align-items:center;gap:3px}
+
     /* ===== PAYMENT SECTION ===== */
     .payment-section{margin-top:16px}
     .payment-title{font-size:.75rem;font-weight:800;color:var(--brown);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
@@ -229,6 +241,7 @@
     .upi-apps{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
     .upi-app-btn{background:#fff;border:2px solid var(--border);border-radius:10px;padding:8px 14px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:.82rem;font-weight:700;transition:all .2s;touch-action:manipulation}
     .upi-app-btn:hover{border-color:var(--saffron);background:#fff8ef}
+
     /* ===== ORDER SUCCESS ===== */
     .om-success{display:none;text-align:center;padding:28px 16px}
     .om-success-icon{font-size:3.2rem;margin-bottom:10px}
@@ -238,6 +251,7 @@
     .om-success .delivery-estimate{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:10px 0}
     .om-success .om-done-btn{margin-top:16px;background:var(--saffron);color:#fff;border:none;border-radius:12px;padding:11px 28px;font-family:"Yeseva One",serif;font-size:.95rem;cursor:pointer;touch-action:manipulation}
     .track-order-btn{background:var(--blue);color:#fff;border:none;border-radius:12px;padding:10px 18px;font-family:"Yeseva One",serif;font-size:.88rem;cursor:pointer;margin-top:8px;touch-action:manipulation}
+
     /* ===== ORDER TRACKING ===== */
     .tracking-panel{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
     .tracking-steps{display:flex;flex-direction:column;gap:0}
@@ -257,6 +271,7 @@
     .est-delivery-banner .edb-icon{font-size:1.8rem;flex-shrink:0}
     .est-delivery-banner .edb-info .edb-title{font-weight:800;color:var(--green);font-size:.95rem}
     .est-delivery-banner .edb-info .edb-time{font-family:"Yeseva One",serif;font-size:1.3rem;color:var(--brown)}
+
     /* ===== RATING MODAL ===== */
     .rating-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:400;align-items:center;justify-content:center;padding:14px}
     .rating-modal-overlay.open{display:flex}
@@ -269,6 +284,7 @@
     .rating-feedback{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:.88rem;font-family:"Lato",sans-serif;outline:none;margin-bottom:14px;resize:none}
     .rating-feedback:focus{border-color:var(--saffron)}
     .rating-submit{width:100%;background:linear-gradient(90deg,var(--brown),var(--saffron));color:#fff;border:none;border-radius:12px;padding:13px;font-family:"Yeseva One",serif;font-size:.95rem;cursor:pointer;touch-action:manipulation}
+
     /* ===== ADMIN DASHBOARD ===== */
     .dashboard-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:28px}
     .dash-card{background:var(--card-bg);border:1px solid var(--border);border-radius:16px;padding:16px;box-shadow:var(--shadow);transition:transform .2s}
@@ -288,6 +304,7 @@
     .txn-info .txn-id{font-weight:800;color:var(--brown);font-size:.82rem}
     .txn-info .txn-meta{font-size:.72rem;color:#888;margin-top:2px}
     .txn-amount{font-family:"Yeseva One",serif;color:var(--green);font-size:1rem}
+
     /* ===== MODALS - COMMON ===== */
     .cat-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:500;align-items:center;justify-content:center;padding:14px}
     .cat-modal-overlay.open{display:flex}
@@ -302,6 +319,7 @@
     .cat-modal-actions{display:flex;gap:8px;margin-top:16px}
     .cat-save-btn{flex:2;background:linear-gradient(90deg,var(--brown),var(--saffron));color:#fff;border:none;border-radius:10px;padding:11px;font-family:"Yeseva One",serif;font-size:.9rem;cursor:pointer;touch-action:manipulation}
     .cat-cancel-btn{flex:1;background:var(--cream);border:1.5px solid var(--border);color:var(--brown);border-radius:10px;padding:11px;font-weight:700;cursor:pointer;touch-action:manipulation}
+
     /* ===== PROMO NOTIFICATIONS ===== */
     .promo-banner-wrap{position:fixed;top:74px;right:12px;z-index:999;display:none;flex-direction:column;gap:7px;max-width:320px;pointer-events:none}
     .promo-banner-wrap.visible{display:flex}
@@ -311,6 +329,7 @@
     .promo-banner .pb-content .pb-title{font-weight:800;font-size:.87rem;color:var(--turmeric)}
     .promo-banner .pb-content .pb-body{font-size:.78rem;color:#f5ddb5;margin-top:2px;line-height:1.4}
     .promo-banner .pb-close{background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:.95rem;padding:0;margin-left:auto;flex-shrink:0}
+
     /* ===== ORDERS MODAL ===== */
     .orders-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:center;justify-content:center;padding:10px}
     .orders-overlay.open{display:flex}
@@ -321,6 +340,7 @@
     #orders-list{display:grid;gap:10px;max-height:60vh;overflow-y:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--saffron) #f0e0c8}
     #orders-list::-webkit-scrollbar{width:5px}
     #orders-list::-webkit-scrollbar-thumb{background:var(--saffron);border-radius:6px}
+
     /* ===== ADMIN ORDER POPUP ===== */
     #admin-order-popup{position:fixed;right:14px;bottom:14px;width:min(420px,calc(100vw - 20px));background:#fff;border:2px solid var(--saffron);border-radius:18px;box-shadow:0 12px 40px rgba(232,130,12,0.35);z-index:260;display:none;animation:popupSlideIn .4s cubic-bezier(0.34,1.56,0.64,1)}
     @keyframes popupSlideIn{from{opacity:0;transform:translateY(60px) scale(0.92)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -338,6 +358,7 @@
     .popup-accept{flex:1;background:linear-gradient(90deg,var(--green),#43a047);color:#fff;border:none;border-radius:10px;padding:11px;font-family:"Yeseva One",serif;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:opacity .2s;touch-action:manipulation}
     .popup-reject{flex:1;background:linear-gradient(90deg,var(--red),#e53935);color:#fff;border:none;border-radius:10px;padding:11px;font-family:"Yeseva One",serif;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation}
     .popup-complete{flex:1;background:linear-gradient(90deg,var(--blue),#1976d2);color:#fff;border:none;border-radius:10px;padding:11px;font-family:"Yeseva One",serif;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation}
+
     /* ===== FLOATING ORDER BAR ===== */
     .float-order-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:150;background:linear-gradient(90deg,var(--brown) 0%,#7a3b10 100%);padding:12px 18px;box-shadow:0 -4px 24px rgba(0,0,0,0.25);align-items:center;justify-content:space-between;gap:14px;animation:slideUp .35s ease}
     .float-order-bar.visible{display:flex}
@@ -347,15 +368,18 @@
     .fob-items{color:#f5c98a;font-size:.75rem}
     .fob-btn{background:var(--turmeric);color:var(--deep);border:none;border-radius:12px;padding:11px 22px;font-family:"Yeseva One",serif;font-size:.95rem;cursor:pointer;white-space:nowrap;box-shadow:0 2px 12px rgba(0,0,0,0.25);transition:transform .15s;display:flex;align-items:center;gap:7px;touch-action:manipulation}
     .fob-btn:hover{transform:scale(1.03)}
+
     /* ===== SCROLL TO TOP ===== */
     .scroll-top-btn{position:fixed;bottom:82px;right:16px;z-index:160;width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--brown),var(--saffron));color:#fff;border:none;font-size:1.2rem;cursor:pointer;box-shadow:0 4px 18px rgba(232,130,12,0.45);display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(20px);transition:opacity .3s,transform .3s;pointer-events:none;touch-action:manipulation}
     .scroll-top-btn.visible{opacity:1;transform:translateY(0);pointer-events:all}
     .scroll-top-btn:hover{transform:translateY(-3px) scale(1.06)}
+
     /* ===== TOAST ===== */
     .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#fff;padding:11px 22px;border-radius:28px;font-weight:700;font-size:.88rem;z-index:999;transition:transform .35s;box-shadow:0 4px 20px rgba(0,0,0,0.25);white-space:nowrap;max-width:90vw;text-align:center}
     .toast.show{transform:translateX(-50%) translateY(0)}
     .toast.error{background:var(--red)}
     .toast.info{background:var(--blue)}
+
     /* ===== ORDER SECTION ===== */
     .order-section{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:22px;margin-bottom:40px;box-shadow:var(--shadow)}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -364,17 +388,21 @@
     .form-group label{font-size:.8rem;font-weight:700;color:var(--brown);text-transform:uppercase;letter-spacing:.5px}
     .form-group input,.form-group textarea,.form-group select{border:1.5px solid var(--border);border-radius:10px;padding:10px 13px;font-size:.88rem;font-family:"Lato",sans-serif;background:#fff;transition:border-color .2s;outline:none}
     .form-group input:focus,.form-group textarea:focus{border-color:var(--saffron)}
+
     /* ===== DELIVERY ZONE ===== */
     .delivery-zone-info{background:#e8f5e9;border:2px solid var(--green);border-radius:14px;padding:12px 16px;margin-bottom:18px;display:flex;align-items:center;gap:10px;font-size:.85rem;color:var(--brown)}
+
     /* ===== EMPTY STATE ===== */
     .empty-cat-msg{text-align:center;padding:36px 16px;color:#aaa;font-size:.92rem}
     .empty-cat-msg .big{font-size:2.2rem;margin-bottom:8px}
+
     /* ===== MAP PAGES ===== */
     #delivery-map{height:380px;border-radius:18px;border:2px solid var(--border);box-shadow:var(--shadow)}
     .map-info{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:11px 14px;font-size:.82rem;color:var(--brown);display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
     .map-legend{display:flex;gap:12px;flex-wrap:wrap}
     .legend-item{display:flex;align-items:center;gap:4px;font-size:.75rem}
     .legend-dot{width:11px;height:11px;border-radius:50%}
+
     /* Support page */
     .support-options{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:28px}
     .support-card{background:var(--card-bg);border:1px solid var(--border);border-radius:14px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;box-shadow:var(--shadow);touch-action:manipulation}
@@ -382,6 +410,7 @@
     .support-card .sc-icon{font-size:1.9rem;margin-bottom:8px}
     .support-card .sc-title{font-weight:800;color:var(--brown);font-size:.87rem}
     .support-card .sc-desc{font-size:.75rem;color:#888;margin-top:3px}
+
     /* UPI Redirect */
     .upi-redirect-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:800;align-items:center;justify-content:center;padding:14px}
     .upi-redirect-overlay.open{display:flex}
@@ -405,37 +434,17 @@
     .phonepe-qr-actions{padding:16px;background:#111;display:flex;gap:10px;flex-direction:column}
     .phonepe-paid-btn{width:100%;background:linear-gradient(90deg,#5f259f,#7b2fbe);color:#fff;border:none;border-radius:12px;padding:14px;font-weight:700;font-size:.98rem;cursor:pointer;font-family:"Yeseva One",serif;touch-action:manipulation}
     .phonepe-cancel-btn{width:100%;background:transparent;color:#aaa;border:1px solid #333;border-radius:12px;padding:11px;font-size:.88rem;cursor:pointer;touch-action:manipulation}
-    /* ===== CUSTOMER ALERT MODAL ===== */
-    #customer-alert-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1200;align-items:center;justify-content:center;padding:14px;animation:fadeIn .25s ease}
-    #customer-alert-modal-overlay.open{display:flex}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    #customer-alert-modal{background:#fff;border-radius:24px;width:100%;max-width:380px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.45);animation:modalIn .35s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden}
-    .cam-header{padding:28px 20px 16px;}
-    .cam-icon-ring{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2.6rem;margin:0 auto 14px;border:4px solid;animation:ringPop .4s cubic-bezier(0.34,1.56,0.64,1)}
-    @keyframes ringPop{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
-    .cam-icon-ring.success{background:#e8f5e9;border-color:#2e7d32;}
-    .cam-icon-ring.error{background:#ffebee;border-color:#c62828;}
-    .cam-icon-ring.info{background:#e3f2fd;border-color:#1565c0;}
-    .cam-title{font-family:"Yeseva One",serif;font-size:1.35rem;margin-bottom:7px;}
-    .cam-body{font-size:.9rem;color:#555;line-height:1.55;padding:0 16px 4px;}
-    .cam-actions{padding:16px 20px 24px;display:flex;gap:10px;}
-    .cam-ok-btn{flex:1;border:none;border-radius:12px;padding:13px;font-family:"Yeseva One",serif;font-size:.95rem;cursor:pointer;color:#fff;transition:opacity .2s;touch-action:manipulation}
-    .cam-ok-btn:hover{opacity:.88}
-    .cam-track-btn{flex:1;background:var(--cream);border:1.5px solid var(--border);color:var(--brown);border-radius:12px;padding:13px;font-weight:700;font-size:.88rem;cursor:pointer;touch-action:manipulation}
-    /* UPI Payment Verifying overlay */
-    .upi-verifying-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:950;align-items:center;justify-content:center;flex-direction:column;gap:16px}
-    .upi-verifying-overlay.open{display:flex}
-    .upi-verifying-spinner{width:56px;height:56px;border:5px solid #f0dcc0;border-top-color:var(--saffron);border-radius:50%;animation:spin .8s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .upi-verifying-text{color:#fff;font-family:"Yeseva One",serif;font-size:1.1rem;text-align:center;}
+
     /* Addresses */
     #address-list{max-height:50vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--saffron) #f0e0c8}
     #manage-items-list{max-height:60vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--saffron) #f0e0c8;padding-right:2px}
     #manage-items-list::-webkit-scrollbar{width:5px}
     #manage-items-list::-webkit-scrollbar-thumb{background:var(--saffron);border-radius:6px}
+
     /* Withdraw modal */
     .place-order-btn{width:100%;margin-top:14px;background:linear-gradient(90deg,var(--brown),var(--saffron));color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;font-family:"Yeseva One",serif;letter-spacing:.8px;transition:opacity .2s;touch-action:manipulation}
     .place-order-btn:hover{opacity:.9}
+
     /* ===== MOBILE BOTTOM NAV ===== */
     .mob-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:140;background:linear-gradient(135deg,var(--brown),#3b1a06);box-shadow:0 -2px 16px rgba(0,0,0,0.3)}
     .mob-nav-items{display:flex;justify-content:space-around;align-items:center;padding:6px 0 2px}
@@ -444,6 +453,7 @@
     .mob-nav-item.active{color:var(--turmeric)}
     .mob-nav-item .mni-badge{background:var(--red);color:#fff;border-radius:10px;padding:0 5px;font-size:.55rem;min-width:16px;height:16px;display:none;align-items:center;justify-content:center;margin-top:-6px;margin-left:14px}
     .mob-nav-item .mni-badge.visible{display:flex}
+
     /* ===== RESPONSIVE ===== */
     @media(max-width:768px){
       :root{--header-h:58px}
@@ -498,6 +508,7 @@
   </style>
 </head>
 <body>
+
 <!-- MOBILE SEARCH OVERLAY -->
 <div class="mob-search-overlay" id="mob-search-overlay">
   <button class="mob-search-close" onclick="closeMobSearch()">←</button>
@@ -505,6 +516,7 @@
   <button class="mob-search-close" onclick="closeMobSearch()">✕</button>
 </div>
 <div class="mob-search-results" id="mob-search-results" style="display:none"></div>
+
 <!-- HEADER -->
 <header>
   <div class="header-inner">
@@ -550,6 +562,7 @@
     </div>
   </div>
 </header>
+
 <!-- HERO -->
 <div class="hero" id="hero-section">
   <h1>Garam Garam Chapati! 🔥</h1>
@@ -561,8 +574,10 @@
     <span class="badge">💳 UPI · COD</span>
   </div>
 </div>
+
 <!-- OVERLAY -->
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
+
 <!-- LOGIN MODAL -->
 <div class="auth-overlay" id="auth-overlay">
   <div class="auth-modal">
@@ -573,6 +588,7 @@
     </div>
   </div>
 </div>
+
 <!-- CART PANEL -->
 <div class="cart-panel" id="cart-panel">
   <div class="cart-header">
@@ -586,24 +602,30 @@
     <button class="checkout-btn" onclick="openOrderModal();closeCart()">Proceed to Order →</button>
   </div>
 </div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 <button class="scroll-top-btn" id="scroll-top-btn" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to Top">↑</button>
+
 <!-- PROMO NOTIFICATIONS -->
 <div class="promo-banner-wrap" id="promo-banner-wrap"></div>
+
 <!-- MAIN -->
 <div class="main">
+
   <!-- MENU PAGE -->
   <div class="page active" id="page-menu">
     <div class="menu-filter-bar" id="menu-filter-bar"></div>
     <div id="menu-sections-container"></div>
   </div>
+
   <!-- TRACKING PAGE -->
   <div class="page" id="page-tracking">
     <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
     <div class="section-title">📦 Track Your Order</div>
     <div id="tracking-content"><div class="empty-cat-msg"><div class="big">📦</div>No active orders to track.</div></div>
   </div>
+
   <!-- DELIVERY MAP PAGE -->
   <div class="page" id="page-delivery">
     <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
@@ -619,6 +641,7 @@
     <div id="delivery-map"></div>
     <div id="map-distance" style="margin-top:10px;font-size:.85rem;color:var(--brown);font-weight:700"></div>
   </div>
+
   <!-- MANAGE PAGE -->
   <div class="page" id="page-manage">
     <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
@@ -652,6 +675,7 @@
     </div>
     <div class="manage-items-grid" id="manage-items-list"></div>
   </div>
+
   <!-- DASHBOARD PAGE -->
   <div class="page" id="page-dashboard">
     <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
@@ -716,6 +740,7 @@
       <button class="aip-save" style="margin-top:14px;max-width:220px" onclick="sendPromoNotification()">📣 Send Notification</button>
     </div>
   </div>
+
   <!-- SUPPORT PAGE -->
   <div class="page" id="page-support">
     <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
@@ -736,11 +761,14 @@
       <button class="place-order-btn" onclick="submitSupportTicket()">📩 Submit Ticket</button>
     </div>
   </div>
+
 </div><!-- end .main -->
+
 <footer style="background:var(--brown);color:#f5ddb5;text-align:center;padding:22px 16px 80px;font-size:.82rem">
   <strong>Chapati Express</strong> · 📍 Peddha Baazar, Sircilla · 🕐 9 AM – 10 PM<br/>
   <span style="font-size:.75rem;opacity:.7;margin-top:4px;display:block">Pure Veg · Home Style · UPI · COD</span>
 </footer>
+
 <!-- MOBILE BOTTOM NAV -->
 <nav class="mob-bottom-nav">
   <div class="mob-nav-items">
@@ -762,6 +790,7 @@
     </button>
   </div>
 </nav>
+
 <!-- FLOATING ORDER BAR -->
 <div class="float-order-bar" id="float-order-bar">
   <div class="fob-summary">
@@ -770,6 +799,7 @@
   </div>
   <button class="fob-btn" onclick="openOrderModal()">🚴 Place Order</button>
 </div>
+
 <!-- ORDER MODAL -->
 <div class="order-modal-overlay" id="order-modal-overlay">
   <div class="order-modal">
@@ -843,25 +873,7 @@
     </div>
   </div>
 </div>
-<!-- CUSTOMER ALERT MODAL -->
-<div id="customer-alert-modal-overlay">
-  <div id="customer-alert-modal">
-    <div class="cam-header">
-      <div class="cam-icon-ring" id="cam-icon-ring">🎉</div>
-      <div class="cam-title" id="cam-title">Order Update</div>
-      <div class="cam-body" id="cam-body">Your order status has changed.</div>
-    </div>
-    <div class="cam-actions">
-      <button class="cam-track-btn" onclick="closeCustomerAlertModal();showPage('tracking');setMobNav('track')">📦 Track Order</button>
-      <button class="cam-ok-btn" id="cam-ok-btn" onclick="closeCustomerAlertModal()">OK, Got it!</button>
-    </div>
-  </div>
-</div>
-<!-- UPI PAYMENT VERIFYING OVERLAY -->
-<div class="upi-verifying-overlay" id="upi-verifying-overlay">
-  <div class="upi-verifying-spinner"></div>
-  <div class="upi-verifying-text">Confirming payment...<br/><span style="font-size:.78rem;opacity:.75">Please wait</span></div>
-</div>
+
 <!-- UPI REDIRECT MODAL -->
 <!-- PHONEPE QR PAYMENT MODAL -->
 <div class="phonepe-qr-modal-overlay" id="phonepe-qr-overlay">
@@ -878,26 +890,22 @@
   <div class="upi-redirect-modal">
     <h3>💳 Complete Payment</h3>
     <p style="color:#666;font-size:.88rem;margin-bottom:14px">Scan QR or open your UPI app</p>
-    <h3>💳 Pay via UPI</h3>
-    <p style="color:#666;font-size:.88rem;margin-bottom:14px">Tap your UPI app below to pay securely</p>
     <div class="upi-amount-badge" id="upi-amount-display">₹0</div>
     <div class="upi-qr-placeholder">
       <div class="qr-icon">📱</div>
       <div class="qr-label">UPI ID: chapatiexpress@ybl<br/>Scan with any UPI app</div>
-      <div class="qr-label">UPI ID: chapatiexpress@ybl<br/>Opens your UPI app directly</div>
     </div>
     <div class="upi-redirect-btns">
       <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')"> Google Pay</button>
       <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')"> PhonePe</button>
       <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')"> Paytm</button>
-      <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM UPI</button>
+      <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
     </div>
     
-    <p style="font-size:.73rem;color:#aaa;margin:6px 0 10px">After paying, come back here and tap below</p>
-    <button class="upi-paid-btn" onclick="confirmUPIPaid()">✅ I've Completed the Payment</button>
     <button class="om-cancel" style="width:100%;margin-top:8px" onclick="closeUPIRedirect()">✕ Cancel</button>
   </div>
 </div>
+
 <!-- RATING MODAL -->
 <div class="rating-modal-overlay" id="rating-modal-overlay">
   <div class="rating-modal">
@@ -916,6 +924,7 @@
     <br/><button style="background:none;border:none;color:#888;cursor:pointer;margin-top:10px;font-size:.82rem" onclick="closeRatingModal()">Skip</button>
   </div>
 </div>
+
 <!-- NEW CATEGORY MODAL -->
 <div class="cat-modal-overlay" id="cat-modal-overlay">
   <div class="cat-modal">
@@ -933,6 +942,7 @@
     </div>
   </div>
 </div>
+
 <!-- WITHDRAW MODAL -->
 <div class="cat-modal-overlay" id="withdraw-modal-overlay">
   <div class="cat-modal">
@@ -957,6 +967,7 @@
     </div>
   </div>
 </div>
+
 <!-- ADDRESSES MODAL -->
 <div class="auth-overlay" id="address-overlay">
   <div class="auth-modal" style="max-width:680px">
@@ -970,6 +981,7 @@
     </div>
   </div>
 </div>
+
 <!-- ADDRESS EDITOR MODAL -->
 <div class="auth-overlay" id="address-editor-overlay">
   <div class="auth-modal" style="max-width:680px">
@@ -997,6 +1009,7 @@
     </div>
   </div>
 </div>
+
 <!-- ORDERS MODAL -->
 <div class="orders-overlay" id="orders-overlay">
   <div class="orders-modal">
@@ -1014,6 +1027,7 @@
     </div>
   </div>
 </div>
+
 <!-- ADMIN INCOMING ORDER POPUP -->
 <div id="admin-order-popup">
   <div class="popup-header">
@@ -1036,6 +1050,7 @@
     <button class="popup-complete" onclick="adminPopupUpdateStatus('completed')">🎯 Done</button>
   </div>
 </div>
+
 <script>
 // ============================================================
 // FIREBASE CONFIG
@@ -1048,12 +1063,14 @@ const firebaseConfig = {
   messagingSenderId:"227899287972",
   appId:"1:227899287972:web:8994dbb7d6c813845ab931"
 };
+
 let auth=null,currentUser=null,db=null;
 const SERVICE_CENTER={lat:18.38973,lng:78.812042};
 const MAX_SERVICE_DISTANCE_M=4000;
 const ORDER_AUTO_CANCEL_MS=5*60*1000;
 const ADMIN_EMAIL='chapatiexpress5@gmail.com';
 const UPI_ID='chapatiexpress@ybl';
+
 function distanceMeters(a,b){
   const R=6371000,toRad=d=>d*Math.PI/180;
   const dLat=toRad(b.lat-a.lat),dLng=toRad(b.lng-a.lng);
@@ -1062,6 +1079,7 @@ function distanceMeters(a,b){
   return 2*R*Math.asin(Math.sqrt(s*s+Math.cos(lat1)*Math.cos(lat2)*s2*s2));
 }
 function isServiceableLatLng(lat,lng){return distanceMeters(SERVICE_CENTER,{lat,lng})<=MAX_SERVICE_DISTANCE_M;}
+
 // ============================================================
 // AUDIO
 // ============================================================
@@ -1117,6 +1135,7 @@ function playOrderPlacedSound(){
     setTimeout(()=>ctx.close().catch(()=>{}),600);
   }catch(_){}
 }
+
 // ============================================================
 // FIREBASE INIT
 // ============================================================
@@ -1135,6 +1154,7 @@ function initFirebase(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initFirebase);
 else setTimeout(initFirebase,100);
+
 function signInWithGoogle(){
   if(!auth){showToast('⏳ Firebase loading...',2000);return;}
   const btn=document.getElementById('google-signin-btn');
@@ -1202,6 +1222,7 @@ document.addEventListener('click',e=>{
   const searchInput=document.getElementById('menu-search');
   if(searchDrop&&searchDrop.classList.contains('open')&&!searchDrop.contains(e.target)&&e.target!==searchInput)closeSearchDrop();
 });
+
 // ============================================================
 // ROLE
 // ============================================================
@@ -1221,6 +1242,7 @@ function updateRoleUI(){
   if(ordersBtn)ordersBtn.textContent=currentRole==='admin'?'🧾 Orders':'🧾 My Orders';
   syncAdminRealtimeFeatures();syncCustomerOrderWatcher();
 }
+
 // ============================================================
 // DATA STORE - FIXED: no undefined values
 // ============================================================
@@ -1231,6 +1253,7 @@ let categories=[
 ];
 let items=[],idCounter=1000;
 function newId(){return 'item-'+ ++idCounter;}
+
 // Seed: Plain Chapatis
 const plainRaw=[
   {name:'Godhuma Chapati',type:' ',price:10,emoji:' '},
@@ -1239,6 +1262,7 @@ const plainRaw=[
   {name:'Pacha Jonna Chapati',type:' ',price:15,emoji:' '}
 ];
 plainRaw.forEach(i=>items.push({id:newId(),catId:'cat-plain',...i,inStock:true,rating:5.0,ratingCount:5}));
+
 // Seed: Combo - Chapati + Curry
 const comboCurries=['Dal Curry','Aloo Tomato Curry','Vankaya Curry','Tomato Curry','Kakarakaya Curry','Cabbage Curry','Palakura Pappu'];
 const comboChapatis=[
@@ -1270,6 +1294,7 @@ comboCurries.forEach(curry=>{
     });
   });
 });
+
 // Seed: Curries - FIXED: explicit sizes, no undefined
 const currySizes=[
   {s:'Small',p:30},
@@ -1290,13 +1315,16 @@ comboCurries.forEach(ct=>{
     });
   });
 });
+
 let cart={};
 let manageCatFilter='all',selectedEmoji='🍽',selectedCatEmoji='📂';
 let selectedPaymentMethod='cod';
 let currentOrderId=null;
 let currentRatingOrderId=null;
+
 const foodEmojis=['🫓','🍛','🥘','🫘','🍚','🥗','🥙','🌮','🥞','🧆','🫔','🍲','🥣','🍜','🍱','🍝','🥦','🥬','🥔','🍆','🍅','🌽','🌾','🫑','🧅','🧄'];
 const catEmojis=['🍽','🫓','🍛','🥘','🫘','🥗','🥙','🌮','🍚','🍲','☕','🥤','🍰','🧆','🫔'];
+
 // ============================================================
 // MOBILE SEARCH
 // ============================================================
@@ -1309,6 +1337,7 @@ function closeMobSearch(){
   document.getElementById('mob-search-input').value='';
   document.getElementById('mob-search-results').style.display='none';
 }
+
 // ============================================================
 // SEARCH
 // ============================================================
@@ -1366,6 +1395,7 @@ function searchGoToItem(id){
     if(el){el.scrollIntoView({behavior:'smooth',block:'center'});el.style.boxShadow='0 0 0 3px var(--saffron)';setTimeout(()=>el.style.boxShadow='',2000);}
   },200);
 }
+
 // ============================================================
 // RENDER MENU
 // ============================================================
@@ -1453,6 +1483,7 @@ function toggleItemStock(id){
   refreshCard(id);refreshManageList();
   showToast(item.inStock?'✅ Marked In Stock':'❌ Marked Out of Stock');
 }
+
 // ============================================================
 // CART
 // ============================================================
@@ -1497,6 +1528,7 @@ function updateCart(){
 }
 function openCart(){document.getElementById('cart-panel').classList.add('open');document.getElementById('overlay').classList.add('open');}
 function closeCart(){document.getElementById('cart-panel').classList.remove('open');document.getElementById('overlay').classList.remove('open');}
+
 // ============================================================
 // MANAGE
 // ============================================================
@@ -1611,6 +1643,7 @@ function saveNewCategory(){
   closeCatModal();renderMenuPage();renderManagePage();setManageCatFilter(id);
   showToast('✅ "'+name+'" created!');
 }
+
 // ============================================================
 // PAGES
 // ============================================================
@@ -1631,6 +1664,7 @@ function setMobNav(active){
   document.querySelectorAll('.mob-nav-item').forEach(el=>el.classList.remove('active'));
   document.getElementById('mob-nav-'+active)?.classList.add('active');
 }
+
 // ============================================================
 // MAP
 // ============================================================
@@ -1657,6 +1691,7 @@ function setDeliveryPoint(latlng){
   const inRange=dist<=MAX_SERVICE_DISTANCE_M;
   document.getElementById('map-distance').innerHTML=`📍 <strong>${km} km</strong> · ⏱ ~<strong>${mins} mins</strong> · ${inRange?'<span style="color:var(--green);font-weight:800">✅ Serviceable</span>':'<span style="color:var(--red);font-weight:800">❌ Out of range</span>'}`;
 }
+
 // ORDER MODAL MAP
 let omMap=null,omMapInited=false,omPinMarker=null,omRouteLayer=null,omPinLatLng=null;
 function initOmMap(){
@@ -1708,6 +1743,7 @@ function omMapSearch(){
       }else showToast('📍 Location not found');
     }).catch(()=>showToast('⚠️ Search failed'));
 }
+
 // ============================================================
 // PAYMENT
 // ============================================================
@@ -1726,11 +1762,6 @@ function confirmPhonePePaid(){
   closePhonePeQR();
   showToast('✅ PhonePe payment confirmed! Processing...',2500);
   setTimeout(()=>finalizeOrder('upi',true),2000);
-  document.getElementById('upi-verifying-overlay').classList.add('open');
-  setTimeout(()=>{
-    document.getElementById('upi-verifying-overlay').classList.remove('open');
-    finalizeOrder('upi',true);
-  },2200);
 }
 function launchUPIApp(app){
   const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
@@ -1739,84 +1770,22 @@ function launchUPIApp(app){
 function showUPIRedirect(amount,preferredApp=null){
   document.getElementById('upi-amount-display').textContent='₹'+amount;
   document.getElementById('upi-redirect-overlay').classList.add('open');
-  if(preferredApp)launchDirectUPI(preferredApp);
+  if(preferredApp)deepLinkUPI(preferredApp);
 }
 function closeUPIRedirect(){document.getElementById('upi-redirect-overlay').classList.remove('open');}
-function launchDirectUPI(app){
-  // Store pending UPI order so we can confirm on return
-  const pendingUPI={
-    cart:JSON.parse(JSON.stringify(cart)),
-    name:document.getElementById('om-name')?.value?.trim()||'',
-    phone:document.getElementById('om-phone')?.value?.trim()||'',
-    address:document.getElementById('om-address')?.value?.trim()||'',
-    landmark:document.getElementById('om-landmark')?.value?.trim()||'',
-    time:document.getElementById('om-time')?.value||'',
-    note:document.getElementById('om-note')?.value?.trim()||'',
-    pin:omPinLatLng?{lat:omPinLatLng.lat,lng:omPinLatLng.lng}:null,
-    ts:Date.now()
-  };
-  sessionStorage.setItem('pendingUPIOrder',JSON.stringify(pendingUPI));
+function deepLinkUPI(app){
   const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
-  const params=`pa=${UPI_ID}&pn=Chapati+Express&am=${total}&cu=INR&tn=ChapatiExpressOrder&tr=${Date.now()}`;
+  const params=`pa=${UPI_ID}&pn=Chapati+Express&am=${total}&cu=INR&tn=ChapatiExpressOrder`;
   const urls={gpay:`gpay://upi/pay?${params}`,phonepe:`phonepe://pay?${params}`,paytm:`paytmmp://pay?${params}`,bhim:`upi://pay?${params}`};
-  showToast('🔗 Opening '+(app==='gpay'?'Google Pay':app==='phonepe'?'PhonePe':app==='paytm'?'Paytm':'BHIM')+'...',2000);
-  try{
-    const a=document.createElement('a');
-    a.href=urls[app]||urls.bhim;
-    a.click();
-  }catch(e){}
+  showToast('🔗 Opening '+app+'...',2000);
+  try{window.open(urls[app]||urls.bhim,'_self');}catch(e){}
 }
-function deepLinkUPI(app){launchDirectUPI(app);}
 function confirmUPIPaid(){
   closeUPIRedirect();
   showToast('✅ Payment confirmed! Processing your order...',2500);
   setTimeout(()=>finalizeOrder('upi',true),2000);
-  document.getElementById('upi-verifying-overlay').classList.add('open');
-  setTimeout(()=>{
-    document.getElementById('upi-verifying-overlay').classList.remove('open');
-    finalizeOrder('upi',true);
-  },2200);
 }
-// Check if returning from UPI payment
-function checkUPIPaymentReturn(){
-  const urlParams=new URLSearchParams(window.location.search);
-  const hashParams=new URLSearchParams(window.location.hash.replace('#',''));
-  const paymentSuccess=urlParams.get('payment')||hashParams.get('payment')||urlParams.get('status')||hashParams.get('status');
-  const pendingStr=sessionStorage.getItem('pendingUPIOrder');
-  if(!pendingStr)return;
-  const pending=JSON.parse(pendingStr);
-  // Auto confirm if URL signals success, or if returned within 10 minutes (UPI app bounce-back)
-  const elapsed=Date.now()-pending.ts;
-  const autoConfirm=(paymentSuccess&&(paymentSuccess.toLowerCase()==='success'||paymentSuccess.toLowerCase()==='1'))||(elapsed>5000&&elapsed<600000&&Object.keys(pending.cart).length>0);
-  if(!autoConfirm)return;
-  sessionStorage.removeItem('pendingUPIOrder');
-  // Restore cart and order details if needed
-  if(pending.cart&&Object.keys(pending.cart).length>0){
-    // Show verifying overlay
-    setTimeout(()=>{
-      document.getElementById('upi-verifying-overlay').classList.add('open');
-      setTimeout(()=>{
-        document.getElementById('upi-verifying-overlay').classList.remove('open');
-        // Restore form values
-        if(pending.name&&document.getElementById('om-name'))document.getElementById('om-name').value=pending.name;
-        if(pending.phone&&document.getElementById('om-phone'))document.getElementById('om-phone').value=pending.phone;
-        if(pending.address&&document.getElementById('om-address'))document.getElementById('om-address').value=pending.address;
-        if(pending.landmark&&document.getElementById('om-landmark'))document.getElementById('om-landmark').value=pending.landmark;
-        if(pending.note&&document.getElementById('om-note'))document.getElementById('om-note').value=pending.note;
-        if(pending.pin)omPinLatLng=L.latLng(pending.pin.lat,pending.pin.lng);
-        // Restore cart
-        cart={};
-        Object.keys(pending.cart).forEach(k=>{
-          cart[k]=pending.cart[k];
-          const it=items.find(i=>i.id===k);
-          if(it)refreshCard(k);
-        });
-        updateCart();
-        finalizeOrder('upi',true);
-      },2000);
-    },1000);
-  }
-}
+
 // ============================================================
 // ORDER FLOW
 // ============================================================
@@ -1904,6 +1873,7 @@ function finalizeOrder(paymentMethod,paymentDone){
   document.getElementById('om-success').style.display='block';
   setTimeout(()=>{cart={};updateCart();updateFloatingBar();},3000);
 }
+
 // ============================================================
 // ORDER TRACKING
 // ============================================================
@@ -1992,6 +1962,7 @@ function reorderLast(){
     updateCart();showToast('✅ Items added from last order!');showPage('menu');
   }
 }
+
 // ============================================================
 // RATING
 // ============================================================
@@ -2015,6 +1986,7 @@ function submitRating(){
   }
   showToast('⭐ Thank you for your review!',2500);closeRatingModal();
 }
+
 // ============================================================
 // ORDERS MODAL
 // ============================================================
@@ -2087,6 +2059,7 @@ async function updateOrderStatus(orderId,status){
   const map={accepted:'✅ Order accepted',rejected:'❌ Order rejected',completed:'🎯 Order completed'};
   showToast(map[status]||'✅ Updated',1800);
 }
+
 // ============================================================
 // ADMIN ORDER POPUP
 // ============================================================
@@ -2140,6 +2113,7 @@ async function adminPopupUpdateStatus(status){
   await updateOrderStatus(_adminPopupOrder.id,status);
   closeAdminOrderPopup();
 }
+
 // ============================================================
 // ADMIN REALTIME
 // ============================================================
@@ -2174,38 +2148,7 @@ function startAutoRejectTicker(){
   },60*1000);
 }
 function stopAutoRejectTicker(){if(_autoRejectTicker){clearInterval(_autoRejectTicker);_autoRejectTicker=null;}}
-// ============================================================
-// CUSTOMER ALERT MODAL
-// ============================================================
-function showCustomerAlertModal(title,body,type='success',onOk=null){
-  const overlay=document.getElementById('customer-alert-modal-overlay');
-  const iconRing=document.getElementById('cam-icon-ring');
-  const titleEl=document.getElementById('cam-title');
-  const bodyEl=document.getElementById('cam-body');
-  const okBtn=document.getElementById('cam-ok-btn');
-  // Set icon & color
-  const configs={
-    success:{icon:'✅',color:'#2e7d32',btnBg:'linear-gradient(90deg,#2e7d32,#43a047)',ring:'success'},
-    error:{icon:'❌',color:'#c62828',btnBg:'linear-gradient(90deg,#c62828,#e53935)',ring:'error'},
-    info:{icon:'📦',color:'#1565c0',btnBg:'linear-gradient(90deg,#1565c0,#1976d2)',ring:'info'},
-    cancelled:{icon:'🚫',color:'#666',btnBg:'linear-gradient(90deg,#555,#777)',ring:'error'}
-  };
-  const cfg=configs[type]||configs.success;
-  iconRing.textContent=cfg.icon;
-  iconRing.className='cam-icon-ring '+cfg.ring;
-  titleEl.textContent=title;
-  titleEl.style.color=cfg.color;
-  bodyEl.innerHTML=body;
-  okBtn.style.background=cfg.btnBg;
-  okBtn._cb=onOk;
-  okBtn.onclick=()=>{closeCustomerAlertModal();if(onOk)onOk();};
-  overlay.classList.add('open');
-  // Haptic on mobile
-  try{navigator.vibrate&&navigator.vibrate([100,50,100]);}catch(e){}
-}
-function closeCustomerAlertModal(){
-  document.getElementById('customer-alert-modal-overlay').classList.remove('open');
-}
+
 // ============================================================
 // CUSTOMER NOTIFICATIONS — when admin accepts/rejects/completes
 // ============================================================
@@ -2226,43 +2169,19 @@ function syncCustomerOrderWatcher(){
       snap.docChanges().forEach(ch=>{
         if(ch.type!=='modified')return;
         const data=ch.doc.data()||{},st=(data.status||'').toLowerCase();
-        const ordId=data.orderId||ch.doc.id;
         if(st==='accepted'){
-          playOrderPlacedSound();
           showToast('✅ Your order was accepted! Preparing now 🍳',3000);
           showPromoNotification('🎉 Order Accepted!','Your chapati is being prepared now! ~30 mins to delivery.','🫓');
-          showCustomerAlertModal(
-            '🎉 Order Accepted!',
-            'Great news! <strong>Your chapati is being freshly made</strong> and will be delivered in ~30 minutes.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
-            'success',
-            ()=>{showPage('tracking');setMobNav('track');}
-          );
         } else if(st==='rejected'){
           showToast('❌ Your order was rejected',2800,'error');
           showPromoNotification('❌ Order Update','Sorry, your order was rejected. Please contact us or try again.','😔');
-          showCustomerAlertModal(
-            '❌ Order Rejected',
-            'We\'re sorry, your order was <strong>rejected by the restaurant</strong>. This may be due to high demand or a closed kitchen.<br/><br/>Please try placing a new order or contact us for help.<br/><small style="color:#888">Order ID: '+ordId+'</small>',
-            'error'
-          );
         } else if(st==='completed'||st==='delivered'){
           showToast('🎉 Order delivered! Enjoy your meal!',3000);
           showPromoNotification('🎉 Order Delivered!','Your fresh chapati has arrived! Tap to rate your experience.','🫓');
           setTimeout(()=>openRatingModal(data.orderId||ch.doc.id),3500);
-          showCustomerAlertModal(
-            '🎉 Order Delivered!',
-            'Your <strong>fresh hot chapati has arrived!</strong> Enjoy your meal and don\'t forget to leave a review.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
-            'success',
-            ()=>setTimeout(()=>openRatingModal(ordId),800)
-          );
         } else if(st==='cancelled'||st==='auto-cancelled'){
           showToast('🚫 Order was cancelled (no response)',2800,'error');
           showPromoNotification('🚫 Order Cancelled','Your order was auto-cancelled. Please place a new order.','⏰');
-          showCustomerAlertModal(
-            '🚫 Order Cancelled',
-            'Your order was <strong>automatically cancelled</strong> because no one responded in time.<br/><br/>Please place a new order. We apologize for the inconvenience.',
-            'cancelled'
-          );
         }
         // Update tracking page if open
         const lastOrderStr=localStorage.getItem('lastOrder');
@@ -2271,7 +2190,6 @@ function syncCustomerOrderWatcher(){
           if(lo.orderId===data.orderId){
             lo.status=data.status;
             localStorage.setItem('lastOrder',JSON.stringify(lo));
-            renderTrackingPage();
           }
         }
       });
@@ -2283,6 +2201,7 @@ function syncAdminRealtimeFeatures(){
     if(!_autoRejectTicker)startAutoRejectTicker();
   }else{stopAdminOrderNotifications();stopAutoRejectTicker();}
 }
+
 // ============================================================
 // DASHBOARD
 // ============================================================
@@ -2365,6 +2284,7 @@ async function processWithdrawal(){
   showToast('✅ Withdrawal of ₹'+amount+' requested!',3000);
   closeWithdrawModal();renderDashboard();
 }
+
 // ============================================================
 // PROMO NOTIFICATIONS
 // ============================================================
@@ -2393,6 +2313,7 @@ function sendPromoNotification(){
 }
 // Welcome promo
 setTimeout(()=>showPromoNotification('🔥 Today\'s Special!','Fresh Chapati + Dal Curry Combo at ₹40 only!','🫓'),8000);
+
 // ============================================================
 // ADDRESSES
 // ============================================================
@@ -2515,6 +2436,7 @@ async function saveAddressFromEditor(){
   }
   closeAddressEditor();
 }
+
 // ============================================================
 // SUPPORT
 // ============================================================
@@ -2533,6 +2455,7 @@ function submitSupportTicket(){
   showToast('✅ Ticket submitted!',3000);
   document.getElementById('support-desc').value='';document.getElementById('support-order-id').value='';
 }
+
 // ============================================================
 // TOAST
 // ============================================================
@@ -2542,6 +2465,7 @@ function showToast(msg,duration=2400,type=''){
   t.classList.add('show');clearTimeout(t._to);
   t._to=setTimeout(()=>t.classList.remove('show'),duration);
 }
+
 // ============================================================
 // SCROLL TO TOP
 // ============================================================
@@ -2549,6 +2473,7 @@ window.addEventListener('scroll',()=>{
   const btn=document.getElementById('scroll-top-btn');
   if(btn)btn.classList.toggle('visible',window.scrollY>400);
 },{passive:true});
+
 // ============================================================
 // INIT
 // ============================================================
@@ -2557,42 +2482,6 @@ if(savedRole)currentRole=savedRole;
 updateRoleUI();
 renderMenuPage();
 document.getElementById('hero-section').style.display='block';
-// Check for UPI payment return after page load
-window.addEventListener('load',()=>{setTimeout(checkUPIPaymentReturn,800);});
-// Also check on visibility change (user returns from UPI app)
-document.addEventListener('visibilitychange',()=>{
-  if(document.visibilityState==='visible'){
-    const pendingStr=sessionStorage.getItem('pendingUPIOrder');
-    if(pendingStr){
-      const pending=JSON.parse(pendingStr);
-      const elapsed=Date.now()-pending.ts;
-      // If they were away 5-600 seconds, they likely paid
-      if(elapsed>5000&&elapsed<600000){
-        sessionStorage.removeItem('pendingUPIOrder');
-        closeUPIRedirect();
-        showToast('✅ Welcome back! Confirming your payment...',2500);
-        document.getElementById('upi-verifying-overlay').classList.add('open');
-        setTimeout(()=>{
-          document.getElementById('upi-verifying-overlay').classList.remove('open');
-          if(pending.name&&document.getElementById('om-name'))document.getElementById('om-name').value=pending.name;
-          if(pending.phone&&document.getElementById('om-phone'))document.getElementById('om-phone').value=pending.phone;
-          if(pending.address&&document.getElementById('om-address'))document.getElementById('om-address').value=pending.address;
-          if(pending.landmark&&document.getElementById('om-landmark'))document.getElementById('om-landmark').value=pending.landmark;
-          if(pending.note&&document.getElementById('om-note'))document.getElementById('om-note').value=pending.note;
-          if(pending.pin)omPinLatLng=L.latLng(pending.pin.lat,pending.pin.lng);
-          cart={};
-          Object.keys(pending.cart||{}).forEach(k=>{
-            cart[k]=pending.cart[k];
-            const it=items.find(i=>i.id===k);
-            if(it)refreshCard(k);
-          });
-          updateCart();
-          finalizeOrder('upi',true);
-        },2000);
-      }
-    }
-  }
-});
 </script>
 </body>
 </html>
