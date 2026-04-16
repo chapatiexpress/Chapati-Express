@@ -380,6 +380,32 @@
     .toast.error{background:var(--red)}
     .toast.info{background:var(--blue)}
 
+    /* ===== CUSTOMER ALERT MODAL ===== */
+    .customer-alert-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:2000;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px)}
+    .customer-alert-overlay.open{display:flex;animation:camFadeIn .3s ease}
+    @keyframes camFadeIn{from{opacity:0}to{opacity:1}}
+    .customer-alert-modal{background:#fff;border-radius:28px;width:100%;max-width:400px;padding:0;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.45);animation:camSlideUp .4s cubic-bezier(0.34,1.56,0.64,1);overflow:hidden}
+    @keyframes camSlideUp{from{opacity:0;transform:translateY(60px) scale(0.88)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .cam-top-bar{height:6px;width:100%}
+    .cam-top-bar.success{background:linear-gradient(90deg,#2e7d32,#43a047)}
+    .cam-top-bar.error{background:linear-gradient(90deg,#c62828,#e53935)}
+    .cam-top-bar.info{background:linear-gradient(90deg,#1565c0,#1976d2)}
+    .cam-top-bar.cancelled{background:linear-gradient(90deg,#555,#777)}
+    .cam-icon-wrap{padding:28px 0 10px}
+    .cam-icon-ring{width:72px;height:72px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:2.2rem;margin:0 auto;animation:camPop .5s cubic-bezier(0.34,1.56,0.64,1)}
+    @keyframes camPop{from{transform:scale(0)}to{transform:scale(1)}}
+    .cam-icon-ring.success{background:linear-gradient(135deg,#e8f5e9,#c8e6c9);box-shadow:0 0 0 6px rgba(46,125,50,.15),0 0 0 12px rgba(46,125,50,.07)}
+    .cam-icon-ring.error{background:linear-gradient(135deg,#ffebee,#ffcdd2);box-shadow:0 0 0 6px rgba(198,40,40,.15),0 0 0 12px rgba(198,40,40,.07)}
+    .cam-icon-ring.info{background:linear-gradient(135deg,#e3f2fd,#bbdefb);box-shadow:0 0 0 6px rgba(21,101,192,.15),0 0 0 12px rgba(21,101,192,.07)}
+    .cam-icon-ring.cancelled{background:linear-gradient(135deg,#f5f5f5,#e0e0e0);box-shadow:0 0 0 6px rgba(85,85,85,.12)}
+    .cam-content{padding:4px 26px 24px}
+    .cam-title{font-family:"Yeseva One",serif;font-size:1.4rem;margin-bottom:10px}
+    .cam-body{color:#555;font-size:.88rem;line-height:1.7;margin-bottom:20px}
+    .cam-ok-btn{width:100%;max-width:220px;margin:0 auto;display:block;border:none;border-radius:14px;padding:14px 24px;font-family:"Yeseva One",serif;font-size:1rem;color:#fff;cursor:pointer;transition:opacity .2s;touch-action:manipulation;box-shadow:0 4px 16px rgba(0,0,0,0.2)}
+    .cam-ok-btn:hover{opacity:.88}
+    .cam-dismiss{display:block;margin:12px auto 0;background:none;border:none;color:#aaa;font-size:.8rem;cursor:pointer;padding:4px 12px}
+    .cam-dismiss:hover{color:#888}
+
     /* ===== ORDER SECTION ===== */
     .order-section{background:var(--card-bg);border:1px solid var(--border);border-radius:20px;padding:22px;margin-bottom:40px;box-shadow:var(--shadow)}
     .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -609,6 +635,22 @@
 
 <!-- PROMO NOTIFICATIONS -->
 <div class="promo-banner-wrap" id="promo-banner-wrap"></div>
+
+<!-- CUSTOMER ALERT MODAL (order status notifications) -->
+<div class="customer-alert-overlay" id="customer-alert-modal-overlay">
+  <div class="customer-alert-modal">
+    <div class="cam-top-bar" id="cam-top-bar"></div>
+    <div class="cam-icon-wrap">
+      <div class="cam-icon-ring" id="cam-icon-ring">✅</div>
+    </div>
+    <div class="cam-content">
+      <div class="cam-title" id="cam-title">Order Update</div>
+      <div class="cam-body" id="cam-body"></div>
+      <button class="cam-ok-btn" id="cam-ok-btn">Got it!</button>
+      <button class="cam-dismiss" onclick="closeCustomerAlertModal()">Dismiss</button>
+    </div>
+  </div>
+</div>
 
 <!-- MAIN -->
 <div class="main">
@@ -896,10 +938,10 @@
       <div class="qr-label">UPI ID: chapatiexpress@ybl<br/>Scan with any UPI app</div>
     </div>
     <div class="upi-redirect-btns">
-      <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')"> Google Pay</button>
-      <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')"> PhonePe</button>
-      <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')"> Paytm</button>
-      <button class="upi-app-btn" onclick="launchDirectUPI('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
+      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Google Pay</button>
+      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> PhonePe</button>
+      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Paytm</button>
+      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
     </div>
     
     <button class="om-cancel" style="width:100%;margin-top:8px" onclick="closeUPIRedirect()">✕ Cancel</button>
@@ -2150,6 +2192,38 @@ function startAutoRejectTicker(){
 function stopAutoRejectTicker(){if(_autoRejectTicker){clearInterval(_autoRejectTicker);_autoRejectTicker=null;}}
 
 // ============================================================
+// CUSTOMER ALERT MODAL
+// ============================================================
+function showCustomerAlertModal(title,body,type='success',onOk=null){
+  const overlay=document.getElementById('customer-alert-modal-overlay');
+  const iconRing=document.getElementById('cam-icon-ring');
+  const topBar=document.getElementById('cam-top-bar');
+  const titleEl=document.getElementById('cam-title');
+  const bodyEl=document.getElementById('cam-body');
+  const okBtn=document.getElementById('cam-ok-btn');
+  const configs={
+    success:{icon:'✅',color:'#2e7d32',btnBg:'linear-gradient(90deg,#2e7d32,#43a047)',ring:'success'},
+    error:{icon:'❌',color:'#c62828',btnBg:'linear-gradient(90deg,#c62828,#e53935)',ring:'error'},
+    info:{icon:'📦',color:'#1565c0',btnBg:'linear-gradient(90deg,#1565c0,#1976d2)',ring:'info'},
+    cancelled:{icon:'🚫',color:'#666',btnBg:'linear-gradient(90deg,#555,#777)',ring:'cancelled'}
+  };
+  const cfg=configs[type]||configs.success;
+  iconRing.textContent=cfg.icon;
+  iconRing.className='cam-icon-ring '+cfg.ring;
+  topBar.className='cam-top-bar '+cfg.ring;
+  titleEl.textContent=title;
+  titleEl.style.color=cfg.color;
+  bodyEl.innerHTML=body;
+  okBtn.style.background=cfg.btnBg;
+  okBtn.onclick=()=>{closeCustomerAlertModal();if(onOk)onOk();};
+  overlay.classList.add('open');
+  try{navigator.vibrate&&navigator.vibrate([100,50,100]);}catch(e){}
+}
+function closeCustomerAlertModal(){
+  document.getElementById('customer-alert-modal-overlay').classList.remove('open');
+}
+
+// ============================================================
 // CUSTOMER NOTIFICATIONS — when admin accepts/rejects/completes
 // ============================================================
 function syncCustomerOrderWatcher(){
@@ -2159,31 +2233,53 @@ function syncCustomerOrderWatcher(){
   }
   if(_customerOrderStatusUnsub)return; // already watching
   _customerOrderWatcherReady=false;
-  // Watch orders for this customer
   _customerOrderStatusUnsub=db.collection('orders')
     .where('customerEmail','==',currentUser.email)
     .orderBy('updatedAt','desc')
     .limit(30)
     .onSnapshot(snap=>{
-      if(!_customerOrderWatcherReady){_customerOrderWatcherReady=true;return;} // skip initial load
+      if(!_customerOrderWatcherReady){_customerOrderWatcherReady=true;return;}
       snap.docChanges().forEach(ch=>{
         if(ch.type!=='modified')return;
         const data=ch.doc.data()||{},st=(data.status||'').toLowerCase();
+        const ordId=data.orderId||ch.doc.id;
         if(st==='accepted'){
+          playOrderPlacedSound();
           showToast('✅ Your order was accepted! Preparing now 🍳',3000);
           showPromoNotification('🎉 Order Accepted!','Your chapati is being prepared now! ~30 mins to delivery.','🫓');
+          showCustomerAlertModal(
+            '🎉 Order Accepted!',
+            'Great news! <strong>Your chapati is being freshly made</strong> and will be delivered in ~30 minutes.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
+            'success',
+            ()=>{showPage('tracking');setMobNav('track');}
+          );
         } else if(st==='rejected'){
           showToast('❌ Your order was rejected',2800,'error');
           showPromoNotification('❌ Order Update','Sorry, your order was rejected. Please contact us or try again.','😔');
+          showCustomerAlertModal(
+            '❌ Order Rejected',
+            'We\'re sorry, your order was <strong>rejected by the restaurant</strong>. This may be due to high demand or a closed kitchen.<br/><br/>Please try placing a new order or contact us for help.<br/><small style="color:#888">Order ID: '+ordId+'</small>',
+            'error'
+          );
         } else if(st==='completed'||st==='delivered'){
           showToast('🎉 Order delivered! Enjoy your meal!',3000);
           showPromoNotification('🎉 Order Delivered!','Your fresh chapati has arrived! Tap to rate your experience.','🫓');
-          setTimeout(()=>openRatingModal(data.orderId||ch.doc.id),3500);
+          showCustomerAlertModal(
+            '🎉 Order Delivered!',
+            'Your <strong>fresh hot chapati has arrived!</strong> Enjoy your meal and don\'t forget to leave a review.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
+            'success',
+            ()=>setTimeout(()=>openRatingModal(ordId),600)
+          );
         } else if(st==='cancelled'||st==='auto-cancelled'){
           showToast('🚫 Order was cancelled (no response)',2800,'error');
           showPromoNotification('🚫 Order Cancelled','Your order was auto-cancelled. Please place a new order.','⏰');
+          showCustomerAlertModal(
+            '🚫 Order Cancelled',
+            'Your order was <strong>automatically cancelled</strong> because no one responded in time.<br/><br/>Please place a new order. We apologize for the inconvenience.',
+            'cancelled'
+          );
         }
-        // Update tracking page if open
+        // Update tracking page & localStorage
         const lastOrderStr=localStorage.getItem('lastOrder');
         if(lastOrderStr){
           const lo=JSON.parse(lastOrderStr);
