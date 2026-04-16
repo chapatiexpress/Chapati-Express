@@ -2227,22 +2227,30 @@ function closeCustomerAlertModal(){
 // CUSTOMER NOTIFICATIONS — when admin accepts/rejects/completes
 // ============================================================
 function syncCustomerOrderWatcher(){
-  if(!db||!currentUser||currentRole==='admin'||!currentUser.email){
-    if(_customerOrderStatusUnsub){_customerOrderStatusUnsub();_customerOrderStatusUnsub=null;}
-    _customerOrderWatcherReady=false;return;
-  }
-  if(_customerOrderStatusUnsub)return; // already watching
+  // Stop any existing watcher first (important after re-login)
+  if(_customerOrderStatusUnsub){_customerOrderStatusUnsub();_customerOrderStatusUnsub=null;}
   _customerOrderWatcherReady=false;
+  if(!db||!currentUser||currentRole==='admin'||!currentUser.email){return;}
+  // Track which orders we've already notified about to prevent duplicate alerts
+  const _notifiedStatuses={};
+  // IMPORTANT: Do NOT use .orderBy('updatedAt') here — it requires a Firestore
+  // composite index. Without that index, the listener silently fails.
   _customerOrderStatusUnsub=db.collection('orders')
     .where('customerEmail','==',currentUser.email)
-    .orderBy('updatedAt','desc')
     .limit(30)
     .onSnapshot(snap=>{
-      if(!_customerOrderWatcherReady){_customerOrderWatcherReady=true;return;}
+      if(!_customerOrderWatcherReady){
+        // On first load, record every doc's current status — don't fire alerts
+        snap.docs.forEach(d=>{const dd=d.data()||{};if(dd.orderId)_notifiedStatuses[dd.orderId]=dd.status||'';});
+        _customerOrderWatcherReady=true;return;
+      }
       snap.docChanges().forEach(ch=>{
-        if(ch.type!=='modified')return;
+        if(ch.type!=='modified'&&ch.type!=='added')return;
         const data=ch.doc.data()||{},st=(data.status||'').toLowerCase();
         const ordId=data.orderId||ch.doc.id;
+        // Skip if we already notified this order about this status
+        if(_notifiedStatuses[ordId]===st)return;
+        _notifiedStatuses[ordId]=st;
         if(st==='accepted'){
           playOrderPlacedSound();
           showToast('✅ Your order was accepted! Preparing now 🍳',3000);
@@ -2289,6 +2297,10 @@ function syncCustomerOrderWatcher(){
           }
         }
       });
+    },err=>{
+      // Visible error if the Firestore query fails (e.g. missing index or permission)
+      console.error('❌ Customer order watcher error:',err.code,err.message);
+      showToast('⚠️ Notification error: '+err.code,3000,'error');
     });
 }
 function syncAdminRealtimeFeatures(){
