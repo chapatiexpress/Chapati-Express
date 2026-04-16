@@ -7,6 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script defer src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -842,6 +843,10 @@
               <div class="payment-opt" id="pay-upi" onclick="selectPayment('upi')">
                 <div class="po-icon">📱</div>
                 <div><div class="po-label">UPI Payment</div><div class="po-sub">GPay, PhonePe</div></div>
+              </div>
+              <div class="payment-opt" id="pay-razorpay" onclick="selectPayment('razorpay')" style="border:2px solid #528ff0">
+                <div class="po-icon">💳</div>
+                <div><div class="po-label" style="color:#528ff0">Pay Online</div><div class="po-sub">Card / UPI / NetBanking</div></div>
               </div>
             </div>
             <div id="upi-apps-section" style="display:none;margin-top:10px">
@@ -1786,6 +1791,43 @@ function confirmUPIPaid(){
   setTimeout(()=>finalizeOrder('upi',true),2000);
 }
 
+function launchRazorpay(amount){
+  const name=document.getElementById('om-name').value.trim();
+  const phone=document.getElementById('om-phone').value.trim();
+  const options={
+    key:'rzp_live_Sd4xGVwfDjtJXr',
+    amount:amount*100, // Razorpay takes paise
+    currency:'INR',
+    name:'Chapati Express 🫓',
+    description:'Food Order – Chapati Express, Sircilla',
+    image:'',
+    prefill:{name:name,contact:phone},
+    theme:{color:'#e8820c'},
+    modal:{
+      ondismiss:function(){
+        showToast('⚠️ Payment cancelled. Choose another method or retry.',3000);
+      }
+    },
+    handler:function(response){
+      // Payment successful – Razorpay returns payment ID
+      const razorpayId=response.razorpay_payment_id||'';
+      showToast('✅ Payment successful! Confirming your order...',2500);
+      // Save Razorpay payment ID and finalize order automatically
+      setTimeout(()=>finalizeOrder('razorpay',true,razorpayId),1800);
+    }
+  };
+  try{
+    const rzp=new window.Razorpay(options);
+    rzp.on('payment.failed',function(resp){
+      showToast('❌ Payment failed: '+(resp.error&&resp.error.description||'Unknown error'),3500);
+    });
+    rzp.open();
+  }catch(e){
+    showToast('⚠️ Razorpay not available. Try another payment method.',3000);
+    console.error('Razorpay error:',e);
+  }
+}
+
 // ============================================================
 // ORDER FLOW
 // ============================================================
@@ -1832,9 +1874,13 @@ function submitOrder(){
     const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
     showUPIRedirect(total);return;
   }
+  if(selectedPaymentMethod==='razorpay'){
+    const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
+    launchRazorpay(total);return;
+  }
   finalizeOrder(selectedPaymentMethod,false);
 }
-function finalizeOrder(paymentMethod,paymentDone){
+function finalizeOrder(paymentMethod,paymentDone,razorpayId){
   const keys=Object.keys(cart),total=keys.reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
   const name=document.getElementById('om-name').value.trim();
   const phone=document.getElementById('om-phone').value.trim();
@@ -1844,7 +1890,7 @@ function finalizeOrder(paymentMethod,paymentDone){
   const note=document.getElementById('om-note').value.trim();
   currentOrderId='CE-'+Date.now().toString().slice(-6);
   const orderItems=keys.map(k=>({id:k,name:cart[k].name,qty:cart[k].qty,price:cart[k].price,lineTotal:cart[k].price*cart[k].qty}));
-  const payLabels={'cod':'💵 Cash on Delivery','upi':'📱 UPI','card':'💳 Card'};
+  const payLabels={'cod':'💵 Cash on Delivery','upi':'📱 UPI','card':'💳 Card','razorpay':'💳 Online (Razorpay)'};
   try{
     if(db){
       db.collection('orders').add({
