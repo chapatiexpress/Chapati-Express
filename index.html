@@ -1743,11 +1743,9 @@ function launchUPIApp(app){
 function showUPIRedirect(amount,preferredApp=null){
   document.getElementById('upi-amount-display').textContent='₹'+amount;
   document.getElementById('upi-redirect-overlay').classList.add('open');
-  if(preferredApp)deepLinkUPI(preferredApp);
   if(preferredApp)launchDirectUPI(preferredApp);
 }
 function closeUPIRedirect(){document.getElementById('upi-redirect-overlay').classList.remove('open');}
-function deepLinkUPI(app){
 function launchDirectUPI(app){
   // Store pending UPI order so we can confirm on return
   const pendingUPI={
@@ -1763,11 +1761,8 @@ function launchDirectUPI(app){
   };
   sessionStorage.setItem('pendingUPIOrder',JSON.stringify(pendingUPI));
   const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
-  const params=`pa=${UPI_ID}&pn=Chapati+Express&am=${total}&cu=INR&tn=ChapatiExpressOrder`;
   const params=`pa=${UPI_ID}&pn=Chapati+Express&am=${total}&cu=INR&tn=ChapatiExpressOrder&tr=${Date.now()}`;
   const urls={gpay:`gpay://upi/pay?${params}`,phonepe:`phonepe://pay?${params}`,paytm:`paytmmp://pay?${params}`,bhim:`upi://pay?${params}`};
-  showToast('🔗 Opening '+app+'...',2000);
-  try{window.open(urls[app]||urls.bhim,'_self');}catch(e){}
   showToast('🔗 Opening '+(app==='gpay'?'Google Pay':app==='phonepe'?'PhonePe':app==='paytm'?'Paytm':'BHIM')+'...',2000);
   try{
     const a=document.createElement('a');
@@ -2266,7 +2261,6 @@ function syncCustomerOrderWatcher(){
           );
         } else if(st==='cancelled'||st==='auto-cancelled'){
           showToast('🚫 Order was cancelled (no response)',2800,'error');
-          showToast('🚫 Order was cancelled',2800,'error');
           showPromoNotification('🚫 Order Cancelled','Your order was auto-cancelled. Please place a new order.','⏰');
           showCustomerAlertModal(
             '🚫 Order Cancelled',
