@@ -1828,13 +1828,40 @@ function submitOrder(){
   if(!omPinLatLng){showToast('⚠️ Pin your delivery location on the map');return;}
   if(!isServiceableLatLng(omPinLatLng.lat,omPinLatLng.lng)){showToast('⚠️ Location not serviceable (within 4km)',2600);return;}
   if(selectedPaymentMethod==='qr'){const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);showPhonePeQR(total);return;}
-  if(selectedPaymentMethod==='upi'){
-    const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
-    showUPIRedirect(total);return;
-  }
-  finalizeOrder(selectedPaymentMethod,false);
+if(selectedPaymentMethod==='upi'){
+  const total = Object.keys(cart).reduce(
+    (a,k)=>a+cart[k].price*cart[k].qty,0
+  );
+
+  payWithRazorpay(total); 
+  return;
+}  finalizeOrder(selectedPaymentMethod,false);
 }
-function finalizeOrder(paymentMethod,paymentDone){
+
+function payWithRazorpay(amount) {
+  const options = {
+    key: "rzp_live_Sd4xGVwfDjtJXr",
+    amount: amount * 100,
+    currency: "INR",
+    name: "Chapati Express",
+
+    handler: function (response) {
+      console.log("Payment success:", response);
+
+      // ✅ THIS IS THE FIX
+      finalizeOrder('upi', true);
+    },
+
+    modal: {
+      ondismiss: function () {
+        showToast("Payment Cancelled ❌", "error");
+      }
+    }
+  };
+
+  new Razorpay(options).open();
+}
+  function finalizeOrder(paymentMethod,paymentDone){
   const keys=Object.keys(cart),total=keys.reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
   const name=document.getElementById('om-name').value.trim();
   const phone=document.getElementById('om-phone').value.trim();
