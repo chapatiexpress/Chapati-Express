@@ -1090,10 +1090,10 @@
     </div>
   </div>
   <div id="admin-order-popup-body" style="padding:12px 16px;color:#333;font-size:.85rem;line-height:1.5"></div>
-  <div class="popup-actions">
+  <div class="popup-actions" id="admin-popup-actions">
     <button class="popup-accept" onclick="adminPopupUpdateStatus('accepted')">✅ Accept</button>
     <button class="popup-reject" onclick="adminPopupUpdateStatus('rejected')">❌ Reject</button>
-    <button class="popup-complete" onclick="adminPopupUpdateStatus('completed')">🎯 Done</button>
+    <button class="popup-complete" onclick="adminPopupUpdateStatus('completed')" style="display:none">🎯 Done</button>
   </div>
 </div>
 
@@ -1985,11 +1985,12 @@ function finalizeOrder(paymentMethod,paymentDone,razorpayPaymentId){
 // ORDER TRACKING
 // ============================================================
 const TRACKING_STEPS=[
-  {id:'placed',icon:'📋',title:'Order Placed',desc:'Your order has been received'},
-  {id:'accepted',icon:'✅',title:'Order Accepted',desc:'Restaurant confirmed your order'},
-  {id:'preparing',icon:'👨‍🍳',title:'Being Prepared',desc:'Your food is being freshly made'},
-  {id:'out',icon:'🚴',title:'Out for Delivery',desc:'On the way to you!'},
-  {id:'delivered',icon:'🎉',title:'Delivered',desc:'Enjoy your meal!'}
+  {id:'placed',  icon:'📋',title:'Order Placed',    desc:'Your order has been received'},
+  {id:'accepted',icon:'✅',title:'Order Accepted',   desc:'Restaurant confirmed your order'},
+  {id:'preparing',icon:'👨‍🍳',title:'Being Prepared', desc:'Your food is being freshly made'},
+  {id:'ready',   icon:'🍱',title:'Ready for Pickup', desc:'Food is packed & ready for delivery boy'},
+  {id:'out',     icon:'🚴',title:'Out for Delivery', desc:'Delivery boy is on the way to you!'},
+  {id:'delivered',icon:'🎉',title:'Delivered',        desc:'Enjoy your meal! Rate your experience!'}
 ];
 let _trackingUnsub=null;
 function renderTrackingPage(){
@@ -2010,7 +2011,15 @@ function renderTrackingPage(){
 }
 function renderTrackingUI(container,order){
   const status=order.status||'pending';
-  const statusToStep={'pending':'placed','accepted':'accepted','preparing':'preparing','out_for_delivery':'out','completed':'delivered','delivered':'delivered'};
+  const statusToStep={
+    'pending':'placed',
+    'accepted':'accepted',
+    'preparing':'preparing',
+    'ready':'ready',
+    'out_for_delivery':'out',
+    'completed':'delivered',
+    'delivered':'delivered'
+  };
   const currentStepId=statusToStep[status]||'placed';
   const currentStepIdx=TRACKING_STEPS.findIndex(s=>s.id===currentStepId);
   const createdAt=order.createdAt?.toDate?order.createdAt.toDate():new Date(order.createdAt||Date.now());
@@ -2124,47 +2133,115 @@ function subscribeOrders(){
 function badgeForStatus(s){
   const t=(s||'pending').toLowerCase();
   if(t==='accepted')return`<span class="om-route-badge" style="background:#e9f7ee;color:#1b5e20;border-color:#cdebd7">✅ Accepted</span>`;
+  if(t==='preparing')return`<span class="om-route-badge" style="background:#f3e5f5;color:#6a1b9a;border-color:#e1bee7">👨‍🍳 Preparing</span>`;
+  if(t==='ready')return`<span class="om-route-badge" style="background:#fff3e0;color:#e65100;border-color:#ffe0b2">🍱 Ready</span>`;
+  if(t==='out_for_delivery')return`<span class="om-route-badge" style="background:#e3f2fd;color:#0d47a1;border-color:#bbdefb">🚴 Out for Delivery</span>`;
   if(t==='rejected')return`<span class="om-route-badge" style="background:#fff0f0;color:#8b1b1b;border-color:#ffd1d1">❌ Rejected</span>`;
-  if(t==='completed'||t==='delivered')return`<span class="om-route-badge" style="background:#e8f1ff;color:#0d47a1;border-color:#cddfff">🎯 Completed</span>`;
+  if(t==='completed'||t==='delivered')return`<span class="om-route-badge" style="background:#e8f1ff;color:#0d47a1;border-color:#cddfff">🎉 Delivered</span>`;
   if(t==='cancelled'||t==='auto-cancelled')return`<span class="om-route-badge" style="background:#f5f5f5;color:#666;border-color:#ddd">🚫 Cancelled</span>`;
   return`<span class="om-route-badge" style="background:#fff7ea;color:#7a3b10;border-color:#f0dcc0">⏳ Pending</span>`;
+}
+function getStatusColor(s){
+  const t=(s||'pending').toLowerCase();
+  if(t==='pending')return'#f5a623';
+  if(t==='accepted')return'#2e7d32';
+  if(t==='preparing')return'#7b1fa2';
+  if(t==='ready')return'#f57c00';
+  if(t==='out_for_delivery')return'#0288d1';
+  if(t==='delivered'||t==='completed')return'#1565c0';
+  if(t==='rejected'||t==='cancelled')return'#c62828';
+  return'#ccc';
 }
 function renderOrdersList(orders){
   const el=document.getElementById('orders-list');
   if(!orders.length){el.innerHTML='<div class="empty-cat-msg"><div class="big">🧾</div>No orders yet.</div>';return;}
   const payIcons={'cod':'💵','upi':'📱','card':'💳','wallet':'👛'};
+
+  // ── ADMIN VIEW ─────────────────────────────────────────────
+  if(currentRole==='admin'){
+    const activeStatuses=['pending','accepted','preparing','ready','out_for_delivery'];
+    const active=orders.filter(o=>activeStatuses.includes(o.status||'pending'));
+    const done=orders.filter(o=>!activeStatuses.includes(o.status||'pending'));
+
+    const adminCard=(o)=>{
+      const created=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
+      const dt=created?created.toLocaleString():'—';
+      const itms=Array.isArray(o.items)?o.items:[];
+      const itemLine=itms.map(it=>`${it.name} ×${it.qty}`).join(', ');
+      const borderColor=getStatusColor(o.status);
+      return`<div class="menu-card" style="padding:14px;border-left:4px solid ${borderColor};margin-bottom:10px">
+        <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">
+          <div style="font-weight:900;color:var(--brown);font-size:.92rem">₹${o.total||0} <span style="font-size:.73rem;font-weight:400;color:#888">${o.orderId||''}</span></div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">${badgeForStatus(o.status)}<span class="om-route-badge">${payIcons[o.paymentMethod]||'💵'} ${(o.paymentMethod||'cod').toUpperCase()}</span></div>
+        </div>
+        <div style="margin-top:8px;color:#444;line-height:1.55;font-size:.83rem">
+          <div>👤 <strong>${(o.customerName||'—').toString().replace(/</g,'&lt;')}</strong> &nbsp;📞 ${(o.customerPhone||'—')}</div>
+          <div style="margin-top:3px">📍 ${(o.addressText||'—').toString().replace(/</g,'&lt;').slice(0,70)}${(o.addressText||'').length>70?'…':''}</div>
+          <div style="margin-top:3px">🍱 ${itemLine||'—'}</div>
+          <div style="color:#aaa;font-size:.74rem;margin-top:4px">🕒 ${dt}</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          ${getAdminStatusButtons(o.id,o.status)}
+        </div>
+      </div>`;
+    };
+
+    el.innerHTML=
+      `<div style="font-weight:800;color:var(--saffron);margin:4px 0 10px;font-size:.86rem;letter-spacing:.5px">🔴 ACTIVE ORDERS (${active.length})</div>`+
+      (active.length?active.map(adminCard).join(''):'<div style="text-align:center;padding:16px;color:#888;font-size:.85rem;background:#fafafa;border-radius:12px;margin-bottom:12px">✅ No active orders right now</div>')+
+      (done.length?`<div style="font-weight:800;color:#888;margin:18px 0 10px;font-size:.86rem;letter-spacing:.5px">📄 PAST ORDERS (${done.length})</div>`+done.map(adminCard).join(''):'');
+    return;
+  }
+
+  // ── CUSTOMER VIEW ───────────────────────────────────────────
   el.innerHTML=orders.map(o=>{
     const created=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
     const dt=created?created.toLocaleString():'—';
     const itms=Array.isArray(o.items)?o.items:[];
     const itemLine=itms.slice(0,3).map(it=>`${it.name} ×${it.qty}`).join(', ');
-    return`<div class="menu-card" style="padding:12px">
+    return`<div class="menu-card" style="padding:12px;border-left:4px solid ${getStatusColor(o.status)}">
       <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">
         <div style="font-weight:900;color:var(--brown);font-size:.9rem">₹${o.total||0} <span style="font-size:.75rem;font-weight:400;color:#888">${o.orderId||''}</span></div>
         <div style="display:flex;gap:6px;flex-wrap:wrap">${badgeForStatus(o.status)}<span class="om-route-badge">${payIcons[o.paymentMethod]||'💵'} ${(o.paymentMethod||'cod').toUpperCase()}</span></div>
       </div>
       <div style="margin-top:7px;color:#555;line-height:1.4;font-size:.82rem">
-        <div><strong>Customer:</strong> ${(o.customerName||'—').toString().replace(/</g,'&lt;')}</div>
-        <div><strong>Address:</strong> ${(o.addressText||'—').toString().replace(/</g,'&lt;').slice(0,60)}${(o.addressText||'').length>60?'…':''}</div>
-        <div style="margin-top:5px"><strong>Items:</strong> ${itemLine||'—'}${itms.length>3?'…':''}</div>
-        <div style="color:#aaa;font-size:.75rem;margin-top:4px">🕒 ${dt}</div>
+        <div>📍 ${(o.addressText||'—').toString().replace(/</g,'&lt;').slice(0,60)}${(o.addressText||'').length>60?'…':''}</div>
+        <div style="margin-top:4px">🍱 ${itemLine||'—'}${itms.length>3?'…':''}</div>
+        <div style="color:#aaa;font-size:.74rem;margin-top:4px">🕒 ${dt}</div>
       </div>
-      <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;align-items:center">
-        ${currentRole==='admin'?`
-          <button class="cat-save-btn" style="font-size:.8rem;padding:7px 12px" onclick="updateOrderStatus('${o.id}','accepted')" ${o.status==='accepted'||o.status==='completed'?'disabled':''}>✅ Accept</button>
-          <button class="cat-cancel-btn" style="font-size:.8rem;padding:7px 12px" onclick="updateOrderStatus('${o.id}','rejected')" ${o.status==='rejected'?'disabled':''}>❌ Reject</button>
-          <button class="cat-save-btn" style="font-size:.8rem;padding:7px 12px;background:linear-gradient(90deg,var(--blue),#1976d2)" onclick="updateOrderStatus('${o.id}','completed')" ${o.status==='completed'?'disabled':''}>🎯 Complete</button>
-        `:''}
-        ${(o.status==='completed'||o.status==='delivered')?`<button class="cat-save-btn" style="background:linear-gradient(90deg,#f5a623,#e8820c);font-size:.8rem;padding:7px 12px;margin-left:auto" onclick="openRatingModal('${o.orderId||o.id}')">⭐ Rate</button>`:''}
+      <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap">
+        <button class="cat-cancel-btn" style="font-size:.8rem;padding:7px 12px" onclick="showPage('tracking');setMobNav('track');closeOrdersModal()">📦 Track</button>
+        ${(o.status==='completed'||o.status==='delivered')?`<button class="cat-save-btn" style="background:linear-gradient(90deg,#f5a623,#e8820c);font-size:.8rem;padding:7px 12px" onclick="openRatingModal('${o.orderId||o.id}')">⭐ Rate</button>`:''}
       </div>
     </div>`;
   }).join('');
 }
-async function updateOrderStatus(orderId,status){
+
+async function updateOrderStatus(docId,status){
   if(currentRole!=='admin'||!db){showToast('⚠️ Only admin can update orders');return;}
-  await db.collection('orders').doc(orderId).set({status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-  const map={accepted:'✅ Order accepted',rejected:'❌ Order rejected',completed:'🎯 Order completed'};
-  showToast(map[status]||'✅ Updated',1800);
+  await db.collection('orders').doc(docId).set({status,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  const map={
+    accepted:'✅ Order accepted',rejected:'❌ Order rejected',
+    preparing:'👨‍🍳 Marked as preparing',ready:'🍱 Marked as ready for pickup',
+    out_for_delivery:'🚴 Delivery boy picked up',delivered:'🎉 Order delivered',completed:'🎯 Order completed'
+  };
+  showToast(map[status]||'✅ Updated',2000);
+}
+// Returns the right action buttons for the admin based on current order status
+function getAdminStatusButtons(docId, status){
+  const s=status||'pending';
+  if(s==='pending')return `
+    <button class="cat-save-btn" style="font-size:.8rem;padding:7px 12px" onclick="updateOrderStatus('${docId}','accepted')">✅ Accept</button>
+    <button class="cat-cancel-btn" style="font-size:.8rem;padding:7px 12px" onclick="updateOrderStatus('${docId}','rejected')">❌ Reject</button>`;
+  if(s==='accepted')return `
+    <button class="cat-save-btn" style="font-size:.8rem;padding:7px 14px;background:linear-gradient(90deg,#7b1fa2,#ab47bc)" onclick="updateOrderStatus('${docId}','preparing')">👨‍🍳 Start Preparing</button>`;
+  if(s==='preparing')return `
+    <button class="cat-save-btn" style="font-size:.8rem;padding:7px 14px;background:linear-gradient(90deg,#f57c00,#ffa726)" onclick="updateOrderStatus('${docId}','ready')">🍱 Order Ready</button>`;
+  if(s==='ready')return `
+    <button class="cat-save-btn" style="font-size:.8rem;padding:7px 14px;background:linear-gradient(90deg,#0288d1,#29b6f6)" onclick="updateOrderStatus('${docId}','out_for_delivery')">🚴 Pickup by Delivery Boy</button>`;
+  if(s==='out_for_delivery')return `
+    <button class="cat-save-btn" style="font-size:.8rem;padding:7px 14px;background:linear-gradient(90deg,#2e7d32,#43a047)" onclick="updateOrderStatus('${docId}','delivered')">🎉 Mark as Delivered</button>`;
+  return '';
 }
 
 // ============================================================
@@ -2185,10 +2262,32 @@ function showAdminOrderPopup(order){
     <div style="margin-top:4px"><strong>Address:</strong> ${(order.addressText||'—').toString().replace(/</g,'&lt;').slice(0,60)}${(order.addressText||'').length>60?'…':''}</div>
     <div style="margin-top:4px"><strong>Total:</strong> ₹${order.total||0} · ${payLabels[order.paymentMethod]||'COD'}</div>
     <div style="margin-top:4px"><strong>Items:</strong> ${itemText||'—'}${itms.length>5?'…':''}</div>`;
+  // Set contextual action buttons
+  _updateAdminPopupButtons(order);
   let remainMs=ORDER_AUTO_CANCEL_MS;
   if(order.createdAt&&order.createdAt.toDate){const elapsed=Date.now()-order.createdAt.toDate().getTime();remainMs=Math.max(0,ORDER_AUTO_CANCEL_MS-elapsed);}
   _popupCountdownEnd=Date.now()+remainMs;
   popup.style.display='block';playZomatoRingtone();startPopupCountdown();
+}
+function _updateAdminPopupButtons(order){
+  const actDiv=document.getElementById('admin-popup-actions');
+  if(!actDiv||!order)return;
+  const s=order.status||'pending';
+  if(s==='pending'){
+    actDiv.innerHTML=`
+      <button class="popup-accept" onclick="adminPopupUpdateStatus('accepted')">✅ Accept</button>
+      <button class="popup-reject" onclick="adminPopupUpdateStatus('rejected')">❌ Reject</button>`;
+  }else if(s==='accepted'){
+    actDiv.innerHTML=`<button class="popup-complete" style="background:linear-gradient(90deg,#7b1fa2,#ab47bc)" onclick="adminPopupUpdateStatus('preparing')">👨‍🍳 Start Preparing</button>`;
+  }else if(s==='preparing'){
+    actDiv.innerHTML=`<button class="popup-complete" style="background:linear-gradient(90deg,#f57c00,#ffa726)" onclick="adminPopupUpdateStatus('ready')">🍱 Order Ready</button>`;
+  }else if(s==='ready'){
+    actDiv.innerHTML=`<button class="popup-complete" style="background:linear-gradient(90deg,#0288d1,#29b6f6)" onclick="adminPopupUpdateStatus('out_for_delivery')">🚴 Pickup by Delivery Boy</button>`;
+  }else if(s==='out_for_delivery'){
+    actDiv.innerHTML=`<button class="popup-complete" style="background:linear-gradient(90deg,#2e7d32,#43a047)" onclick="adminPopupUpdateStatus('delivered')">🎉 Mark Delivered</button>`;
+  }else{
+    actDiv.innerHTML='';
+  }
 }
 function startPopupCountdown(){
   stopPopupCountdown();
@@ -2218,7 +2317,18 @@ function closeAdminOrderPopup(){
 async function adminPopupUpdateStatus(status){
   if(!_adminPopupOrder)return;
   await updateOrderStatus(_adminPopupOrder.id,status);
-  closeAdminOrderPopup();
+  // If more steps remain, update the popup buttons instead of closing
+  const remainingSteps=['accepted','preparing','ready','out_for_delivery','delivered'];
+  const nextIdx=remainingSteps.indexOf(status);
+  // Close popup only after final delivery or reject
+  if(status==='rejected'||status==='delivered'||status==='completed'){
+    closeAdminOrderPopup();
+  }else{
+    // Update the order object and refresh buttons
+    _adminPopupOrder={..._adminPopupOrder,status};
+    _updateAdminPopupButtons(_adminPopupOrder);
+    stopZomatoRingtone();
+  }
 }
 
 // ============================================================
@@ -2319,30 +2429,34 @@ function syncCustomerOrderWatcher(){
         if(st==='accepted'){
           playOrderPlacedSound();
           showToast('✅ Your order was accepted! Preparing now 🍳',3000);
-          showPromoNotification('🎉 Order Accepted!','Your chapati is being prepared now! ~30 mins to delivery.','🫓');
-          showCustomerAlertModal(
-            '🎉 Order Accepted!',
+          showCustomerAlertModal('🎉 Order Accepted!',
             'Great news! <strong>Your chapati is being freshly made</strong> and will be delivered in ~30 minutes.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
-            'success',
-            ()=>{showPage('tracking');setMobNav('track');}
-          );
+            'success',()=>{showPage('tracking');setMobNav('track');});
+        } else if(st==='preparing'){
+          showToast('👨‍🍳 Your food is being prepared!',2800);
+          showCustomerAlertModal('👨‍🍳 Preparing Your Order',
+            'Your chapati is <strong>being freshly cooked</strong> right now! It will be ready for delivery shortly.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
+            'info',()=>{showPage('tracking');setMobNav('track');});
+        } else if(st==='ready'){
+          showToast('🍱 Your order is ready! Delivery boy picking up...',3000);
+          showCustomerAlertModal('🍱 Order Ready!',
+            'Your food is <strong>packed and ready!</strong> The delivery boy is about to pick it up.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
+            'info',()=>{showPage('tracking');setMobNav('track');});
+        } else if(st==='out_for_delivery'){
+          showToast('🚴 Out for delivery! On the way to you!',3000);
+          showCustomerAlertModal('🚴 On the Way!',
+            'Your order has been picked up and <strong>the delivery boy is on the way!</strong> Should arrive shortly.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
+            'info',()=>{showPage('tracking');setMobNav('track');});
         } else if(st==='rejected'){
           showToast('❌ Your order was rejected',2800,'error');
-          showPromoNotification('❌ Order Update','Sorry, your order was rejected. Please contact us or try again.','😔');
-          showCustomerAlertModal(
-            '❌ Order Rejected',
+          showCustomerAlertModal('❌ Order Rejected',
             'We\'re sorry, your order was <strong>rejected by the restaurant</strong>. This may be due to high demand or a closed kitchen.<br/><br/>Please try placing a new order or contact us for help.<br/><small style="color:#888">Order ID: '+ordId+'</small>',
-            'error'
-          );
+            'error');
         } else if(st==='completed'||st==='delivered'){
           showToast('🎉 Order delivered! Enjoy your meal!',3000);
-          showPromoNotification('🎉 Order Delivered!','Your fresh chapati has arrived! Tap to rate your experience.','🫓');
-          showCustomerAlertModal(
-            '🎉 Order Delivered!',
+          showCustomerAlertModal('🎉 Order Delivered!',
             'Your <strong>fresh hot chapati has arrived!</strong> Enjoy your meal and don\'t forget to leave a review.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
-            'success',
-            ()=>setTimeout(()=>openRatingModal(ordId),600)
-          );
+            'success',()=>setTimeout(()=>openRatingModal(ordId),600));
         } else if(st==='cancelled'||st==='auto-cancelled'){
           showToast('🚫 Order was cancelled (no response)',2800,'error');
           showPromoNotification('🚫 Order Cancelled','Your order was auto-cancelled. Please place a new order.','⏰');
