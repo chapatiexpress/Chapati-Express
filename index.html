@@ -338,9 +338,12 @@
     .orders-modal-header{background:linear-gradient(135deg,var(--brown),#7a3b10);padding:16px 20px;display:flex;align-items:center;gap:10px}
     .orders-modal-header h2{font-family:"Yeseva One",serif;color:var(--turmeric);font-size:1.2rem;flex:1}
     .orders-modal-body{padding:16px 18px;flex:1;overflow-y:auto}
-    #orders-list{display:grid;gap:10px;max-height:60vh;overflow-y:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--saffron) #f0e0c8}
+    #orders-list{display:grid;gap:10px;max-height:55vh;overflow-y:auto;padding-right:2px;scrollbar-width:thin;scrollbar-color:var(--saffron) #f0e0c8}
     #orders-list::-webkit-scrollbar{width:5px}
     #orders-list::-webkit-scrollbar-thumb{background:var(--saffron);border-radius:6px}
+    /* Order Tabs */
+    .orders-tab{background:var(--cream);border:1.5px solid var(--border);border-radius:20px;padding:5px 13px;font-size:.78rem;font-weight:800;color:var(--brown);cursor:pointer;transition:all .2s;touch-action:manipulation;font-family:'Lato',sans-serif}
+    .orders-tab.active,.orders-tab:hover{background:var(--brown);color:#fff;border-color:var(--brown)}
 
     /* ===== ADMIN ORDER POPUP ===== */
     #admin-order-popup{position:fixed;right:14px;bottom:14px;width:min(420px,calc(100vw - 20px));background:#fff;border:2px solid var(--saffron);border-radius:18px;box-shadow:0 12px 40px rgba(232,130,12,0.35);z-index:260;display:none;animation:popupSlideIn .4s cubic-bezier(0.34,1.56,0.64,1)}
@@ -1127,6 +1130,13 @@
       <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center">
         <div style="font-size:.8rem;color:#888"><span id="orders-user-email">—</span></div>
         <div id="orders-modal-subtitle" style="font-size:.78rem;color:#888"></div>
+      </div>
+      <!-- ORDER TABS -->
+      <div id="orders-tab-row" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px">
+        <button id="otab-active"  class="orders-tab active" onclick="filterOrdersByTab('active')">🔄 Active</button>
+        <button id="otab-delivered" class="orders-tab" onclick="filterOrdersByTab('delivered')">✅ Delivered</button>
+        <button id="otab-rejected" class="orders-tab" onclick="filterOrdersByTab('rejected')">❌ Rejected</button>
+        <button id="otab-all"  class="orders-tab" onclick="filterOrdersByTab('all')">📋 All Orders</button>
       </div>
       <div id="orders-list"></div>
     </div>
@@ -2090,12 +2100,14 @@ function renderTrackingUI(container,order){
   const createdAt=order.createdAt?.toDate?order.createdAt.toDate():new Date(order.createdAt||Date.now());
   const estDelivery=new Date(createdAt.getTime()+30*60000);
   const payLabels={'cod':'💵 COD','upi':'📱 UPI','card':'💳 Card'};
+  const isFinished=status==='delivered'||status==='completed'||status==='cancelled'||status==='rejected';
   container.innerHTML=`
     <div class="est-delivery-banner">
-      <div class="edb-icon">🚴</div>
+      <div class="edb-icon" id="edb-icon-anim">${isFinished?(status==='delivered'||status==='completed'?'🎉':'🚫'):'🚴'}</div>
       <div class="edb-info">
-        <div class="edb-title">Estimated Delivery</div>
-        <div class="edb-time">${estDelivery.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+        <div class="edb-title">${isFinished?(status==='delivered'||status==='completed'?'Order Delivered!':status==='cancelled'?'Order Cancelled':status==='rejected'?'Order Rejected':'Done'):'Estimated Delivery'}</div>
+        <div class="edb-time" id="edb-eta-time">${estDelivery.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</div>
+        ${!isFinished?`<div id="edb-countdown" style="font-size:.75rem;color:var(--saffron);font-weight:800;margin-top:3px">Calculating...</div>`:`<div style="font-size:.75rem;color:var(--green);font-weight:800;margin-top:3px">${status==='delivered'||status==='completed'?'✅ Delivered successfully':'🚫 No longer active'}</div>`}
       </div>
       <div style="margin-left:auto;text-align:right">
         <div style="font-size:.72rem;color:#888">Order ID</div>
@@ -2127,10 +2139,51 @@ function renderTrackingUI(container,order){
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button class="aip-save" style="flex:1;max-width:200px" onclick="openOrdersModal()">🧾 All Orders</button>
-      ${status==='delivered'||status==='completed'?`<button class="cat-save-btn" style="flex:1;max-width:200px;background:linear-gradient(90deg,#f5a623,#e8820c)" onclick="openRatingModal('${order.orderId||''}')">⭐ Rate Order</button>`:''}
+      ${isFinished&&(status==='delivered'||status==='completed')?`<button class="cat-save-btn" style="flex:1;max-width:200px;background:linear-gradient(90deg,#f5a623,#e8820c)" onclick="openRatingModal('${order.orderId||''}')">⭐ Rate Order</button>`:''}
       <button class="cat-cancel-btn" style="flex:1;max-width:200px" onclick="reorderLast()">🔄 Reorder</button>
     </div>`;
+
+  // Start live countdown if order not finished
+  startDeliveryCountdown(estDelivery,isFinished);
 }
+// ============================================================
+// LIVE DELIVERY COUNTDOWN
+// ============================================================
+let _countdownTimer=null;
+function startDeliveryCountdown(estDelivery,isFinished){
+  // Clear any previous timer
+  if(_countdownTimer){clearInterval(_countdownTimer);_countdownTimer=null;}
+  const el=document.getElementById('edb-countdown');
+  const iconEl=document.getElementById('edb-icon-anim');
+  if(!el||isFinished)return;
+
+  function tick(){
+    const now=Date.now();
+    const msLeft=estDelivery.getTime()-now;
+    if(msLeft<=0){
+      el.textContent='⏰ Arriving any moment...';
+      el.style.color='var(--green)';
+      if(iconEl)iconEl.textContent='🎉';
+      clearInterval(_countdownTimer);_countdownTimer=null;
+      return;
+    }
+    const totalSecs=Math.floor(msLeft/1000);
+    const mins=Math.floor(totalSecs/60);
+    const secs=totalSecs%60;
+    const isUrgent=mins<5;
+    el.textContent=`⏱ ${mins} min ${String(secs).padStart(2,'0')} sec remaining`;
+    el.style.color=isUrgent?'var(--green)':'var(--saffron)';
+    if(iconEl&&!isUrgent){
+      // Animate icon alternation to simulate riding
+      iconEl.textContent=Math.floor(now/800)%2===0?'🚴':'🛵';
+    }else if(iconEl&&isUrgent){
+      iconEl.textContent='🎉';
+    }
+  }
+  tick();
+  _countdownTimer=setInterval(tick,1000);
+}
+
 function reorderLast(){
   const lastOrderStr=localStorage.getItem('lastOrder');
   if(!lastOrderStr){showToast('⚠️ No previous order found');return;}
@@ -2172,12 +2225,19 @@ function submitRating(){
 // ORDERS MODAL
 // ============================================================
 let _ordersUnsub=null;
+let _allOrders=[];        // cache for tab filtering
+let _currentOrderTab='active';
+
 function openOrdersModal(){
   closeUserMenu();
   if(!currentUser){showToast('⚠️ Please sign in',2200);return;}
   document.getElementById('orders-user-email').textContent=currentUser.email||'—';
   document.getElementById('orders-modal-title').textContent=currentRole==='admin'?'🧾 All Orders':'🧾 My Orders';
   document.getElementById('orders-modal-subtitle').textContent=currentRole==='admin'?'All customer orders':'Your order history';
+  // Reset to Active tab on open
+  _currentOrderTab='active';
+  document.querySelectorAll('.orders-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('otab-active')?.classList.add('active');
   document.getElementById('orders-overlay').classList.add('open');
   subscribeOrders();
 }
@@ -2192,8 +2252,27 @@ function subscribeOrders(){
   _ordersUnsub=q.onSnapshot(snap=>{
     let orders=snap.docs.map(d=>({id:d.id,...d.data()}));
     if(currentRole!=='admin')orders=orders.filter(o=>o.customerEmail===currentUser.email);
-    renderOrdersList(orders);
+    _allOrders=orders;
+    renderOrdersByTab(_currentOrderTab);
   });
+}
+
+// Filter orders by tab and render
+function filterOrdersByTab(tab){
+  _currentOrderTab=tab;
+  document.querySelectorAll('.orders-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('otab-'+tab)?.classList.add('active');
+  renderOrdersByTab(tab);
+}
+function renderOrdersByTab(tab){
+  const ACTIVE_STATUSES=['pending','accepted','preparing','ready','out_for_delivery'];
+  const DONE_STATUSES=['completed','delivered'];
+  const REJECT_STATUSES=['rejected','cancelled','auto-cancelled'];
+  let filtered=_allOrders;
+  if(tab==='active')   filtered=_allOrders.filter(o=>ACTIVE_STATUSES.includes(o.status||'pending'));
+  if(tab==='delivered')filtered=_allOrders.filter(o=>DONE_STATUSES.includes(o.status||''));
+  if(tab==='rejected') filtered=_allOrders.filter(o=>REJECT_STATUSES.includes(o.status||''));
+  renderOrdersList(filtered,tab);
 }
 function badgeForStatus(s){
   const t=(s||'pending').toLowerCase();
@@ -2205,9 +2284,17 @@ function badgeForStatus(s){
   if(t==='cancelled'||t==='auto-cancelled')return`<span class="om-route-badge" style="background:#f5f5f5;color:#666;border-color:#ddd">🚫 Cancelled</span>`;
   return`<span class="om-route-badge" style="background:#fff7ea;color:#7a3b10;border-color:#f0dcc0">⏳ Pending</span>`;
 }
-function renderOrdersList(orders){
+function renderOrdersList(orders,tab='all'){
   const el=document.getElementById('orders-list');
-  if(!orders.length){el.innerHTML='<div class="empty-cat-msg"><div class="big">🧾</div>No orders yet.</div>';return;}
+  if(!orders.length){
+    const emptyMessages={
+      active:'<div class="empty-cat-msg"><div class="big">🔄</div>No active orders right now.</div>',
+      delivered:'<div class="empty-cat-msg"><div class="big">✅</div>No delivered orders yet.</div>',
+      rejected:'<div class="empty-cat-msg"><div class="big">❌</div>No rejected or cancelled orders.</div>',
+      all:'<div class="empty-cat-msg"><div class="big">🧾</div>No orders yet.</div>'
+    };
+    el.innerHTML=emptyMessages[tab]||emptyMessages.all;return;
+  }
   const payIcons={'cod':'💵','upi':'📱','card':'💳','wallet':'👛'};
   el.innerHTML=orders.map(o=>{
     const created=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
