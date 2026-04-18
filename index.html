@@ -2394,37 +2394,33 @@ let _paySettings={cod:true,upi:true};
 let _paySettingsUnsub=null;
 
 function loadPaymentSettings(){
-  // First apply from localStorage as an instant fallback
+  // Apply localStorage instantly as fallback
   try{
     const s=localStorage.getItem('paySettings');
-    if(s){_paySettings=JSON.parse(s);applyPaymentSettings();}
+    if(s){const p=JSON.parse(s);_paySettings={cod:!!p.cod,upi:!!p.upi};applyPaymentSettings();}
   }catch(e){}
 
-  if(!db){applyPaymentSettings();return;}
+  // Retry until db is ready
+  if(!db){setTimeout(loadPaymentSettings,800);return;}
 
-  // Stop any existing listener
+  // Stop any previous listener
   if(_paySettingsUnsub){_paySettingsUnsub();_paySettingsUnsub=null;}
 
-  // Real-time listener — fires immediately on load AND whenever
-  // admin toggles a payment method. Both admin and customer
-  // sessions update instantly.
+  // Real-time Firestore listener — fires on load AND on every admin toggle
   _paySettingsUnsub=db.collection('settings').doc('payments')
     .onSnapshot(doc=>{
       if(doc.exists){
         const d=doc.data();
-        _paySettings={cod:d.cod!==false,upi:d.upi!==false};
+        _paySettings={cod:!!d.cod,upi:!!d.upi};
       }else{
-        // No Firestore doc yet → keep defaults (both on)
         _paySettings={cod:true,upi:true};
       }
-      // Persist locally so next load is instant
       localStorage.setItem('paySettings',JSON.stringify(_paySettings));
-      // Update UI immediately
       applyPaymentSettings();
     },
-    ()=>{
-      // Firestore unavailable → use localStorage
-      try{const s=localStorage.getItem('paySettings');if(s)_paySettings=JSON.parse(s);}catch(e){}
+    err=>{
+      console.warn('Payment settings listener error:',err);
+      try{const s=localStorage.getItem('paySettings');if(s){const p=JSON.parse(s);_paySettings={cod:!!p.cod,upi:!!p.upi};}}catch(e){}
       applyPaymentSettings();
     });
 }
@@ -2432,117 +2428,93 @@ function savePaymentSettings(){
   const codEl=document.getElementById('pay-toggle-cod');
   const upiEl=document.getElementById('pay-toggle-upi');
   if(!codEl||!upiEl)return;
-  _paySettings={cod:codEl.checked,upi:upiEl.checked};
-  localStorage.setItem('paySettings',JSON.stringify(_paySettings));
-  if(db&&currentUser){
-    db.collection('settings').doc('payments').set({..._paySettings,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.email},{merge:true}).catch(()=>{});
-  }
-  const msg=[];
-  if(_paySettings.cod)msg.push('💵 COD');
-  if(_paySettings.upi)msg.push('📱 UPI');
-  const statusEl=document.getElementById('payment-settings-status');
-  if(statusEl){statusEl.textContent='Active: '+(msg.join(', ')||'⚠️ None — customers cannot checkout!');statusEl.style.color=msg.length?'var(--green)':'var(--red)';}
+  _paySettings={cod:!!codEl.checked,upi:!!upiEl.checked};
+  _persistAndSyncPaySettings();
   showToast('💳 Payment settings saved!',2000);
-  refreshPaymentOptions();
 }
 function applyPaymentSettings(){
-  // Sync Dashboard toggles
-  const codEl=document.getElementById('pay-toggle-cod');
-  const upiEl=document.getElementById('pay-toggle-upi');
-  if(codEl)codEl.checked=_paySettings.cod;
-  if(upiEl)upiEl.checked=_paySettings.upi;
-  // Sync Manage page toggles
-  const mCod=document.getElementById('manage-pay-toggle-cod');
-  const mUpi=document.getElementById('manage-pay-toggle-upi');
-  if(mCod)mCod.checked=_paySettings.cod;
-  if(mUpi)mUpi.checked=_paySettings.upi;
-  // Update status labels
+  // Sync ALL toggle checkboxes
+  ['manage-pay-toggle-cod','pay-toggle-cod'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.checked=!!_paySettings.cod;
+  });
+  ['manage-pay-toggle-upi','pay-toggle-upi'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.checked=!!_paySettings.upi;
+  });
+  // Update status labels everywhere
   const msg=[];
   if(_paySettings.cod)msg.push('💵 COD');
   if(_paySettings.upi)msg.push('📱 UPI');
   const label=msg.length?'Active: '+msg.join(' & '):'⚠️ None enabled';
   const color=msg.length?'var(--green)':'var(--red)';
-  const statusEl=document.getElementById('payment-settings-status');
-  if(statusEl){statusEl.textContent=label;statusEl.style.color=color;}
-  const manageLabel=document.getElementById('manage-pay-status-label');
-  if(manageLabel){manageLabel.textContent=label;manageLabel.style.color=color;}
+  ['payment-settings-status','manage-pay-status-label'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.textContent=label;el.style.color=color;}
+  });
   refreshPaymentOptions();
 }
-// Called from Manage page toggles — keep everything in sync
+// Called from Manage page toggles
 function syncManagePayToggle(type,val){
-  _paySettings[type]=val;
-  // Mirror to dashboard toggles
-  const dashEl=document.getElementById('pay-toggle-'+type);
-  if(dashEl)dashEl.checked=val;
-  // Save
+  _paySettings[type]=!!val;
+  applyPaymentSettings();
+  _persistAndSyncPaySettings();
+  showToast((val?'✅':'❌')+' '+(type==='cod'?'COD':'UPI')+' payment '+(val?'enabled':'disabled'),2000);
+}
+function _persistAndSyncPaySettings(){
   localStorage.setItem('paySettings',JSON.stringify(_paySettings));
   if(db&&currentUser){
-    db.collection('settings').doc('payments').set({..._paySettings,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.email},{merge:true}).catch(()=>{});
+    db.collection('settings').doc('payments')
+      .set({cod:!!_paySettings.cod,upi:!!_paySettings.upi,
+            updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+            updatedBy:currentUser.email},{merge:true})
+      .catch(e=>console.warn('Pay settings save failed:',e));
   }
-  const msg=[];
-  if(_paySettings.cod)msg.push('💵 COD');
-  if(_paySettings.upi)msg.push('📱 UPI');
-  const label=msg.length?'Active: '+msg.join(' & '):'⚠️ None enabled';
-  const color=msg.length?'var(--green)':'var(--red)';
-  const statusEl=document.getElementById('payment-settings-status');
-  if(statusEl){statusEl.textContent=label;statusEl.style.color=color;}
-  const manageLabel=document.getElementById('manage-pay-status-label');
-  if(manageLabel){manageLabel.textContent=label;manageLabel.style.color=color;}
-  showToast((val?'✅':'❌')+' '+(type==='cod'?'COD':'UPI')+' payment '+(val?'enabled':'disabled'),2000);
-  refreshPaymentOptions();
 }
 function refreshPaymentOptions(){
   const container=document.getElementById('payment-options-container');
   if(!container)return;
 
-  const hasCOD=_paySettings.cod===true;
-  const hasUPI=_paySettings.upi===true;
+  const hasCOD=!!_paySettings.cod;
+  const hasUPI=!!_paySettings.upi;
 
   if(!hasCOD&&!hasUPI){
-    // Neither enabled — show warning, clear options
     container.innerHTML=`
-      <div class="no-pay-warn">
-        ⚠️ No payment methods available right now. Please contact the restaurant.
+      <div style="background:#fff3cd;border:1.5px solid #f5a623;border-radius:12px;padding:13px 16px;text-align:center;color:#7a3b10;font-weight:700;font-size:.88rem;">
+        ⚠️ No payment methods available right now.<br/>
+        <span style="font-size:.78rem;font-weight:400;color:#888">Please contact the restaurant.</span>
       </div>`;
     selectedPaymentMethod='';
     return;
   }
 
-  // Build only the options that are ON
+  // Auto-fix selected method if it got disabled
+  if(selectedPaymentMethod==='cod'&&!hasCOD) selectedPaymentMethod=hasUPI?'upi':'';
+  if(selectedPaymentMethod==='upi'&&!hasUPI) selectedPaymentMethod=hasCOD?'cod':'';
+  if(!selectedPaymentMethod) selectedPaymentMethod=hasCOD?'cod':'upi';
+
   let html='<div class="payment-options">';
   if(hasCOD){
-    html+=`<div class="payment-opt${selectedPaymentMethod==='cod'||(!selectedPaymentMethod&&hasCOD)?' selected':''}" id="pay-cod" onclick="selectPayment('cod')">
+    const sel=selectedPaymentMethod==='cod';
+    html+=`<div class="payment-opt${sel?' selected':''}" id="pay-cod" onclick="selectPayment('cod')">
       <div class="po-icon">💵</div>
       <div><div class="po-label">Cash on Delivery</div><div class="po-sub">Pay when delivered</div></div>
     </div>`;
   }
   if(hasUPI){
-    html+=`<div class="payment-opt${selectedPaymentMethod==='upi'||(!selectedPaymentMethod&&!hasCOD)?' selected':''}" id="pay-upi" onclick="selectPayment('upi')">
+    const sel=selectedPaymentMethod==='upi';
+    html+=`<div class="payment-opt${sel?' selected':''}" id="pay-upi" onclick="selectPayment('upi')">
       <div class="po-icon">📱</div>
       <div><div class="po-label">UPI Payment</div><div class="po-sub">GPay, PhonePe</div></div>
     </div>`;
   }
   html+='</div>';
 
-  // UPI sub-section (app chooser) — only if UPI is ON
   if(hasUPI){
-    html+=`<div id="upi-apps-section" style="display:none;margin-top:10px">
+    html+=`<div id="upi-apps-section" style="display:${selectedPaymentMethod==='upi'?'block':'none'};margin-top:10px">
       <div style="font-size:.75rem;color:#888;margin-bottom:7px;font-weight:700">Choose UPI App:</div>
       <div class="upi-apps"></div>
     </div>`;
   }
-
   container.innerHTML=html;
-
-  // Fix selectedPaymentMethod if it was pointing to a disabled method
-  if(selectedPaymentMethod==='cod'&&!hasCOD){selectedPaymentMethod='upi';}
-  if(selectedPaymentMethod==='upi'&&!hasUPI){selectedPaymentMethod='cod';}
-  if(!selectedPaymentMethod){selectedPaymentMethod=hasCOD?'cod':'upi';}
-
-  // Ensure the correct option is highlighted after re-render
-  document.querySelectorAll('.payment-opt').forEach(el=>el.classList.remove('selected'));
-  const selEl=document.getElementById('pay-'+selectedPaymentMethod);
-  if(selEl)selEl.classList.add('selected');
 }
 
 // ============================================================
