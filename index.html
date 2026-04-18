@@ -1270,6 +1270,8 @@ function initFirebase(){
   try{
     if(!firebase.apps.length)firebase.initializeApp(firebaseConfig);
     auth=firebase.auth();db=firebase.firestore();
+    // Start real-time payment settings listener immediately for all users
+    loadPaymentSettings();
     auth.onAuthStateChanged(user=>{
       currentUser=user;
       if(user){assignRoleByEmail(user.email);}
@@ -2314,28 +2316,46 @@ async function adminPopupUpdateStatus(status){
 }
 
 // ============================================================
-// PAYMENT SETTINGS
+// PAYMENT SETTINGS  — real-time listener so customers instantly
+// see whatever the admin has toggled ON or OFF
 // ============================================================
 let _paySettings={cod:true,upi:true};
+let _paySettingsUnsub=null;
+
 function loadPaymentSettings(){
+  // First apply from localStorage as an instant fallback
   try{
-    const tryApply=()=>{
-      const s=localStorage.getItem('paySettings');
-      if(s){_paySettings=JSON.parse(s);}
+    const s=localStorage.getItem('paySettings');
+    if(s){_paySettings=JSON.parse(s);applyPaymentSettings();}
+  }catch(e){}
+
+  if(!db){applyPaymentSettings();return;}
+
+  // Stop any existing listener
+  if(_paySettingsUnsub){_paySettingsUnsub();_paySettingsUnsub=null;}
+
+  // Real-time listener — fires immediately on load AND whenever
+  // admin toggles a payment method. Both admin and customer
+  // sessions update instantly.
+  _paySettingsUnsub=db.collection('settings').doc('payments')
+    .onSnapshot(doc=>{
+      if(doc.exists){
+        const d=doc.data();
+        _paySettings={cod:d.cod!==false,upi:d.upi!==false};
+      }else{
+        // No Firestore doc yet → keep defaults (both on)
+        _paySettings={cod:true,upi:true};
+      }
+      // Persist locally so next load is instant
+      localStorage.setItem('paySettings',JSON.stringify(_paySettings));
+      // Update UI immediately
       applyPaymentSettings();
-    };
-    if(db){
-      db.collection('settings').doc('payments').get()
-        .then(doc=>{
-          if(doc.exists){
-            const d=doc.data();
-            _paySettings={cod:d.cod!==false,upi:d.upi!==false};
-          }else{const s=localStorage.getItem('paySettings');if(s)_paySettings=JSON.parse(s);}
-          applyPaymentSettings();
-        })
-        .catch(()=>{tryApply();});
-    }else{tryApply();}
-  }catch(e){applyPaymentSettings();}
+    },
+    ()=>{
+      // Firestore unavailable → use localStorage
+      try{const s=localStorage.getItem('paySettings');if(s)_paySettings=JSON.parse(s);}catch(e){}
+      applyPaymentSettings();
+    });
 }
 function savePaymentSettings(){
   const codEl=document.getElementById('pay-toggle-cod');
@@ -2867,8 +2887,6 @@ if(savedRole)currentRole=savedRole;
 updateRoleUI();
 renderMenuPage();
 document.getElementById('hero-section').style.display='block';
-// Load payment settings after Firebase is ready
-setTimeout(()=>loadPaymentSettings(),2000);
 </script>
 </body>
 </html>
