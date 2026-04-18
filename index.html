@@ -950,25 +950,8 @@
         <div class="full">
           <div class="payment-section">
             <div class="payment-title">💳 Payment Method</div>
-            <div class="payment-options">
-              <div class="payment-opt selected" id="pay-cod" onclick="selectPayment('cod')">
-                <div class="po-icon">💵</div>
-                <div><div class="po-label">Cash on Delivery</div><div class="po-sub">Pay when delivered</div></div>
-              </div>
-              <div class="payment-opt" id="pay-upi" onclick="selectPayment('upi')">
-                <div class="po-icon">📱</div>
-                <div><div class="po-label">UPI Payment</div><div class="po-sub">GPay, PhonePe</div></div>
-              </div>
-            </div>
-            <div id="upi-apps-section" style="display:none;margin-top:10px">
-              <div style="font-size:.75rem;color:#888;margin-bottom:7px;font-weight:700">Choose UPI App:</div>
-              <div class="upi-apps">
-                
-              </div>
-            </div>
-            <div id="pay-no-method-warn" class="no-pay-warn" style="display:none">
-              ⚠️ No payment methods are currently available. Please contact the restaurant.
-            </div>
+            <!-- Rendered dynamically by refreshPaymentOptions() -->
+            <div id="payment-options-container"></div>
           </div>
         </div>
       </div>
@@ -1879,7 +1862,8 @@ function selectPayment(method){
   selectedPaymentMethod=method;
   document.querySelectorAll('.payment-opt').forEach(el=>el.classList.remove('selected'));
   document.getElementById('pay-'+method)?.classList.add('selected');
-  document.getElementById('upi-apps-section').style.display=method==='upi'?'block':'none';
+  const upiSec=document.getElementById('upi-apps-section');
+  if(upiSec)upiSec.style.display=method==='upi'?'block':'none';
 }
 function showPhonePeQR(amount){
   document.getElementById('phonepe-qr-amount').textContent='₹'+amount;
@@ -2421,16 +2405,57 @@ function syncManagePayToggle(type,val){
   refreshPaymentOptions();
 }
 function refreshPaymentOptions(){
-  const codOpt=document.getElementById('pay-cod');
-  const upiOpt=document.getElementById('pay-upi');
-  const warn=document.getElementById('pay-no-method-warn');
-  if(codOpt)codOpt.style.display=_paySettings.cod?'':'none';
-  if(upiOpt)upiOpt.style.display=_paySettings.upi?'':'none';
-  // Auto-select first available if current selection is hidden
-  if(!_paySettings.cod&&_paySettings.upi&&selectedPaymentMethod==='cod'){selectPayment('upi');}
-  else if(_paySettings.cod&&!_paySettings.upi&&selectedPaymentMethod==='upi'){selectPayment('cod');}
-  // Show warning if neither available
-  if(warn){warn.style.display=(!_paySettings.cod&&!_paySettings.upi)?'block':'none';}
+  const container=document.getElementById('payment-options-container');
+  if(!container)return;
+
+  const hasCOD=_paySettings.cod===true;
+  const hasUPI=_paySettings.upi===true;
+
+  if(!hasCOD&&!hasUPI){
+    // Neither enabled — show warning, clear options
+    container.innerHTML=`
+      <div class="no-pay-warn">
+        ⚠️ No payment methods available right now. Please contact the restaurant.
+      </div>`;
+    selectedPaymentMethod='';
+    return;
+  }
+
+  // Build only the options that are ON
+  let html='<div class="payment-options">';
+  if(hasCOD){
+    html+=`<div class="payment-opt${selectedPaymentMethod==='cod'||(!selectedPaymentMethod&&hasCOD)?' selected':''}" id="pay-cod" onclick="selectPayment('cod')">
+      <div class="po-icon">💵</div>
+      <div><div class="po-label">Cash on Delivery</div><div class="po-sub">Pay when delivered</div></div>
+    </div>`;
+  }
+  if(hasUPI){
+    html+=`<div class="payment-opt${selectedPaymentMethod==='upi'||(!selectedPaymentMethod&&!hasCOD)?' selected':''}" id="pay-upi" onclick="selectPayment('upi')">
+      <div class="po-icon">📱</div>
+      <div><div class="po-label">UPI Payment</div><div class="po-sub">GPay, PhonePe</div></div>
+    </div>`;
+  }
+  html+='</div>';
+
+  // UPI sub-section (app chooser) — only if UPI is ON
+  if(hasUPI){
+    html+=`<div id="upi-apps-section" style="display:none;margin-top:10px">
+      <div style="font-size:.75rem;color:#888;margin-bottom:7px;font-weight:700">Choose UPI App:</div>
+      <div class="upi-apps"></div>
+    </div>`;
+  }
+
+  container.innerHTML=html;
+
+  // Fix selectedPaymentMethod if it was pointing to a disabled method
+  if(selectedPaymentMethod==='cod'&&!hasCOD){selectedPaymentMethod='upi';}
+  if(selectedPaymentMethod==='upi'&&!hasUPI){selectedPaymentMethod='cod';}
+  if(!selectedPaymentMethod){selectedPaymentMethod=hasCOD?'cod':'upi';}
+
+  // Ensure the correct option is highlighted after re-render
+  document.querySelectorAll('.payment-opt').forEach(el=>el.classList.remove('selected'));
+  const selEl=document.getElementById('pay-'+selectedPaymentMethod);
+  if(selEl)selEl.classList.add('selected');
 }
 
 // ============================================================
