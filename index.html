@@ -967,7 +967,7 @@
         <h3>Order Placed!</h3>
         <div class="order-id-display" id="success-order-id">CE-000000</div>
         <div class="delivery-estimate">
-          <span class="om-route-badge">⏱ ~30 mins</span>
+          <span class="om-route-badge">⏱ ~20 mins</span>
           <span class="om-route-badge">📍 Peddha Baazar</span>
           <span class="om-route-badge" id="success-payment-badge">💵 COD</span>
         </div>
@@ -2098,7 +2098,7 @@ function renderTrackingUI(container,order){
   const currentStepId=statusToStep[status]||'placed';
   const currentStepIdx=TRACKING_STEPS.findIndex(s=>s.id===currentStepId);
   const createdAt=order.createdAt?.toDate?order.createdAt.toDate():new Date(order.createdAt||Date.now());
-  const estDelivery=new Date(createdAt.getTime()+30*60000);
+  const estDelivery=new Date(createdAt.getTime()+20*60000);
   const payLabels={'cod':'💵 COD','upi':'📱 UPI','card':'💳 Card'};
   const isFinished=status==='delivered'||status==='completed'||status==='cancelled'||status==='rejected';
   container.innerHTML=`
