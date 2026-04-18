@@ -2007,18 +2007,6 @@ function submitOrder(){
   if(!address){showToast('⚠️ Enter delivery address');return;}
   if(!omPinLatLng){showToast('⚠️ Pin your delivery location on the map');return;}
   if(!isServiceableLatLng(omPinLatLng.lat,omPinLatLng.lng)){showToast('⚠️ Location not serviceable (within 4km)',2600);return;}
-  // Validate payment method is still enabled
-  if(!selectedPaymentMethod){
-    showToast('⚠️ No payment method available. Please contact the restaurant.',3000);return;
-  }
-  if(selectedPaymentMethod==='cod'&&!_paySettings.cod){
-    showToast('⚠️ COD is currently disabled. Please choose a different payment method.',3000);
-    refreshPaymentOptions();return;
-  }
-  if(selectedPaymentMethod==='upi'&&!_paySettings.upi){
-    showToast('⚠️ UPI is currently disabled. Please choose a different payment method.',3000);
-    refreshPaymentOptions();return;
-  }
   if(selectedPaymentMethod==='qr'){const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);showPhonePeQR(total);return;}
   if(selectedPaymentMethod==='upi'){
     const name2=document.getElementById('om-name').value.trim();
