@@ -938,12 +938,15 @@
       <div class="qr-label">UPI ID: chapatiexpress@ybl<br/>Scan with any UPI app</div>
     </div>
     <div class="upi-redirect-btns">
-      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Google Pay</button>
-      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> PhonePe</button>
-      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')"> Paytm</button>
-      <button class="upi-app-btn" onclick="window.open('https://razorpay.me/@chapatiexpress')">🇮🇳 BHIM</button>
+      <button class="upi-app-btn" onclick="openRazorpayRedirect()"> Google Pay</button>
+      <button class="upi-app-btn" onclick="openRazorpayRedirect()"> PhonePe</button>
+      <button class="upi-app-btn" onclick="openRazorpayRedirect()"> Paytm</button>
+      <button class="upi-app-btn" onclick="openRazorpayRedirect()">🇮🇳 BHIM</button>
     </div>
-    
+    <div style="margin-top:12px;padding:10px;background:#fff8ef;border-radius:10px;border:1px solid #f0dcc0;font-size:.8rem;color:#7a3b10;text-align:center">
+      After paying on Razorpay, you'll be redirected back and your order will be placed automatically.
+    </div>
+    <button class="upi-paid-btn" onclick="confirmUPIPaid()" style="margin-top:10px">✅ I've Already Paid — Place My Order</button>
     <button class="om-cancel" style="width:100%;margin-top:8px" onclick="closeUPIRedirect()">✕ Cancel</button>
   </div>
 </div>
@@ -1811,6 +1814,8 @@ function launchUPIApp(app){
 }
 function showUPIRedirect(amount,preferredApp=null){
   document.getElementById('upi-amount-display').textContent='₹'+amount;
+  // Save order snapshot NOW — before user leaves via any UPI method
+  savePendingOrderSnapshot('upi');
   document.getElementById('upi-redirect-overlay').classList.add('open');
   if(preferredApp)deepLinkUPI(preferredApp);
 }
@@ -1819,13 +1824,49 @@ function deepLinkUPI(app){
   const total=Object.keys(cart).reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
   const params=`pa=${UPI_ID}&pn=Chapati+Express&am=${total}&cu=INR&tn=ChapatiExpressOrder`;
   const urls={gpay:`gpay://upi/pay?${params}`,phonepe:`phonepe://pay?${params}`,paytm:`paytmmp://pay?${params}`,bhim:`upi://pay?${params}`};
+  // Save full order snapshot to localStorage before navigating away
+  savePendingOrderSnapshot('upi');
   showToast('🔗 Opening '+app+'...',2000);
-  try{window.open(urls[app]||urls.bhim,'_self');}catch(e){}
+  // Use a short delay so the toast is visible before navigation
+  setTimeout(()=>{try{window.location.href=urls[app]||urls.bhim;}catch(e){}},300);
 }
 function confirmUPIPaid(){
   closeUPIRedirect();
   showToast('✅ Payment confirmed! Processing your order...',2500);
   setTimeout(()=>finalizeOrder('upi',true),2000);
+}
+// Open Razorpay.me with a ?payment=success return URL so we can detect the return
+function openRazorpayRedirect(){
+  // The return URL brings the user back to this page with ?payment=success
+  const returnUrl=encodeURIComponent(window.location.href.split('?')[0]+'?payment=success');
+  // Razorpay.me supports a callback_url parameter
+  const razorpayUrl='https://razorpay.me/@chapatiexpress?callback_url='+returnUrl;
+  showToast('🔗 Opening Razorpay payment...',1500);
+  // Navigate current window so we can detect the return URL
+  setTimeout(()=>{window.location.href=razorpayUrl;},400);
+}
+// Save a complete snapshot of the pending order so it can be restored after UPI redirect
+function savePendingOrderSnapshot(paymentMethod){
+  const keys=Object.keys(cart);
+  if(!keys.length)return;
+  const total=keys.reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
+  const name=(document.getElementById('om-name')?.value||'').trim();
+  const phone=(document.getElementById('om-phone')?.value||'').trim();
+  const address=(document.getElementById('om-address')?.value||'').trim();
+  const landmark=(document.getElementById('om-landmark')?.value||'').trim();
+  const time=document.getElementById('om-time')?.value||'';
+  const note=(document.getElementById('om-note')?.value||'').trim();
+  const pin=omPinLatLng?{lat:omPinLatLng.lat,lng:omPinLatLng.lng}:null;
+  const snapshot={
+    cart:JSON.parse(JSON.stringify(cart)),
+    name,phone,address,landmark,time,note,pin,
+    paymentMethod,total,
+    savedAt:Date.now()
+  };
+  localStorage.setItem('pendingUPIOrder',JSON.stringify(snapshot));
+  // Mark the return URL — we add ?payment=success to our own URL
+  const returnUrl=window.location.href.split('?')[0]+'?payment=success';
+  localStorage.setItem('upiReturnUrl',returnUrl);
 }
 
 // ============================================================
@@ -2583,6 +2624,76 @@ window.addEventListener('scroll',()=>{
 },{passive:true});
 
 // ============================================================
+// UPI PAYMENT RETURN DETECTION
+// ============================================================
+function checkUPIPaymentReturn(){
+  const params=new URLSearchParams(window.location.search);
+  const isReturn=params.get('payment')==='success';
+  const snapshot=localStorage.getItem('pendingUPIOrder');
+  if(!isReturn||!snapshot){
+    // Also check if Razorpay.me redirected back with a query param
+    // Razorpay.me redirects with ?razorpay_payment_id=xxx on success
+    const rzpId=params.get('razorpay_payment_id');
+    if(rzpId&&snapshot){
+      console.log('✅ Razorpay payment detected:',rzpId);
+      autoFinalizeUPIOrder(snapshot,'upi');
+      return;
+    }
+    return;
+  }
+  autoFinalizeUPIOrder(snapshot,'upi');
+}
+function autoFinalizeUPIOrder(snapshotStr,paymentMethod){
+  try{
+    const snap=typeof snapshotStr==='string'?JSON.parse(snapshotStr):snapshotStr;
+    // Clear the pending snapshot
+    localStorage.removeItem('pendingUPIOrder');
+    localStorage.removeItem('upiReturnUrl');
+    // Clean up the URL without reload
+    if(window.history&&window.history.replaceState){
+      window.history.replaceState({},'',window.location.pathname);
+    }
+    // Check snapshot freshness (max 30 mins)
+    if(Date.now()-snap.savedAt>30*60*1000){
+      showToast('⚠️ Payment session expired. Please try again.',3000);
+      return;
+    }
+    if(!snap.name||!snap.phone||!snap.address||!snap.pin){
+      showToast('⚠️ Order data missing. Please place order again.',3000);
+      return;
+    }
+    // Restore cart
+    cart=snap.cart||{};
+    updateCart();
+    updateFloatingBar();
+    // Restore form fields
+    const setVal=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||'';};
+    setVal('om-name',snap.name);
+    setVal('om-phone',snap.phone);
+    setVal('om-address',snap.address);
+    setVal('om-landmark',snap.landmark);
+    setVal('om-time',snap.time);
+    setVal('om-note',snap.note);
+    // Restore map pin coordinates
+    if(snap.pin){omPinLatLng={lat:snap.pin.lat,lng:snap.pin.lng};}
+    // Show success modal
+    showCustomerAlertModal(
+      '✅ Payment Successful!',
+      'Your UPI payment was successful! <strong>Placing your order now...</strong><br/><br/>You will receive a confirmation once the restaurant accepts your order.',
+      'success'
+    );
+    // Finalize the order after a short delay
+    setTimeout(()=>{
+      closeCustomerAlertModal();
+      finalizeOrder(paymentMethod||snap.paymentMethod||'upi',true);
+    },2200);
+  }catch(e){
+    console.error('❌ autoFinalizeUPIOrder error:',e);
+    showToast('⚠️ Could not auto-place order. Please try again.',3000);
+  }
+}
+
+// ============================================================
 // INIT
 // ============================================================
 const savedRole=localStorage.getItem('chapatiRole');
@@ -2590,6 +2701,8 @@ if(savedRole)currentRole=savedRole;
 updateRoleUI();
 renderMenuPage();
 document.getElementById('hero-section').style.display='block';
+// Check if user returned from UPI payment app
+checkUPIPaymentReturn();
 </script>
 </body>
 </html>
