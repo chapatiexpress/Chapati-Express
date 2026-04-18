@@ -705,6 +705,38 @@
   <div class="page" id="page-manage">
     <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
     <div class="manage-banner"><span style="font-size:1.4rem">⚙️</span><div><strong>Owner Panel</strong> — Add categories & items, toggle stock. Changes reflect instantly.</div></div>
+
+    <!-- PAYMENT TOGGLE — visible on Manage page -->
+    <div style="background:#fff;border:2px solid var(--border);border-radius:18px;padding:16px 18px;margin-bottom:20px;box-shadow:var(--shadow)">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:1.3rem">💳</span>
+        <span style="font-family:'Yeseva One',serif;color:var(--brown);font-size:1rem">Payment Options</span>
+        <span style="margin-left:auto;font-size:.75rem;color:#888;font-weight:700" id="manage-pay-status-label"></span>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:140px;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-weight:800;color:var(--brown);font-size:.85rem">💵 Cash on Delivery</div>
+            <div style="font-size:.72rem;color:#888">COD</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="manage-pay-toggle-cod" checked onchange="syncManagePayToggle('cod',this.checked)"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div style="flex:1;min-width:140px;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div style="font-weight:800;color:var(--brown);font-size:.85rem">📱 UPI / PhonePe</div>
+            <div style="font-size:.72rem;color:#888">GPay, Paytm</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="manage-pay-toggle-upi" checked onchange="syncManagePayToggle('upi',this.checked)"/>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
       <div class="section-title" style="margin-bottom:0">📂 Categories</div>
       <button class="new-cat-btn" onclick="openCatModal()">➕ New Category</button>
@@ -2323,15 +2355,49 @@ function savePaymentSettings(){
   refreshPaymentOptions();
 }
 function applyPaymentSettings(){
+  // Sync Dashboard toggles
   const codEl=document.getElementById('pay-toggle-cod');
   const upiEl=document.getElementById('pay-toggle-upi');
   if(codEl)codEl.checked=_paySettings.cod;
   if(upiEl)upiEl.checked=_paySettings.upi;
+  // Sync Manage page toggles
+  const mCod=document.getElementById('manage-pay-toggle-cod');
+  const mUpi=document.getElementById('manage-pay-toggle-upi');
+  if(mCod)mCod.checked=_paySettings.cod;
+  if(mUpi)mUpi.checked=_paySettings.upi;
+  // Update status labels
   const msg=[];
   if(_paySettings.cod)msg.push('💵 COD');
   if(_paySettings.upi)msg.push('📱 UPI');
+  const label=msg.length?'Active: '+msg.join(' & '):'⚠️ None enabled';
+  const color=msg.length?'var(--green)':'var(--red)';
   const statusEl=document.getElementById('payment-settings-status');
-  if(statusEl){statusEl.textContent=msg.length?'Active: '+msg.join(', '):'⚠️ None enabled';statusEl.style.color=msg.length?'var(--green)':'var(--red)';}
+  if(statusEl){statusEl.textContent=label;statusEl.style.color=color;}
+  const manageLabel=document.getElementById('manage-pay-status-label');
+  if(manageLabel){manageLabel.textContent=label;manageLabel.style.color=color;}
+  refreshPaymentOptions();
+}
+// Called from Manage page toggles — keep everything in sync
+function syncManagePayToggle(type,val){
+  _paySettings[type]=val;
+  // Mirror to dashboard toggles
+  const dashEl=document.getElementById('pay-toggle-'+type);
+  if(dashEl)dashEl.checked=val;
+  // Save
+  localStorage.setItem('paySettings',JSON.stringify(_paySettings));
+  if(db&&currentUser){
+    db.collection('settings').doc('payments').set({..._paySettings,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),updatedBy:currentUser.email},{merge:true}).catch(()=>{});
+  }
+  const msg=[];
+  if(_paySettings.cod)msg.push('💵 COD');
+  if(_paySettings.upi)msg.push('📱 UPI');
+  const label=msg.length?'Active: '+msg.join(' & '):'⚠️ None enabled';
+  const color=msg.length?'var(--green)':'var(--red)';
+  const statusEl=document.getElementById('payment-settings-status');
+  if(statusEl){statusEl.textContent=label;statusEl.style.color=color;}
+  const manageLabel=document.getElementById('manage-pay-status-label');
+  if(manageLabel){manageLabel.textContent=label;manageLabel.style.color=color;}
+  showToast((val?'✅':'❌')+' '+(type==='cod'?'COD':'UPI')+' payment '+(val?'enabled':'disabled'),2000);
   refreshPaymentOptions();
 }
 function refreshPaymentOptions(){
