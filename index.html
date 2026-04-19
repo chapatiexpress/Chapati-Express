@@ -1150,7 +1150,7 @@
       </div>
       <div class="om-form" id="om-form-fields">
         <div><label>Your Name *</label><input type="text" id="om-name" placeholder="Full name"/></div>
-        <div><label>Phone *</label><input type="tel" id="om-phone" placeholder="+91 xxx xxx xxxx"/></div>
+        <div><label>Phone *</label><input type="tel" id="om-phone" placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric"/></div>
         <div class="full"><label>Delivery Address *</label><textarea id="om-address" rows="2" placeholder="House No., Street, Area..."></textarea></div>
         <div><label>Landmark</label><input type="text" id="om-landmark" placeholder="Near school..."/></div>
         <div class="full" style="margin-top:4px">
@@ -2261,6 +2261,7 @@ function submitOrder(){
   const address=document.getElementById('om-address').value.trim();
   if(!name){showToast('⚠️ Enter your name');return;}
   if(!phone){showToast('⚠️ Enter phone number');return;}
+  if(!/^[0-9]{10}$/.test(phone)){showToast('⚠️ Phone number must be exactly 10 digits',2500);document.getElementById('om-phone').focus();return;}
   if(!address){showToast('⚠️ Enter delivery address');return;}
   if(!omPinLatLng){showToast('⚠️ Pin your delivery location on the map');return;}
   if(!isServiceableLatLng(omPinLatLng.lat,omPinLatLng.lng)){showToast('⚠️ Location not serviceable (within 4km)',2600);return;}
