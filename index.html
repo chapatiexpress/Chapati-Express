@@ -2698,7 +2698,7 @@ async function updateOrderStatus(orderId,status){
     // Record acceptance time so customer countdown starts from NOW
     const now=firebase.firestore.FieldValue.serverTimestamp();
     extraFields.acceptedAt=now;
-    // Store estimated delivery = 30 min from acceptance (as a JS Date, not server timestamp)
+    // Store estimated delivery = 20 min from acceptance (as a JS Date, not server timestamp)
     extraFields.estimatedDeliveryAt=new Date(Date.now()+30*60*1000);
   }
   await db.collection('orders').doc(orderId).set(
