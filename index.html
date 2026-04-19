@@ -88,6 +88,7 @@
       --shadow:0 4px 24px rgba(232,130,12,0.1);
       --blue:#1565c0;--purple:#6a1b9a;
       --header-h:64px;
+      --site-font:'Lato',sans-serif;
       /* Theme transition */
       --theme-transition:background .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease;
     }
@@ -916,6 +917,111 @@
     .fp-apply-btn{flex:2;background:linear-gradient(90deg,var(--brown),var(--saffron));color:#fff;border:none;border-radius:11px;padding:11px;font-family:"Yeseva One",serif;font-size:.95rem;cursor:pointer;transition:opacity .2s}
     .fp-apply-btn:hover{opacity:.88}
     @media(max-width:500px){.fp-grid{grid-template-columns:1fr 1fr}}
+
+    /* ===== THEMES ===== */
+    /* --- Midnight Blue --- */
+    body.theme-midnight {
+      --saffron:#4f8ef7;--turmeric:#7eb8f7;--deep:#e8f0ff;
+      --cream:#0a0f1e;--brown:#7eb8f7;--green:#34c97b;
+      --red:#f76a6a;--card-bg:#111827;--border:#1e2d4f;
+      --shadow:0 4px 24px rgba(79,142,247,0.15);
+      --blue:#4f8ef7;
+    }
+    body.theme-midnight header{background:linear-gradient(135deg,#07102a 0%,#0a1a3f 60%,#1a3569 100%)}
+    body.theme-midnight .hero{background:linear-gradient(160deg,#060e22 0%,#0d1f4f 40%,#1e3a8a 100%)}
+    body.theme-midnight .admin-sidebar{background:linear-gradient(180deg,#07102a 0%,#0a1a3f 40%,#07102a 100%);border-right-color:rgba(79,142,247,0.18)}
+    body.theme-midnight .admin-sb-item.active{background:linear-gradient(90deg,rgba(79,142,247,0.25),rgba(79,142,247,0.08));border-left-color:#4f8ef7}
+    body.theme-midnight .admin-sb-item::before{background:#4f8ef7}
+    body.theme-midnight .fp-card.selected,.body.theme-midnight .tp-card.selected{background:linear-gradient(135deg,#111827,#1e2d4f)}
+
+    /* --- Emerald Forest --- */
+    body.theme-forest {
+      --saffron:#27ae60;--turmeric:#2ecc71;--deep:#0a2d1a;
+      --cream:#f0faf4;--brown:#1a7a40;--green:#1e8449;
+      --red:#e74c3c;--card-bg:#f8fffe;--border:#b2dfdb;
+      --shadow:0 4px 24px rgba(39,174,96,0.12);
+    }
+    body.theme-forest header{background:linear-gradient(135deg,#0d3b1f 0%,#1a7a40 60%,#27ae60 100%)}
+    body.theme-forest .hero{background:linear-gradient(160deg,#0a2d1a 0%,#1a7a40 40%,#27ae60 100%)}
+    body.theme-forest .admin-sidebar{background:linear-gradient(180deg,#0a1f12 0%,#0d3b1f 40%,#0a1f12 100%);border-right-color:rgba(39,174,96,0.18)}
+    body.theme-forest .admin-sb-item.active{background:linear-gradient(90deg,rgba(39,174,96,0.25),rgba(39,174,96,0.08));border-left-color:#27ae60}
+    body.theme-forest .admin-sb-item::before{background:#27ae60}
+
+    /* --- Royal Purple --- */
+    body.theme-royal {
+      --saffron:#9b59b6;--turmeric:#d7bde2;--deep:#1a0a2e;
+      --cream:#faf5ff;--brown:#6c3483;--green:#27ae60;
+      --red:#e74c3c;--card-bg:#fdf8ff;--border:#e8d5f5;
+      --shadow:0 4px 24px rgba(155,89,182,0.12);
+    }
+    body.theme-royal header{background:linear-gradient(135deg,#1a0a2e 0%,#4a235a 60%,#6c3483 100%)}
+    body.theme-royal .hero{background:linear-gradient(160deg,#1a0a2e 0%,#4a235a 40%,#9b59b6 100%)}
+    body.theme-royal .admin-sidebar{background:linear-gradient(180deg,#0f0618 0%,#1a0a2e 40%,#0f0618 100%);border-right-color:rgba(155,89,182,0.18)}
+    body.theme-royal .admin-sb-item.active{background:linear-gradient(90deg,rgba(155,89,182,0.25),rgba(155,89,182,0.08));border-left-color:#9b59b6}
+    body.theme-royal .admin-sb-item::before{background:#9b59b6}
+
+    /* --- Ruby Red --- */
+    body.theme-ruby {
+      --saffron:#e74c3c;--turmeric:#f1948a;--deep:#2c0a0a;
+      --cream:#fff5f5;--brown:#922b21;--green:#27ae60;
+      --red:#c0392b;--card-bg:#fff8f8;--border:#f5c6c6;
+      --shadow:0 4px 24px rgba(231,76,60,0.12);
+    }
+    body.theme-ruby header{background:linear-gradient(135deg,#2c0a0a 0%,#6e1a1a 60%,#a93226 100%)}
+    body.theme-ruby .hero{background:linear-gradient(160deg,#2c0a0a 0%,#6e1a1a 40%,#e74c3c 100%)}
+    body.theme-ruby .admin-sidebar{background:linear-gradient(180deg,#1a0505 0%,#2c0a0a 40%,#1a0505 100%);border-right-color:rgba(231,76,60,0.18)}
+    body.theme-ruby .admin-sb-item.active{background:linear-gradient(90deg,rgba(231,76,60,0.25),rgba(231,76,60,0.08));border-left-color:#e74c3c}
+    body.theme-ruby .admin-sb-item::before{background:#e74c3c}
+
+    /* ===== THEME PICKER MODAL ===== */
+    .theme-picker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:2200;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(4px)}
+    .theme-picker-overlay.open{display:flex}
+    .theme-picker-modal{background:#fff;border-radius:24px;width:100%;max-width:520px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.45);animation:modalIn .3s cubic-bezier(0.34,1.56,0.64,1)}
+    body.dark-mode .theme-picker-modal{background:#1a1008;}
+    .tp-header{background:linear-gradient(135deg,var(--brown),var(--saffron));padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+    .tp-header-left{display:flex;align-items:center;gap:12px}
+    .tp-title{font-family:var(--site-font,'Yeseva One',serif);color:#fff;font-size:1.15rem;font-weight:800}
+    .tp-subtitle{font-size:.72rem;color:rgba(255,255,255,0.8);margin-top:2px}
+    .tp-close{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;line-height:1;padding:2px 6px;border-radius:8px;transition:background .2s}
+    .tp-close:hover{background:rgba(255,255,255,0.15)}
+    .tp-body{padding:20px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:14px}
+    .tp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .tp-card{border-radius:16px;overflow:hidden;cursor:pointer;border:3px solid transparent;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+    .tp-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,0.2)}
+    .tp-card.selected{border-color:#fff;box-shadow:0 0 0 3px var(--saffron),0 8px 28px rgba(0,0,0,0.2)}
+    .tp-card-preview{height:80px;display:flex;align-items:stretch;overflow:hidden}
+    .tp-card-swatch{flex:1}
+    .tp-card-info{padding:10px 12px;display:flex;align-items:center;justify-content:space-between}
+    .tp-card-name{font-weight:800;font-size:.88rem;color:var(--deep)}
+    body.dark-mode .tp-card-info{background:#120c04;}
+    body.dark-mode .tp-card-name{color:var(--turmeric);}
+    .tp-card-check{width:22px;height:22px;border-radius:50%;background:var(--saffron);color:#fff;font-size:.75rem;display:none;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}
+    .tp-card.selected .tp-card-check{display:flex}
+    .tp-footer{padding:14px 20px;border-top:1.5px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:var(--cream)}
+    body.dark-mode .tp-footer{background:#120c04;}
+    .tp-reset-btn{flex:1;background:var(--cream);border:1.5px solid var(--border);border-radius:11px;padding:11px;font-size:.85rem;font-weight:700;color:var(--brown);cursor:pointer;transition:background .2s}
+    body.dark-mode .tp-reset-btn{background:#1a1008;color:var(--turmeric);}
+    .tp-reset-btn:hover{opacity:.8}
+    .tp-apply-btn{flex:2;background:linear-gradient(90deg,var(--brown),var(--saffron));color:#fff;border:none;border-radius:11px;padding:11px;font-weight:800;font-size:.95rem;cursor:pointer;transition:opacity .2s}
+    .tp-apply-btn:hover{opacity:.88}
+    @media(max-width:480px){.tp-grid{grid-template-columns:1fr}}
+
+    /* ===== SITE FONT OVERRIDE ===== */
+    /* All visible text elements respect the admin-chosen --site-font */
+    body,
+    .card-name,.mng-name,.card-price,.mng-price,
+    .section-title,.cart-total,.checkout-btn,.fob-btn,
+    .om-header h2,.add-item-panel h3,.aip-save,.om-place,
+    .cam-title,.rating-modal h3,.om-success h3,
+    .dash-card .dc-value,.upi-amount-badge,.order-id-display,
+    .cat-modal-head h3,.orders-modal-header h2,.auth-modal-header h2,
+    .popup-title,.fp-title,.logo-text,.hero h1,
+    .cart-header h2,.om-total-row,.back-btn-light,.cat-save-btn,
+    .aip-reset,.rating-submit,.phonepe-paid-btn,.upi-paid-btn,
+    .withdraw-btn,.place-order-btn,.track-order-btn,.om-done-btn,
+    .om-summary-title,.cart-item-name,.support-card .sc-title,
+    .step-info .step-title,.edb-info .edb-time
+    { font-family: var(--site-font) !important; }
   </style>
 </head>
 <body>
@@ -1114,6 +1220,13 @@
       <span class="admin-sb-label">Font Style</span>
       <span class="admin-sb-badge visible" id="asb-font-badge" style="background:var(--saffron);color:#1a0a00;font-size:.58rem">Aa</span>
     </button>
+
+    <!-- Color Theme -->
+    <button class="admin-sb-item" id="asb-theme-picker" onclick="openThemePicker()">
+      <span class="admin-sb-icon">🎨</span>
+      <span class="admin-sb-label">Color Theme</span>
+      <span class="admin-sb-badge visible" id="asb-theme-dot" style="width:12px;height:12px;border-radius:50%;background:var(--saffron);padding:0;min-width:12px;"></span>
+    </button>
   </div>
 
   <div class="admin-sb-footer">
@@ -1125,6 +1238,29 @@
       </div>
     </div>
     <button class="admin-sb-customer-btn" onclick="switchRole('customer')">👤 Switch to Customer View</button>
+  </div>
+</div>
+
+<!-- ===== THEME PICKER MODAL ===== -->
+<div class="theme-picker-overlay" id="theme-picker-overlay" onclick="if(event.target===this)closeThemePicker()">
+  <div class="theme-picker-modal">
+    <div class="tp-header">
+      <div class="tp-header-left">
+        <span style="font-size:1.5rem">🎨</span>
+        <div>
+          <div class="tp-title">Color Theme</div>
+          <div class="tp-subtitle">Pick a color theme for the entire website</div>
+        </div>
+      </div>
+      <button class="tp-close" onclick="closeThemePicker()">✕</button>
+    </div>
+    <div class="tp-body">
+      <div class="tp-grid" id="tp-grid"><!-- filled by JS --></div>
+    </div>
+    <div class="tp-footer">
+      <button class="tp-reset-btn" onclick="applyTheme('saffron')">↺ Reset Default</button>
+      <button class="tp-apply-btn" onclick="closeThemePicker()">✓ Apply &amp; Close</button>
+    </div>
   </div>
 </div>
 
@@ -4434,6 +4570,8 @@ function buildFontGrid(){
 function applyFont(fontName){
   currentFont=fontName;
   localStorage.setItem('chapatiFont',fontName);
+  // Set CSS variable — affects ALL elements via the override rule
+  document.documentElement.style.setProperty('--site-font',`'${fontName}',sans-serif`);
   document.body.style.fontFamily=`'${fontName}',sans-serif`;
   // Update preview
   const prev=document.getElementById('fp-preview-text');
@@ -4462,11 +4600,99 @@ function closeFontPicker(){
 // Apply saved font on load
 (function initFont(){
   const f=localStorage.getItem('chapatiFont');
-  if(f&&f!=='Lato'){
+  if(f){
     currentFont=f;
+    document.documentElement.style.setProperty('--site-font',`'${f}',sans-serif`);
     document.body.style.fontFamily=`'${f}',sans-serif`;
     const badge=document.getElementById('asb-font-badge');
     if(badge)badge.textContent=f.split(' ')[0].substring(0,4);
+  }
+})();
+
+// ============================================================
+// COLOR THEME PICKER
+// ============================================================
+const COLOR_THEMES=[
+  {
+    id:'saffron', name:'\ud83e\uded3 Saffron', label:'Saffron\n(Default)',
+    swatches:['#5c2d0a','#e8820c','#f5a623','#fdf6ec'],
+    dot:'#e8820c'
+  },
+  {
+    id:'midnight', name:'\ud83c\udf1a Midnight', label:'Midnight Blue',
+    swatches:['#07102a','#0a1a3f','#4f8ef7','#0a0f1e'],
+    dot:'#4f8ef7'
+  },
+  {
+    id:'forest', name:'\ud83c\udf32 Forest', label:'Emerald Forest',
+    swatches:['#0d3b1f','#1a7a40','#27ae60','#f0faf4'],
+    dot:'#27ae60'
+  },
+  {
+    id:'royal', name:'\ud83d\udc51 Royal', label:'Royal Purple',
+    swatches:['#1a0a2e','#4a235a','#9b59b6','#faf5ff'],
+    dot:'#9b59b6'
+  },
+  {
+    id:'ruby', name:'\ud83d\udc8e Ruby', label:'Ruby Red',
+    swatches:['#2c0a0a','#6e1a1a','#e74c3c','#fff5f5'],
+    dot:'#e74c3c'
+  },
+];
+let currentColorTheme=localStorage.getItem('chapatiColorTheme')||'saffron';
+const THEME_CLASSES=['theme-midnight','theme-forest','theme-royal','theme-ruby'];
+
+function buildThemeGrid(){
+  const grid=document.getElementById('tp-grid');
+  if(!grid)return;
+  grid.innerHTML=COLOR_THEMES.map(t=>`
+    <div class="tp-card${t.id===currentColorTheme?' selected':''}" onclick="applyTheme('${t.id}')" id="tpcard-${t.id}">
+      <div class="tp-card-preview">
+        ${t.swatches.map(c=>`<div class="tp-card-swatch" style="background:${c}"></div>`).join('')}
+      </div>
+      <div class="tp-card-info" style="background:#fff;">
+        <span class="tp-card-name">${t.label}</span>
+        <span class="tp-card-check">\u2713</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function applyTheme(themeId){
+  currentColorTheme=themeId;
+  localStorage.setItem('chapatiColorTheme',themeId);
+  // Remove all theme classes
+  THEME_CLASSES.forEach(c=>document.body.classList.remove(c));
+  if(themeId!=='saffron') document.body.classList.add('theme-'+themeId);
+  // Update sidebar dot color
+  const t=COLOR_THEMES.find(x=>x.id===themeId);
+  const dot=document.getElementById('asb-theme-dot');
+  if(dot&&t) dot.style.background=t.dot;
+  // Refresh grid selection
+  document.querySelectorAll('.tp-card').forEach(c=>c.classList.remove('selected'));
+  const sel=document.getElementById('tpcard-'+themeId);
+  if(sel)sel.classList.add('selected');
+  showToast('\ud83c\udfa8 Theme: '+(t?t.label:themeId));
+}
+
+function openThemePicker(){
+  buildThemeGrid();
+  document.getElementById('theme-picker-overlay').classList.add('open');
+}
+function closeThemePicker(){
+  document.getElementById('theme-picker-overlay').classList.remove('open');
+}
+
+// Restore saved color theme on load
+(function initColorTheme(){
+  const saved=localStorage.getItem('chapatiColorTheme');
+  if(saved&&saved!=='saffron'){
+    THEME_CLASSES.forEach(c=>document.body.classList.remove(c));
+    document.body.classList.add('theme-'+saved);
+    currentColorTheme=saved;
+    const t=COLOR_THEMES.find(x=>x.id===saved);
+    const dot=document.getElementById('asb-theme-dot');
+    if(dot&&t) dot.style.background=t.dot;
   }
 })();
 </script>
