@@ -802,6 +802,13 @@
       <span class="admin-sb-label">Real-time Dashboard</span>
     </button>
 
+    <!-- Payments -->
+    <button class="admin-sb-item" id="asb-payments" onclick="adminSidebarGo('payments')">
+      <span class="admin-sb-icon">💳</span>
+      <span class="admin-sb-label">Payments</span>
+      <span class="admin-sb-badge" id="asb-payments-badge">0</span>
+    </button>
+
     <hr class="admin-sb-divider"/>
     <div class="admin-sb-section">People</div>
 
@@ -932,6 +939,53 @@
     <div class="manage-items-grid" id="manage-items-list"></div>
   </div>
 
+  <!-- PAYMENTS PAGE -->
+  <div class="page" id="page-payments">
+    <button class="back-btn-light" onclick="adminSidebarGo('dashboard')">← Back to Dashboard</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:4px">
+      <div class="section-title" style="margin-bottom:0">💳 Online Payments — Razorpay</div>
+      <div style="background:#e8f5e9;border:1px solid var(--green);border-radius:10px;padding:5px 12px;font-size:.78rem;font-weight:800;color:var(--green)" id="payments-live-badge">🟢 Live</div>
+    </div>
+    <!-- Payment Stats -->
+    <div class="dashboard-grid" style="margin-bottom:20px;margin-top:14px">
+      <div class="dash-card" style="border-left:4px solid #6a1b9a">
+        <div class="dc-icon">💳</div>
+        <div class="dc-value" id="pay-total-count">0</div>
+        <div class="dc-label">Total Payments</div>
+      </div>
+      <div class="dash-card" style="border-left:4px solid var(--green)">
+        <div class="dc-icon">✅</div>
+        <div class="dc-value" id="pay-success-amount">₹0</div>
+        <div class="dc-label">Total Collected</div>
+      </div>
+      <div class="dash-card" style="border-left:4px solid var(--saffron)">
+        <div class="dc-icon">📅</div>
+        <div class="dc-value" id="pay-today-amount">₹0</div>
+        <div class="dc-label">Today's Collections</div>
+      </div>
+      <div class="dash-card" style="border-left:4px solid var(--blue)">
+        <div class="dc-icon">🔢</div>
+        <div class="dc-value" id="pay-today-count">0</div>
+        <div class="dc-label">Today's Payments</div>
+      </div>
+    </div>
+    <!-- Payment Filter Tabs -->
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;align-items:center">
+      <button id="paytab-all" class="orders-tab active" onclick="filterPaymentsTab('all')">📋 All</button>
+      <button id="paytab-today" class="orders-tab" onclick="filterPaymentsTab('today')">📅 Today</button>
+      <button id="paytab-yesterday" class="orders-tab" onclick="filterPaymentsTab('yesterday')">🕐 Yesterday</button>
+      <div style="margin-left:auto;font-size:.78rem;color:#888;font-weight:700" id="payments-count-label"></div>
+    </div>
+    <!-- Razorpay Payments List -->
+    <div class="revenue-section">
+      <div class="revenue-header">
+        <div class="section-title" style="margin-bottom:0">🧾 Razorpay Payment History</div>
+        <input type="text" id="pay-search" class="aip-input" placeholder="🔍 Search by order ID, name..." oninput="filterPaymentSearch()" style="width:200px;font-size:.8rem"/>
+      </div>
+      <div id="payments-list" style="display:grid;gap:8px;margin-top:14px;max-height:520px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--saffron) #f0e0c8"><div class="empty-cat-msg"><div class="big">💳</div>Loading payments...</div></div>
+    </div>
+  </div>
+
   <!-- CUSTOMERS PAGE -->
   <div class="page" id="page-customers">
     <button class="back-btn-light" onclick="adminSidebarGo('dashboard')">← Back to Dashboard</button>
@@ -1038,31 +1092,6 @@
         <div class="form-group"><label>Est. Time (mins)</label><input type="number" id="svc-est-time" value="30" min="5"/></div>
       </div>
       <button class="aip-save" style="margin-top:14px;max-width:200px" onclick="saveSvcSettings()">💾 Save Settings</button>
-    </div>
-    <div class="revenue-section" id="payment-settings-panel">
-      <div class="section-title" style="margin-bottom:6px">💳 Payment Method Settings</div>
-      <div style="font-size:.82rem;color:#888;margin-bottom:14px">Toggle which payment options are shown to customers during checkout.</div>
-      <div class="pay-toggle-row">
-        <div class="pay-toggle-label">
-          <span style="font-size:1.4rem">💵</span>
-          <div><div>Cash on Delivery</div><div class="pay-toggle-sublabel">Pay when delivered</div></div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="pay-toggle-cod" checked onchange="savePaymentSettings()"/>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div class="pay-toggle-row">
-        <div class="pay-toggle-label">
-          <span style="font-size:1.4rem">📱</span>
-          <div><div>UPI Payment</div><div class="pay-toggle-sublabel">PhonePe, GPay, Paytm</div></div>
-        </div>
-        <label class="toggle-switch">
-          <input type="checkbox" id="pay-toggle-upi" checked onchange="savePaymentSettings()"/>
-          <span class="toggle-slider"></span>
-        </label>
-      </div>
-      <div id="payment-settings-status" style="margin-top:10px;font-size:.82rem;font-weight:700;color:var(--green)"></div>
     </div>
     <div class="revenue-section">
       <div class="section-title" style="margin-bottom:14px">📢 Send Promo</div>
@@ -1606,7 +1635,7 @@ function adminSidebarOrders(){
   setAdminSidebarActive('orders');
 }
 function setAdminSidebarActive(pageKey){
-  ['menu','orders','manage','dashboard','support','customers'].forEach(k=>{
+  ['menu','orders','manage','dashboard','support','customers','payments'].forEach(k=>{
     const el=document.getElementById('asb-'+k);
     if(el)el.classList.toggle('active',k===pageKey);
   });
@@ -2027,6 +2056,7 @@ function showPage(page){
   if(page==='manage'&&currentRole!=='admin'){showToast('⚠️ Only admin can access manage');return;}
   if(page==='dashboard'&&currentRole!=='admin'){showToast('⚠️ Only admin can access dashboard');return;}
   if(page==='customers'&&currentRole!=='admin'){showToast('⚠️ Only admin can access customers');return;}
+  if(page==='payments'&&currentRole!=='admin'){showToast('⚠️ Only admin can access payments');return;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
   const heroSection=document.getElementById('hero-section');
@@ -2036,6 +2066,7 @@ function showPage(page){
   if(page==='tracking')renderTrackingPage();
   if(page==='dashboard')renderDashboard();
   if(page==='customers')renderCustomersPage();
+  if(page==='payments')renderPaymentsPage();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 function setMobNav(active){
@@ -2203,6 +2234,35 @@ function openRazorpayCheckout(totalAmount, customerName, customerPhone){
       const paymentId=response.razorpay_payment_id||'';
       console.log('✅ Razorpay payment success:',paymentId);
       showToast('✅ Payment successful! Placing your order...',2500);
+      // Save payment record to Firestore immediately for admin notification
+      if(db){
+        const keys=Object.keys(cart);
+        const total=keys.reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
+        const name=document.getElementById('om-name').value.trim();
+        const phone=document.getElementById('om-phone').value.trim();
+        db.collection('razorpay_payments').add({
+          razorpayPaymentId:paymentId,
+          amount:total,
+          customerEmail:currentUser?.email||null,
+          customerName:name,
+          customerPhone:phone,
+          status:'captured',
+          paidAt:firebase.firestore.FieldValue.serverTimestamp(),
+          source:'web'
+        }).then(()=>{
+          // Trigger admin notification via Firestore
+          db.collection('admin_notifications').add({
+            type:'payment_received',
+            paymentId,
+            amount:total,
+            customerName:name,
+            customerPhone:phone,
+            customerEmail:currentUser?.email||null,
+            createdAt:firebase.firestore.FieldValue.serverTimestamp(),
+            read:false
+          }).catch(()=>{});
+        }).catch(()=>{});
+      }
       // Automatically finalize the order with payment confirmed
       setTimeout(()=>{
         finalizeOrder('upi',true,paymentId);
@@ -3006,9 +3066,11 @@ function syncAdminRealtimeFeatures(){
     if(!_adminFeedUnsub)startAdminOrderNotifications();
     if(!_autoRejectTicker)startAutoRejectTicker();
     startAdminPendingBadgeWatcher();
+    startAdminPaymentNotificationWatcher();
   }else{
     stopAdminOrderNotifications();stopAutoRejectTicker();
     stopAdminPendingBadgeWatcher();
+    stopAdminPaymentNotificationWatcher();
     updateAdminSidebarOrdersBadge(0);
   }
 }
@@ -3025,6 +3087,65 @@ function startAdminPendingBadgeWatcher(){
 }
 function stopAdminPendingBadgeWatcher(){
   if(_adminBadgeUnsub){_adminBadgeUnsub();_adminBadgeUnsub=null;}
+}
+
+// ============================================================
+// ADMIN PAYMENT NOTIFICATION WATCHER
+// Fires a popup notification to admin when any customer pays online via Razorpay
+// ============================================================
+let _adminPayNotifUnsub=null,_adminPayNotifInit=false;
+function startAdminPaymentNotificationWatcher(){
+  if(_adminPayNotifUnsub||!db||currentRole!=='admin')return;
+  _adminPayNotifInit=false;
+  _adminPayNotifUnsub=db.collection('admin_notifications')
+    .where('type','==','payment_received')
+    .where('read','==',false)
+    .orderBy('createdAt','desc')
+    .limit(20)
+    .onSnapshot(snap=>{
+      if(!_adminPayNotifInit){_adminPayNotifInit=true;return;}
+      snap.docChanges().forEach(ch=>{
+        if(ch.type!=='added')return;
+        const d=ch.doc.data()||{};
+        const name=d.customerName||'Customer';
+        const amount=d.amount||0;
+        const payId=d.paymentId||'';
+        // Show popup notification
+        showAdminPaymentNotificationPopup({name,amount,payId,docId:ch.doc.id});
+        // Update sidebar badge
+        updatePaymentsBadge();
+      });
+    },()=>{});
+}
+function stopAdminPaymentNotificationWatcher(){
+  if(_adminPayNotifUnsub){_adminPayNotifUnsub();_adminPayNotifUnsub=null;_adminPayNotifInit=false;}
+}
+function showAdminPaymentNotificationPopup({name,amount,payId,docId}){
+  // Mark as read
+  if(db&&docId){db.collection('admin_notifications').doc(docId).set({read:true},{merge:true}).catch(()=>{});}
+  // Play a chime
+  playChimePattern();
+  // Show toast + promo banner
+  showToast('💳 Payment received! ₹'+amount+' from '+name,4000);
+  showPromoNotification(
+    '💳 New Online Payment!',
+    '₹'+amount+' received from '+name+(payId?' · ID: '+payId.slice(-8):''),
+    '💰'
+  );
+  // Show customer alert modal on admin side
+  showCustomerAlertModal(
+    '💳 Payment Received!',
+    '<strong>₹'+amount+'</strong> online payment received from <strong>'+name.replace(/</g,'&lt;')+'</strong> via Razorpay.'+(payId?'<br/><small style="color:#888">Payment ID: '+payId+'</small>':''),
+    'success'
+  );
+}
+function updatePaymentsBadge(){
+  if(!db||currentRole!=='admin')return;
+  db.collection('admin_notifications').where('type','==','payment_received').where('read','==',false).get()
+    .then(snap=>{
+      const badge=document.getElementById('asb-payments-badge');
+      if(badge){badge.textContent=snap.size;badge.classList.toggle('visible',snap.size>0);}
+    }).catch(()=>{});
 }
 
 // ============================================================
@@ -3247,6 +3368,111 @@ function filterCustomers(){
   displayCustomers(filtered);
 }
 function saveSvcSettings(){showToast('✅ Settings saved!',2000);}
+
+// ============================================================
+// PAYMENTS PAGE — Razorpay History
+// ============================================================
+let _allPaymentsData=[],_payTabFilter='all',_paySearchQuery='';
+let _paymentsUnsub=null;
+
+function renderPaymentsPage(){
+  if(!db){showToast('⚠️ Database not ready',2000);return;}
+  if(_paymentsUnsub)_paymentsUnsub();
+  // Clear unread badge
+  setTimeout(()=>{
+    if(db&&currentRole==='admin'){
+      db.collection('admin_notifications').where('type','==','payment_received').where('read','==',false).get().then(snap=>{
+        snap.forEach(doc=>doc.ref.set({read:true},{merge:true}));
+        const badge=document.getElementById('asb-payments-badge');
+        if(badge){badge.textContent='0';badge.classList.remove('visible');}
+      }).catch(()=>{});
+    }
+  },1500);
+  const listEl=document.getElementById('payments-list');
+  if(listEl)listEl.innerHTML='<div class="empty-cat-msg"><div class="big">💳</div>Loading payments...</div>';
+  _paymentsUnsub=db.collection('razorpay_payments')
+    .orderBy('paidAt','desc')
+    .limit(200)
+    .onSnapshot(snap=>{
+      _allPaymentsData=snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderPaymentStats(_allPaymentsData);
+      renderPaymentsList();
+    },()=>{
+      db.collection('razorpay_payments').get().then(snap=>{
+        _allPaymentsData=snap.docs.map(d=>({id:d.id,...d.data()}));
+        renderPaymentStats(_allPaymentsData);
+        renderPaymentsList();
+      }).catch(()=>{if(listEl)listEl.innerHTML='<div class="empty-cat-msg"><div class="big">💳</div>No payment records yet. Payments will appear here when customers pay via Razorpay.</div>';});
+    });
+}
+function renderPaymentStats(payments){
+  const todayStr=getTodayDateStr();
+  const toDate=p=>p.paidAt&&p.paidAt.toDate?p.paidAt.toDate():null;
+  const todayPayments=payments.filter(p=>{const d=toDate(p);if(!d)return false;return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')===todayStr;});
+  const totalAmount=payments.reduce((a,p)=>a+(p.amount||0),0);
+  const todayAmount=todayPayments.reduce((a,p)=>a+(p.amount||0),0);
+  const elFn=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val;};
+  elFn('pay-total-count',payments.length);
+  elFn('pay-success-amount','₹'+totalAmount);
+  elFn('pay-today-amount','₹'+todayAmount);
+  elFn('pay-today-count',todayPayments.length);
+  const countLbl=document.getElementById('payments-count-label');
+  if(countLbl)countLbl.textContent=payments.length+' total payment'+(payments.length!==1?'s':'');
+}
+function filterPaymentsTab(tab){
+  _payTabFilter=tab;
+  document.querySelectorAll('[id^="paytab-"]').forEach(b=>b.classList.remove('active'));
+  document.getElementById('paytab-'+tab)?.classList.add('active');
+  renderPaymentsList();
+}
+function filterPaymentSearch(){
+  _paySearchQuery=(document.getElementById('pay-search')?.value||'').toLowerCase().trim();
+  renderPaymentsList();
+}
+function renderPaymentsList(){
+  const listEl=document.getElementById('payments-list');
+  if(!listEl)return;
+  const todayStr=getTodayDateStr();
+  const yestStr=getYesterdayDateStr();
+  const toDate=p=>p.paidAt&&p.paidAt.toDate?p.paidAt.toDate():null;
+  const dateOfPay=p=>{const d=toDate(p);if(!d)return '';return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');};
+  let filtered=_allPaymentsData;
+  if(_payTabFilter==='today')filtered=filtered.filter(p=>dateOfPay(p)===todayStr);
+  if(_payTabFilter==='yesterday')filtered=filtered.filter(p=>dateOfPay(p)===yestStr);
+  if(_paySearchQuery){
+    filtered=filtered.filter(p=>{
+      const q=_paySearchQuery;
+      return (p.customerName||'').toLowerCase().includes(q)||(p.customerPhone||'').includes(q)||(p.razorpayPaymentId||'').toLowerCase().includes(q)||(p.customerEmail||'').toLowerCase().includes(q);
+    });
+  }
+  const cntLbl=document.getElementById('payments-count-label');
+  if(cntLbl)cntLbl.textContent=filtered.length+' payment'+(filtered.length!==1?'s':'');
+  if(!filtered.length){
+    listEl.innerHTML='<div class="empty-cat-msg" style="padding:24px"><div class="big">💳</div>No Razorpay payments found.<br/><span style="font-size:.8rem;color:#aaa">Payments will appear here when customers pay online.</span></div>';
+    return;
+  }
+  listEl.innerHTML=filtered.slice(0,150).map(p=>{
+    const d=toDate(p);
+    const dtStr=d?d.toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—';
+    const shortPayId=p.razorpayPaymentId?(p.razorpayPaymentId.length>14?p.razorpayPaymentId.slice(0,14)+'…':p.razorpayPaymentId):'—';
+    return `<div class="txn-item" style="border-left:4px solid #6a1b9a;flex-wrap:wrap">
+      <div class="txn-info" style="flex:1;min-width:180px">
+        <div class="txn-id" style="display:flex;align-items:center;gap:7px">
+          <span style="background:linear-gradient(135deg,#6a1b9a,#9c27b0);color:#fff;border-radius:50%;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0">${(p.customerName||'?')[0].toUpperCase()}</span>
+          ${(p.customerName||'—').toString().replace(/</g,'&lt;').slice(0,25)}
+        </div>
+        <div class="txn-meta" style="margin-top:4px">📞 ${p.customerPhone||'—'} · ✉️ ${(p.customerEmail||'—').slice(0,28)}</div>
+        <div class="txn-meta" style="margin-top:3px">🆔 Razorpay: <code style="background:#f3e5f5;color:#6a1b9a;border-radius:4px;padding:1px 5px;font-size:.74rem">${shortPayId}</code></div>
+        <div class="txn-meta" style="margin-top:3px;color:#aaa">🕒 ${dtStr}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+        <div style="font-family:'Yeseva One',serif;color:#6a1b9a;font-size:1.1rem">₹${p.amount||0}</div>
+        <span class="om-route-badge" style="background:#f3e5f5;color:#6a1b9a;border-color:#ce93d8">📱 UPI / Razorpay</span>
+        <span class="om-route-badge" style="background:#e8f5e9;color:var(--green);border-color:#a5d6a7">✅ ${p.status||'captured'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
 function openWithdrawModal(){document.getElementById('withdraw-modal-overlay').classList.add('open');}
 function closeWithdrawModal(){document.getElementById('withdraw-modal-overlay').classList.remove('open');}
 async function processWithdrawal(){
