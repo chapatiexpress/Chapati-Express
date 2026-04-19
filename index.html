@@ -228,6 +228,19 @@
     .om-map-pin-info.visible{display:flex}
     .om-route-info{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
     .om-route-badge{background:#fff;border:1px solid var(--border);border-radius:8px;padding:4px 9px;font-size:.76rem;color:var(--brown);display:flex;align-items:center;gap:3px}
+    .om-address-picker{background:linear-gradient(135deg,#fff8ef,#fffdf8);border:1px solid var(--border);border-radius:14px;padding:12px}
+    .om-address-picker-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .om-address-picker-row select{flex:1;min-width:220px}
+    .om-address-manage-btn{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:10px 12px;font-size:.8rem;font-weight:700;color:var(--brown);cursor:pointer;white-space:nowrap}
+    .om-address-manage-btn:hover{border-color:var(--saffron);background:#fff8ef}
+    .om-selected-address{margin-top:10px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:11px 12px}
+    .om-selected-address.empty{display:none}
+    .om-selected-address-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+    .om-selected-address-title{font-weight:900;color:var(--brown);font-size:.92rem}
+    .om-selected-address-line{font-size:.84rem;color:#555;line-height:1.4}
+    .om-manual-address-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .om-manual-address-grid .full{grid-column:1/-1}
+    .om-helper-note{margin-top:6px;font-size:.78rem;color:#7a5a32}
 
     /* ===== PAYMENT SECTION ===== */
     .payment-section{margin-top:16px}
@@ -681,7 +694,7 @@
             <button class="user-menu-item" onclick="userMenuGo('tracking')">📦 Track Order</button>
             <button class="user-menu-item" onclick="userMenuGo('delivery')">🗺 Delivery Map</button>
             <button class="user-menu-item" id="user-menu-orders-btn" onclick="openOrdersModal()">🧾 My Orders</button>
-            <button class="user-menu-item" onclick="openAddressModal()">🏠 Addresses</button>
+            <button class="user-menu-item" onclick="openAddressModal()">🏠 My Addresses</button>
             <button class="user-menu-item" onclick="userMenuGo('support')">💬 Help & Support</button>
             <button class="user-menu-item" id="user-menu-manage-btn" onclick="userMenuGo('manage')" style="display:none">⚙️ Manage Menu</button>
             <button class="user-menu-item" id="user-menu-dash-btn" onclick="userMenuGo('dashboard')" style="display:none">📊 Dashboard</button>
@@ -1009,6 +1022,7 @@
           <span id="dash-live-clock" style="font-family:'Yeseva One',serif;color:var(--turmeric);font-size:.95rem;letter-spacing:.5px">00:00:00</span>
           <span id="dash-live-date" style="font-size:.7rem;color:rgba(245,169,35,.7)"></span>
         </div>
+        <button class="back-btn-light" type="button" onclick="refreshDashboardOrders()" style="margin-bottom:0;padding:8px 14px">↻ Refresh</button>
         <div style="background:#e8f5e9;border:1px solid var(--green);border-radius:10px;padding:5px 12px;font-size:.78rem;font-weight:800;color:var(--green)">🟢 Live</div>
       </div>
     </div>
@@ -1104,6 +1118,32 @@
     </div>
   </div>
 
+  <!-- ADMIN ORDERS PAGE -->
+  <div class="page" id="page-orders">
+    <button class="back-btn-light" onclick="adminSidebarGo('dashboard')">← Back to Dashboard</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:8px">
+      <div class="section-title" style="margin-bottom:0">🧾 Orders</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <button class="back-btn-light" onclick="refreshAdminOrdersPage()" style="margin-bottom:0">↻ Refresh Orders</button>
+        <div id="admin-orders-subtitle" style="font-size:.8rem;color:#888;font-weight:700"></div>
+      </div>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:10px">
+      <button id="admin-odtab-today" class="orders-tab active" data-orders-date-filter="today" onclick="filterOrdersByDate('today')">📅 Today</button>
+      <button id="admin-odtab-yesterday" class="orders-tab" data-orders-date-filter="yesterday" onclick="filterOrdersByDate('yesterday')">🕐 Yesterday</button>
+      <button id="admin-odtab-all-dates" class="orders-tab" data-orders-date-filter="all" onclick="filterOrdersByDate('all')">📋 All Orders</button>
+    </div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px">
+      <button id="admin-otab-active" class="orders-tab active" data-orders-status-tab="active" onclick="filterOrdersByTab('active')">🔄 Active</button>
+      <button id="admin-otab-delivered" class="orders-tab" data-orders-status-tab="delivered" onclick="filterOrdersByTab('delivered')">✅ Delivered</button>
+      <button id="admin-otab-rejected" class="orders-tab" data-orders-status-tab="rejected" onclick="filterOrdersByTab('rejected')">❌ Rejected</button>
+      <button id="admin-otab-all" class="orders-tab" data-orders-status-tab="all" onclick="filterOrdersByTab('all')">📋 All Orders</button>
+    </div>
+    <div class="revenue-section">
+      <div class="transaction-list" id="admin-orders-list"></div>
+    </div>
+  </div>
+
   <!-- SUPPORT PAGE -->
   <div class="page" id="page-support">
     <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
@@ -1180,16 +1220,31 @@
       <div class="om-form" id="om-form-fields">
         <div><label>Your Name *</label><input type="text" id="om-name" placeholder="Full name"/></div>
         <div><label>Phone *</label><input type="tel" id="om-phone" placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric"/></div>
-        <div class="full"><label>Delivery Address *</label><textarea id="om-address" rows="2" placeholder="House No., Street, Area..."></textarea></div>
-        <div><label>Landmark</label><input type="text" id="om-landmark" placeholder="Near school..."/></div>
-        <div class="full" style="margin-top:4px">
-          <div class="om-map-label">📍 Pin Your Location <span style="font-weight:400;color:#888;font-size:.7rem;text-transform:none">(tap map to pin)</span></div>
-          <div class="om-map-search"><input type="text" id="om-map-search-input" placeholder="Search area in Sircilla..."/><button onclick="omMapSearch()">🔍</button></div>
-          <button class="om-gps-btn" onclick="omUseMyLocation()">🎯 Use My Current Location</button>
-          <div id="om-delivery-map"></div>
-          <div class="om-map-pin-info" id="om-pin-info">
-            <span>📌</span>
-            <div><strong id="om-pin-coords"></strong><div id="om-route-info" class="om-route-info"></div></div>
+        <div class="full" id="om-saved-address-wrap" style="display:none">
+          <label>Saved Address</label>
+          <div class="om-address-picker">
+            <div class="om-address-picker-row">
+              <select id="om-saved-address" onchange="handleOrderAddressChange(this.value)"></select>
+              <button type="button" class="om-address-manage-btn" onclick="openAddressModal()">🏠 My Addresses</button>
+            </div>
+            <div id="om-selected-address" class="om-selected-address empty"></div>
+          </div>
+        </div>
+        <div class="full" id="om-manual-address-wrap">
+          <div class="om-manual-address-grid">
+            <div class="full"><label>Delivery Address *</label><textarea id="om-address" rows="2" placeholder="House No., Street, Area..."></textarea></div>
+            <div><label>Landmark</label><input type="text" id="om-landmark" placeholder="Near school..."/></div>
+            <div class="full" style="margin-top:4px">
+              <div class="om-map-label">📍 Pin Your Location <span style="font-weight:400;color:#888;font-size:.7rem;text-transform:none">(tap map to pin)</span></div>
+              <div class="om-map-search"><input type="text" id="om-map-search-input" placeholder="Search area in Sircilla..."/><button onclick="omMapSearch()">🔍</button></div>
+              <button class="om-gps-btn" onclick="omUseMyLocation()">🎯 Use My Current Location</button>
+              <div id="om-delivery-map"></div>
+              <div class="om-map-pin-info" id="om-pin-info">
+                <span>📌</span>
+                <div><strong id="om-pin-coords"></strong><div id="om-route-info" class="om-route-info"></div></div>
+              </div>
+              <div id="om-address-empty-note" class="om-helper-note">No saved address found yet. Add one in My Addresses or enter it here for this order.</div>
+            </div>
           </div>
         </div>
         <div><label>Delivery Time</label><select id="om-time"><option>ASAP (~30 mins)</option><option>In 1 hour</option><option>Schedule for later</option></select></div>
@@ -1327,7 +1382,7 @@
     <div class="auth-modal-body">
       <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap">
         <button class="back-btn-light" onclick="closeAddressModal()">← Back</button>
-        <button class="cat-save-btn" style="flex:none;padding:9px 16px" onclick="openAddressEditor()">➕ Add Address</button>
+        <button class="cat-save-btn" type="button" style="flex:none;padding:9px 16px" onclick="openAddressEditor()">➕ Add Address</button>
       </div>
       <div id="address-list" style="display:grid;gap:10px;max-height:55vh;overflow-y:auto"></div>
     </div>
@@ -1339,14 +1394,14 @@
   <div class="auth-modal" style="max-width:680px">
     <div class="auth-modal-header"><h2 id="addr-editor-title">➕ Add Address</h2><p>Pin a serviceable location (within 4km)</p></div>
     <div class="auth-modal-body">
-      <button class="back-btn-light" onclick="closeAddressEditor()">← Back</button>
+      <button class="back-btn-light" type="button" onclick="closeAddressEditor()">← Back</button>
       <div class="form-grid">
         <div class="form-group"><label>Label *</label><input id="addr-label" type="text" placeholder="Home / Office"/></div>
         <div class="form-group"><label>Phone (optional)</label><input id="addr-phone" type="tel" placeholder="+91 XXXXX"/></div>
         <div class="form-group full"><label>Full Address *</label><textarea id="addr-line" rows="2" placeholder="House No., Street, Area..."></textarea></div>
         <div class="form-group full">
           <div style="font-weight:800;color:var(--brown);margin-bottom:8px;font-size:.85rem">📍 Pin Location</div>
-          <button class="om-gps-btn" onclick="addrUseMyLocation()">🎯 Use My Location</button>
+          <button class="om-gps-btn" type="button" onclick="addrUseMyLocation()">🎯 Use My Location</button>
           <div id="addr-map" style="height:240px;border-radius:12px"></div>
           <div id="addr-map-info" style="margin-top:8px;font-size:.82rem;color:#444;display:flex;gap:8px;flex-wrap:wrap">
             <span class="om-route-badge" id="addr-coords">—</span>
@@ -1355,8 +1410,8 @@
         </div>
       </div>
       <div class="cat-modal-actions" style="margin-top:10px">
-        <button class="cat-cancel-btn" onclick="closeAddressEditor()">Cancel</button>
-        <button class="cat-save-btn" onclick="saveAddressFromEditor()">✅ Save Address</button>
+        <button class="cat-cancel-btn" type="button" onclick="closeAddressEditor()">Cancel</button>
+        <button class="cat-save-btn" type="button" onclick="saveAddressFromEditor()">✅ Save Address</button>
       </div>
     </div>
   </div>
@@ -1377,16 +1432,16 @@
       </div>
       <!-- DATE FILTER TABS (Admin only) -->
       <div id="orders-date-tab-row" style="display:none;gap:7px;flex-wrap:wrap;margin-bottom:10px">
-        <button id="odtab-today" class="orders-tab active" onclick="filterOrdersByDate('today')">📅 Today</button>
-        <button id="odtab-yesterday" class="orders-tab" onclick="filterOrdersByDate('yesterday')">🕐 Yesterday</button>
-        <button id="odtab-all-dates" class="orders-tab" onclick="filterOrdersByDate('all')">📋 All Orders</button>
+        <button id="odtab-today" class="orders-tab active" data-orders-date-filter="today" onclick="filterOrdersByDate('today')">📅 Today</button>
+        <button id="odtab-yesterday" class="orders-tab" data-orders-date-filter="yesterday" onclick="filterOrdersByDate('yesterday')">🕐 Yesterday</button>
+        <button id="odtab-all-dates" class="orders-tab" data-orders-date-filter="all" onclick="filterOrdersByDate('all')">📋 All Orders</button>
       </div>
       <!-- STATUS FILTER TABS -->
       <div id="orders-tab-row" style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px">
-        <button id="otab-active"  class="orders-tab active" onclick="filterOrdersByTab('active')">🔄 Active</button>
-        <button id="otab-delivered" class="orders-tab" onclick="filterOrdersByTab('delivered')">✅ Delivered</button>
-        <button id="otab-rejected" class="orders-tab" onclick="filterOrdersByTab('rejected')">❌ Rejected</button>
-        <button id="otab-all"  class="orders-tab" onclick="filterOrdersByTab('all')">📋 All Orders</button>
+        <button id="otab-active"  class="orders-tab active" data-orders-status-tab="active" onclick="filterOrdersByTab('active')">🔄 Active</button>
+        <button id="otab-delivered" class="orders-tab" data-orders-status-tab="delivered" onclick="filterOrdersByTab('delivered')">✅ Delivered</button>
+        <button id="otab-rejected" class="orders-tab" data-orders-status-tab="rejected" onclick="filterOrdersByTab('rejected')">❌ Rejected</button>
+        <button id="otab-all"  class="orders-tab" data-orders-status-tab="all" onclick="filterOrdersByTab('all')">📋 All Orders</button>
       </div>
       <div id="orders-list"></div>
     </div>
@@ -1433,7 +1488,7 @@ const firebaseConfig = {
   appId:"1:227899287972:web:8994dbb7d6c813845ab931"
 };
 
-let auth=null,currentUser=null,db=null;
+let auth=null,currentUser=null,db=null,currentUserProfile=null;
 const SERVICE_CENTER={lat:18.38973,lng:78.812042};
 const MAX_SERVICE_DISTANCE_M=4000;
 const ORDER_AUTO_CANCEL_MS=5*60*1000;
@@ -1448,6 +1503,95 @@ function distanceMeters(a,b){
   return 2*R*Math.asin(Math.sqrt(s*s+Math.cos(lat1)*Math.cos(lat2)*s2*s2));
 }
 function isServiceableLatLng(lat,lng){return distanceMeters(SERVICE_CENTER,{lat,lng})<=MAX_SERVICE_DISTANCE_M;}
+function escapeHtml(v){
+  return (v??'').toString().replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function getUserDocRef(uid){
+  if(!db||!uid)return null;
+  return db.collection('users').doc(uid);
+}
+function getUserAddressesCollection(){
+  if(!currentUser?.uid)return null;
+  const ref=getUserDocRef(currentUser.uid);
+  return ref?ref.collection('addresses'):null;
+}
+function formatFirestoreError(err){
+  if(!err)return 'Unknown error';
+  const code=(err.code||'').toString();
+  if(code.includes('permission-denied'))return 'Permission denied by Firestore rules';
+  if(code.includes('unauthenticated'))return 'User is not authenticated';
+  if(code.includes('unavailable'))return 'Firestore is temporarily unavailable';
+  return err.message||code||'Unknown error';
+}
+function showFirestoreWriteError(action,err){
+  console.error(action,err);
+  showToast('❌ '+action+': '+formatFirestoreError(err),3600,'error');
+}
+async function ensureUserRecord(user){
+  if(!user?.uid||!db)return null;
+  const ref=getUserDocRef(user.uid);
+  if(!ref)return null;
+  const snap=await ref.get();
+  const existing=snap.exists?(snap.data()||{}):{};
+  const name=existing.name||user.displayName||'';
+  const phone=existing.phone||user.phoneNumber||'';
+  const photoURL=existing.photoURL||user.photoURL||'';
+  const patch={
+    uid:user.uid,
+    email:user.email,
+    provider:'google',
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+    lastLoginAt:firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if(!snap.exists)patch.createdAt=firebase.firestore.FieldValue.serverTimestamp();
+  if(name)patch.name=name;
+  if(phone)patch.phone=phone;
+  if(photoURL)patch.photoURL=photoURL;
+  await ref.set(patch,{merge:true});
+  currentUserProfile={...existing,uid:user.uid,email:user.email,name,phone,photoURL,provider:'google'};
+  return currentUserProfile;
+}
+async function ensureCurrentUserRecord(context='user profile'){
+  if(!currentUser?.uid||!db){
+    showToast('⚠️ Please sign in first',2200);
+    return false;
+  }
+  try{
+    await ensureUserRecord(currentUser);
+    return true;
+  }catch(err){
+    showFirestoreWriteError('Could not sync '+context,err);
+    return false;
+  }
+}
+function getPreferredCustomerName(){
+  return currentUserProfile?.name||currentUser?.displayName||'';
+}
+function getPreferredCustomerPhone(){
+  return currentUserProfile?.phone||currentUser?.phoneNumber||'';
+}
+function prefillOrderCustomerFields(){
+  const nameInput=document.getElementById('om-name');
+  const phoneInput=document.getElementById('om-phone');
+  const activeUid=currentUser?.uid||'';
+  const lastFilledUid=nameInput?.dataset.userUid||'';
+  if(nameInput&&activeUid&&lastFilledUid!==activeUid)nameInput.value=getPreferredCustomerName();
+  else if(nameInput&&!nameInput.value.trim())nameInput.value=getPreferredCustomerName();
+  if(phoneInput&&activeUid&&lastFilledUid!==activeUid)phoneInput.value=getPreferredCustomerPhone();
+  else if(phoneInput&&!phoneInput.value.trim())phoneInput.value=getPreferredCustomerPhone();
+  if(nameInput)nameInput.dataset.userUid=activeUid;
+  if(phoneInput)phoneInput.dataset.userUid=activeUid;
+}
+async function saveCustomerProfileContact(name,phone){
+  if(!currentUser?.uid||!db)return;
+  const ref=getUserDocRef(currentUser.uid);
+  if(!ref)return;
+  const patch={updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+  if(name)patch.name=name;
+  if(phone)patch.phone=phone;
+  await ref.set(patch,{merge:true}).catch(err=>showFirestoreWriteError('Could not update user profile',err));
+  currentUserProfile={...(currentUserProfile||{}),uid:currentUser.uid,email:currentUser.email,name:name||currentUserProfile?.name||'',phone:phone||currentUserProfile?.phone||''};
+}
 
 // ============================================================
 // AUDIO
@@ -1515,10 +1659,16 @@ function initFirebase(){
     auth=firebase.auth();db=firebase.firestore();
     // Start real-time payment settings listener immediately for all users
     loadPaymentSettings();
-    auth.onAuthStateChanged(user=>{
+    loadMenuStockSettings();
+    auth.onAuthStateChanged(async user=>{
       currentUser=user;
-      if(user){assignRoleByEmail(user.email);}
-      else{currentRole='customer';}
+      if(user){
+        try{await ensureUserRecord(user);}catch(e){showFirestoreWriteError('Could not create user profile',e);}
+        assignRoleByEmail(user.email);
+      }else{
+        currentUserProfile=null;
+        currentRole='customer';
+      }
       updateAuthUI();updateRoleUI();
     });
   }catch(e){setTimeout(initFirebase,1000);}
@@ -1533,8 +1683,9 @@ function signInWithGoogle(){
   closeAuthModal();
   const provider=new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider)
-    .then(result=>{
+    .then(async result=>{
       currentUser=result.user;
+      try{await ensureUserRecord(currentUser);}catch(e){showFirestoreWriteError('Could not create user profile',e);}
       assignRoleByEmail(currentUser.email);
       showToast('✅ Signed in as '+currentUser.email,2500);
       if(btn)btn.disabled=false;
@@ -1546,8 +1697,8 @@ function signInWithGoogle(){
 }
 function logoutUser(){
   closeUserMenu();
-  if(auth){auth.signOut().then(()=>{currentUser=null;switchRole('customer');updateAuthUI();showToast('👋 Logged out',2000);});}
-  else{currentUser=null;switchRole('customer');updateAuthUI();}
+  if(auth){auth.signOut().then(()=>{currentUser=null;currentUserProfile=null;switchRole('customer');updateAuthUI();showToast('👋 Logged out',2000);});}
+  else{currentUser=null;currentUserProfile=null;switchRole('customer');updateAuthUI();}
 }
 function assignRoleByEmail(email){
   currentRole=(email===ADMIN_EMAIL)?'admin':'customer';
@@ -1631,7 +1782,7 @@ function adminSidebarGo(page){
   setAdminSidebarActive(page);
 }
 function adminSidebarOrders(){
-  openOrdersModal();
+  openAdminOrdersPage();
   setAdminSidebarActive('orders');
 }
 function setAdminSidebarActive(pageKey){
@@ -1726,6 +1877,8 @@ let manageCatFilter='all',selectedEmoji='🍽',selectedCatEmoji='📂';
 let selectedPaymentMethod='cod';
 let currentOrderId=null;
 let currentRatingOrderId=null;
+let _currentMenuFilter='all';
+let _menuStockUnsub=null,_menuStockOverrides={};
 
 const foodEmojis=['🫓','🍛','🥘','🫘','🍚','🥗','🥙','🌮','🥞','🧆','🫔','🍲','🥣','🍜','🍱','🍝','🥦','🥬','🥔','🍆','🍅','🌽','🌾','🫑','🧅','🧄'];
 const catEmojis=['🍽','🫓','🍛','🥘','🫘','🥗','🥙','🌮','🍚','🍲','☕','🥤','🍰','🧆','🫔'];
@@ -1805,6 +1958,7 @@ function searchGoToItem(id){
 // RENDER MENU
 // ============================================================
 function renderMenuPage(filterCatId='all'){
+  _currentMenuFilter=filterCatId;
   const fb=document.getElementById('menu-filter-bar');
   fb.innerHTML=`<button class="mfb-tab ${filterCatId==='all'?'active':''}" onclick="renderMenuPage('all')">All</button>`;
   categories.forEach(cat=>{
@@ -1879,14 +2033,64 @@ function refreshCard(id){
   const qb=document.getElementById('qblock-'+id);
   if(qb)qb.innerHTML=qBlock(id);
 }
+function applyMenuStockOverrides(){
+  items.forEach(item=>{
+    if(Object.prototype.hasOwnProperty.call(_menuStockOverrides,item.id))item.inStock=!!_menuStockOverrides[item.id];
+  });
+}
+function refreshInventoryUI(){
+  renderMenuPage(_currentMenuFilter);
+  refreshManageList();
+  updateCart();
+}
+function syncCartWithInventory(showToastOnChange=false){
+  const removedNames=[];
+  Object.keys(cart).forEach(id=>{
+    const item=items.find(i=>i.id===id);
+    if(!item||!item.inStock){
+      removedNames.push(cart[id].name||item?.name||'Item');
+      delete cart[id];
+    }
+  });
+  if(removedNames.length){
+    updateCart();
+    Object.keys(cart).forEach(refreshCard);
+    if(document.getElementById('order-modal-overlay')?.classList.contains('open')){
+      closeOrderModal();
+      if(Object.keys(cart).length)openCart();
+    }
+    if(showToastOnChange)showToast('❌ Some out-of-stock items were removed from your cart',2800,'error');
+  }
+  return removedNames;
+}
+async function persistItemStock(id,nextStock,previousStock){
+  const item=items.find(i=>i.id===id);
+  if(!item)return;
+  item.inStock=nextStock;
+  _menuStockOverrides[id]=nextStock;
+  if(!nextStock&&cart[id])delete cart[id];
+  refreshInventoryUI();
+  try{
+    if(!db||currentRole!=='admin')throw new Error('Database not ready');
+    await db.collection('settings').doc('menuStock').set({
+      overrides:{[id]:nextStock},
+      updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy:currentUser?.email||currentUser?.uid||'admin'
+    },{merge:true});
+    showToast(nextStock?'✅ Marked In Stock':'❌ Marked Out of Stock');
+  }catch(err){
+    item.inStock=previousStock;
+    _menuStockOverrides[id]=previousStock;
+    refreshInventoryUI();
+    showFirestoreWriteError('Could not update item stock',err);
+  }
+}
 function toggleItemStock(id){
   if(currentRole!=='admin'){showToast('⚠️ Only admin can change stock');return;}
   const item=items.find(i=>i.id===id);
   if(!item)return;
-  item.inStock=!item.inStock;
-  if(!item.inStock&&cart[id]){delete cart[id];updateCart();}
-  refreshCard(id);refreshManageList();
-  showToast(item.inStock?'✅ Marked In Stock':'❌ Marked Out of Stock');
+  const nextStock=!item.inStock;
+  persistItemStock(id,nextStock,item.inStock);
 }
 
 // ============================================================
@@ -2055,6 +2259,7 @@ function saveNewCategory(){
 function showPage(page){
   if(page==='manage'&&currentRole!=='admin'){showToast('⚠️ Only admin can access manage');return;}
   if(page==='dashboard'&&currentRole!=='admin'){showToast('⚠️ Only admin can access dashboard');return;}
+  if(page==='orders'&&currentRole!=='admin'){showToast('⚠️ Only admin can access orders');return;}
   if(page==='customers'&&currentRole!=='admin'){showToast('⚠️ Only admin can access customers');return;}
   if(page==='payments'&&currentRole!=='admin'){showToast('⚠️ Only admin can access payments');return;}
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -2112,8 +2317,20 @@ function initOmMap(){
   omMap.on('click',e=>omSetPin(e.latlng));
   setTimeout(()=>omMap.invalidateSize(),200);
 }
-function omSetPin(latlng){
-  if(!isServiceableLatLng(latlng.lat,latlng.lng)){showToast('⚠️ Not serviceable (within 4km only)',2600);return;}
+function clearOmPinState(clearAddressFields=false){
+  if(omPinMarker&&omMap){omMap.removeLayer(omPinMarker);omPinMarker=null;}
+  if(omRouteLayer&&omMap){omMap.removeLayer(omRouteLayer);omRouteLayer=null;}
+  omPinLatLng=null;
+  document.getElementById('om-pin-coords').textContent='';
+  document.getElementById('om-route-info').innerHTML='';
+  document.getElementById('om-pin-info').classList.remove('visible');
+  if(clearAddressFields){
+    document.getElementById('om-address').value='';
+    document.getElementById('om-landmark').value='';
+  }
+}
+function omSetPin(latlng,silent=false){
+  if(!isServiceableLatLng(latlng.lat,latlng.lng)){if(!silent)showToast('⚠️ Not serviceable (within 4km only)',2600);return;}
   if(omPinMarker)omMap.removeLayer(omPinMarker);
   if(omRouteLayer)omMap.removeLayer(omRouteLayer);
   const ci=L.divIcon({html:'<div style="background:#2E7D32;color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:.9rem;border:2.5px solid white">🏠</div>',className:'',iconSize:[28,28],iconAnchor:[14,14]});
@@ -2151,6 +2368,80 @@ function omMapSearch(){
         document.getElementById('om-address').value=res[0].display_name.split(',').slice(0,4).join(', ');
       }else showToast('📍 Location not found');
     }).catch(()=>showToast('⚠️ Search failed'));
+}
+let _orderAddressUnsub=null,_orderAddresses=[],_selectedOrderAddressId='';
+function renderSelectedOrderAddressCard(address){
+  const card=document.getElementById('om-selected-address');
+  if(!card||!address){if(card){card.classList.add('empty');card.innerHTML='';}return;}
+  const line=(address.line||address.addressText||'').toString();
+  const phone=(address.phone||'').toString();
+  const pin=address.pin&&typeof address.pin.lat==='number'?address.pin:null;
+  const distBadge=pin?`<span class="om-route-badge">📏 ${(distanceMeters(SERVICE_CENTER,pin)/1000).toFixed(2)} km</span>`:'';
+  const phoneBadge=phone?`<span class="om-route-badge">📞 ${escapeHtml(phone)}</span>`:'';
+  card.classList.remove('empty');
+  card.innerHTML=`<div class="om-selected-address-head"><div class="om-selected-address-title">${escapeHtml(address.label||'Saved Address')}</div></div><div class="om-selected-address-line">${escapeHtml(line)}</div><div class="om-route-info">${distBadge}${phoneBadge}</div>`;
+}
+function applyOrderAddress(address){
+  if(!address){clearOmPinState(true);return;}
+  document.getElementById('om-address').value=(address.line||address.addressText||'').toString();
+  document.getElementById('om-landmark').value=(address.landmark||'').toString();
+  if(address.pin&&typeof address.pin.lat==='number'&&typeof address.pin.lng==='number'){
+    const latlng=L.latLng(address.pin.lat,address.pin.lng);
+    initOmMap();
+    setTimeout(()=>{
+      if(omMap)omMap.setView(latlng,16);
+      omSetPin(latlng,true);
+    },60);
+  }else clearOmPinState(false);
+}
+function handleOrderAddressChange(id){
+  _selectedOrderAddressId=id||'';
+  const selected=_orderAddresses.find(a=>a.id===_selectedOrderAddressId)||null;
+  renderSelectedOrderAddressCard(selected);
+  applyOrderAddress(selected);
+}
+function renderOrderAddressOptions(addresses){
+  _orderAddresses=addresses;
+  const savedWrap=document.getElementById('om-saved-address-wrap');
+  const manualWrap=document.getElementById('om-manual-address-wrap');
+  const emptyNote=document.getElementById('om-address-empty-note');
+  const select=document.getElementById('om-saved-address');
+  if(!savedWrap||!manualWrap||!emptyNote||!select)return;
+  if(!addresses.length){
+    _selectedOrderAddressId='';
+    savedWrap.style.display='none';
+    manualWrap.style.display='block';
+    emptyNote.style.display='block';
+    select.innerHTML='';
+    renderSelectedOrderAddressCard(null);
+    clearOmPinState(true);
+    return;
+  }
+  savedWrap.style.display='block';
+  manualWrap.style.display='none';
+  emptyNote.style.display='none';
+  if(!_selectedOrderAddressId||!addresses.some(a=>a.id===_selectedOrderAddressId))_selectedOrderAddressId=addresses[0].id;
+  select.innerHTML=addresses.map(a=>{
+    const label=escapeHtml(a.label||'Saved Address');
+    const line=escapeHtml((a.line||a.addressText||'').toString().slice(0,44));
+    return `<option value="${escapeHtml(a.id)}"${a.id===_selectedOrderAddressId?' selected':''}>${label}${line?' - '+line:''}</option>`;
+  }).join('');
+  handleOrderAddressChange(_selectedOrderAddressId);
+}
+function subscribeOrderAddresses(){
+  const col=getUserAddressesCollection();
+  if(_orderAddressUnsub){_orderAddressUnsub();_orderAddressUnsub=null;}
+  if(!col){renderOrderAddressOptions([]);return;}
+  _orderAddressUnsub=col.orderBy('updatedAt','desc').onSnapshot(
+    snap=>renderOrderAddressOptions(snap.docs.map(d=>({id:d.id,...d.data()}))),
+    err=>{
+      renderOrderAddressOptions([]);
+      showFirestoreWriteError('Could not load saved addresses',err);
+    }
+  );
+}
+function stopOrderAddressSubscription(){
+  if(_orderAddressUnsub){_orderAddressUnsub();_orderAddressUnsub=null;}
 }
 
 // ============================================================
@@ -2243,6 +2534,7 @@ function openRazorpayCheckout(totalAmount, customerName, customerPhone){
         db.collection('razorpay_payments').add({
           razorpayPaymentId:paymentId,
           amount:total,
+          customerUid:currentUser?.uid||null,
           customerEmail:currentUser?.email||null,
           customerName:name,
           customerPhone:phone,
@@ -2255,6 +2547,7 @@ function openRazorpayCheckout(totalAmount, customerName, customerPhone){
             type:'payment_received',
             paymentId,
             amount:total,
+            customerUid:currentUser?.uid||null,
             customerName:name,
             customerPhone:phone,
             customerEmail:currentUser?.email||null,
@@ -2296,11 +2589,13 @@ function updateFloatingBar(){
 }
 function openOrderModal(){
   if(!currentUser){showToast('⚠️ Please sign in first',2000);openAuthModal();return;}
+  syncCartWithInventory(true);
   const keys=Object.keys(cart);
   if(!keys.length){showToast('⚠️ Add items first!');return;}
   const total=keys.reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
   if(total<50){showToast('⚠️ Minimum order ₹50');return;}
   document.getElementById('om-items-list').innerHTML=keys.map(k=>`<div class="om-item-row"><span>${cart[k].emoji||''} ${cart[k].name} × ${cart[k].qty}</span><span>₹${cart[k].price*cart[k].qty}</span></div>`).join('');
+  prefillOrderCustomerFields();
   document.getElementById('om-total').textContent='₹'+total;
   document.getElementById('om-success').style.display='none';
   document.getElementById('om-form-fields').style.display='grid';
@@ -2308,14 +2603,17 @@ function openOrderModal(){
   document.getElementById('order-modal-overlay').classList.add('open');
   document.body.style.overflow='hidden';
   refreshPaymentOptions();
+  subscribeOrderAddresses();
   setTimeout(()=>{initOmMap();if(omMap)omMap.invalidateSize();},250);
 }
 function closeOrderModal(){
   document.getElementById('order-modal-overlay').classList.remove('open');
   document.body.style.overflow='';
+  stopOrderAddressSubscription();
 }
 function submitOrder(){
   if(!currentUser){showToast('⚠️ Please sign in',2000);return;}
+  if(syncCartWithInventory(true).length){return;}
   const name=document.getElementById('om-name').value.trim();
   const phone=document.getElementById('om-phone').value.trim();
   const address=document.getElementById('om-address').value.trim();
@@ -2345,6 +2643,7 @@ function finalizeOrder(paymentMethod,paymentDone,razorpayPaymentId){
   currentOrderId='CE-'+Date.now().toString().slice(-6);
   const orderItems=keys.map(k=>({id:k,name:cart[k].name,qty:cart[k].qty,price:cart[k].price,lineTotal:cart[k].price*cart[k].qty}));
   const payLabels={'cod':'💵 Cash on Delivery','upi':'📱 UPI','card':'💳 Card'};
+  saveCustomerProfileContact(name,phone);
   try{
     if(db){
       db.collection('orders').add({
@@ -2352,8 +2651,10 @@ function finalizeOrder(paymentMethod,paymentDone,razorpayPaymentId){
         createdAt:firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
         autoRejectAt:new Date(Date.now()+ORDER_AUTO_CANCEL_MS),
+        customerUid:currentUser.uid||null,
         customerEmail:currentUser.email||null,
         customerName:name,customerPhone:phone,
+        customerAddressId:_selectedOrderAddressId||null,
         addressText:address,landmark:landmark||'',
         deliveryTime:time,note:note||'',
         pin:{lat:omPinLatLng.lat,lng:omPinLatLng.lng},
@@ -2365,7 +2666,7 @@ function finalizeOrder(paymentMethod,paymentDone,razorpayPaymentId){
   }catch(e){console.warn('Order save failed:',e);}
   localStorage.setItem('lastOrder',JSON.stringify({
     orderId:currentOrderId,total,items:orderItems,paymentMethod,
-    name,phone,address,createdAt:Date.now(),status:'pending'
+    name,phone,address,addressId:_selectedOrderAddressId||null,createdAt:Date.now(),status:'pending'
   }));
   playOrderPlacedSound();
   document.getElementById('om-form-fields').style.display='none';
@@ -2565,6 +2866,7 @@ let _currentOrderTab='active';
 
 let _currentOrderDateFilter='today'; // 'today' | 'yesterday' | 'all'
 function openOrdersModal(){
+  if(currentRole==='admin'){openAdminOrdersPage();return;}
   closeUserMenu();
   if(!currentUser){showToast('⚠️ Please sign in',2200);return;}
   document.getElementById('orders-user-email').textContent=currentUser.email||'—';
@@ -2588,12 +2890,18 @@ function closeOrdersModal(){
   if(_ordersUnsub){_ordersUnsub();_ordersUnsub=null;}
 }
 function subscribeOrders(){
-  if(!db||!currentUser?.email)return;
+  if(!db||!currentUser)return;
   if(_ordersUnsub)_ordersUnsub();
-  const q=db.collection('orders').orderBy('createdAt','desc').limit(200);
+  const q=currentRole==='admin'
+    ? db.collection('orders').orderBy('createdAt','desc').limit(200)
+    : db.collection('orders').where('customerUid','==',currentUser.uid).limit(200);
   _ordersUnsub=q.onSnapshot(snap=>{
     let orders=snap.docs.map(d=>({id:d.id,...d.data()}));
-    if(currentRole!=='admin')orders=orders.filter(o=>o.customerEmail===currentUser.email);
+    orders.sort((a,b)=>{
+      const ta=a.createdAt&&a.createdAt.toDate?a.createdAt.toDate().getTime():0;
+      const tb=b.createdAt&&b.createdAt.toDate?b.createdAt.toDate().getTime():0;
+      return tb-ta;
+    });
     _allOrders=orders;
     renderOrdersByTab(_currentOrderTab);
   });
@@ -2610,15 +2918,17 @@ function orderDateStr(o){
 // Filter by date tab
 function filterOrdersByDate(dateFilter){
   _currentOrderDateFilter=dateFilter;
-  document.querySelectorAll('#orders-date-tab-row .orders-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('[data-orders-date-filter]').forEach(t=>t.classList.remove('active'));
   document.getElementById('odtab-'+dateFilter)?.classList.add('active');
+  document.getElementById('admin-odtab-'+dateFilter)?.classList.add('active');
   renderOrdersByTab(_currentOrderTab);
 }
 // Filter orders by status tab and render
 function filterOrdersByTab(tab){
   _currentOrderTab=tab;
-  document.querySelectorAll('#orders-tab-row .orders-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('[data-orders-status-tab]').forEach(t=>t.classList.remove('active'));
   document.getElementById('otab-'+tab)?.classList.add('active');
+  document.getElementById('admin-otab-'+tab)?.classList.add('active');
   renderOrdersByTab(tab);
 }
 function applyDateFilter(orders){
@@ -2638,6 +2948,8 @@ function renderOrdersByTab(tab){
   // Show date context
   const sub=document.getElementById('orders-modal-subtitle');
   if(sub&&currentRole==='admin'){const labels={today:'📅 Today',yesterday:'🕐 Yesterday',all:'📋 All Orders'};sub.textContent=(labels[_currentOrderDateFilter]||'')+' — '+(tab==='active'?'Active':tab==='delivered'?'Delivered':tab==='rejected'?'Rejected':'All')+' ('+filtered.length+')';}
+  const adminSub=document.getElementById('admin-orders-subtitle');
+  if(adminSub&&currentRole==='admin'){const labels={today:'📅 Today',yesterday:'🕐 Yesterday',all:'📋 All Orders'};adminSub.textContent=(labels[_currentOrderDateFilter]||'')+' — '+(tab==='active'?'Active':tab==='delivered'?'Delivered':tab==='rejected'?'Rejected':'All')+' ('+filtered.length+')';}
   renderOrdersList(filtered,tab);
 }
 function badgeForStatus(s){
@@ -2651,7 +2963,7 @@ function badgeForStatus(s){
   return`<span class="om-route-badge" style="background:#fff7ea;color:#7a3b10;border-color:#f0dcc0">⏳ Pending</span>`;
 }
 function renderOrdersList(orders,tab='all'){
-  const el=document.getElementById('orders-list');
+  const el=currentRole==='admin'?document.getElementById('admin-orders-list'):document.getElementById('orders-list');
   if(!orders.length){
     const emptyMessages={
       active:'<div class="empty-cat-msg"><div class="big">🔄</div>No active orders right now.</div>',
@@ -2690,6 +3002,22 @@ function renderOrdersList(orders,tab='all'){
       </div>
     </div>`;
   }).join('');
+}
+function openAdminOrdersPage(){
+  if(currentRole!=='admin'){showToast('⚠️ Only admin can access orders');return;}
+  closeUserMenu();
+  showPage('orders');
+  setAdminSidebarActive('orders');
+  _currentOrderTab='active';
+  _currentOrderDateFilter='today';
+  filterOrdersByDate('today');
+  filterOrdersByTab('active');
+  subscribeOrders();
+}
+function refreshAdminOrdersPage(){
+  if(currentRole!=='admin'){return;}
+  subscribeOrders();
+  showToast('🔄 Orders refreshed',1800);
 }
 async function updateOrderStatus(orderId,status){
   if(currentRole!=='admin'||!db){showToast('⚠️ Only admin can update orders');return;}
@@ -2800,6 +3128,19 @@ function loadPaymentSettings(){
       try{const s=localStorage.getItem('paySettings');if(s){const p=JSON.parse(s);_paySettings={cod:!!p.cod,upi:!!p.upi};}}catch(e){}
       applyPaymentSettings();
     });
+}
+function loadMenuStockSettings(){
+  if(!db){setTimeout(loadMenuStockSettings,800);return;}
+  if(_menuStockUnsub){_menuStockUnsub();_menuStockUnsub=null;}
+  _menuStockUnsub=db.collection('settings').doc('menuStock').onSnapshot(doc=>{
+    const data=doc.exists?(doc.data()||{}):{};
+    _menuStockOverrides=data.overrides&&typeof data.overrides==='object'?data.overrides:{};
+    applyMenuStockOverrides();
+    syncCartWithInventory(true);
+    refreshInventoryUI();
+  },err=>{
+    console.warn('Menu stock listener error:',err);
+  });
 }
 function savePaymentSettings(){
   const codEl=document.getElementById('pay-toggle-cod');
@@ -2968,13 +3309,13 @@ function syncCustomerOrderWatcher(){
   // Stop any existing watcher first (important after re-login)
   if(_customerOrderStatusUnsub){_customerOrderStatusUnsub();_customerOrderStatusUnsub=null;}
   _customerOrderWatcherReady=false;
-  if(!db||!currentUser||currentRole==='admin'||!currentUser.email){return;}
+  if(!db||!currentUser||currentRole==='admin'||!currentUser.uid){return;}
   // Track which orders we've already notified about to prevent duplicate alerts
   const _notifiedStatuses={};
   // IMPORTANT: Do NOT use .orderBy('updatedAt') here — it requires a Firestore
   // composite index. Without that index, the listener silently fails.
   _customerOrderStatusUnsub=db.collection('orders')
-    .where('customerEmail','==',currentUser.email)
+    .where('customerUid','==',currentUser.uid)
     .limit(30)
     .onSnapshot(snap=>{
       if(!_customerOrderWatcherReady){
@@ -3152,6 +3493,26 @@ function updatePaymentsBadge(){
 // DASHBOARD
 // ============================================================
 let _dashOrdersUnsub=null,_dashOrders=[],_dashTab='today',_dashClockInterval=null;
+function subscribeDashboardOrders(showStatusToast=false){
+  if(!db){showToast('⚠️ Database not ready',2000);return;}
+  if(_dashOrdersUnsub)_dashOrdersUnsub();
+  const listEl=document.getElementById('dash-txn-list');
+  if(listEl&&!_dashOrders.length)listEl.innerHTML='<div class="empty-cat-msg" style="padding:20px"><div class="big">📋</div>Loading orders...</div>';
+  _dashOrdersUnsub=db.collection('orders').orderBy('createdAt','desc').limit(500).onSnapshot(snap=>{
+    _dashOrders=snap.docs.map(d=>({id:d.id,...d.data()}));
+    updateDashStats(_dashOrders);
+    renderDashOrders();
+    computeAnalytics(_dashOrders);
+    refreshCustomersBadge(_dashOrders);
+    if(showStatusToast)showToast('🔄 Dashboard refreshed',1800);
+  },err=>{
+    console.error('Dashboard orders listener error:',err);
+    showToast('⚠️ Could not refresh dashboard: '+formatFirestoreError(err),3200,'error');
+  });
+}
+function refreshDashboardOrders(){
+  subscribeDashboardOrders(true);
+}
 
 // ── Dashboard date tab ──
 function switchDashTab(tab){
@@ -3195,15 +3556,7 @@ function handleMidnightReset(){
 function renderDashboard(){
   if(!db){showToast('⚠️ Database not ready',2000);return;}
   startDashClock();
-  if(_dashOrdersUnsub)_dashOrdersUnsub();
-  _dashOrdersUnsub=db.collection('orders').orderBy('createdAt','desc').limit(500).onSnapshot(snap=>{
-    _dashOrders=snap.docs.map(d=>({id:d.id,...d.data()}));
-    updateDashStats(_dashOrders);
-    renderDashOrders();
-    computeAnalytics(_dashOrders);
-    // Also refresh customers badge
-    refreshCustomersBadge(_dashOrders);
-  });
+  subscribeDashboardOrders(false);
 }
 function updateDashStats(orders){
   const filtered=getDashFilteredOrders(orders);
@@ -3523,26 +3876,32 @@ setTimeout(()=>showPromoNotification('🔥 Today\'s Special!','Fresh Chapati + D
 // ============================================================
 let _addressesUnsub=null,_addrEditorId=null;
 let addrMap=null,addrMapInited=false,addrPin=null,addrLatLng=null;
-function openAddressModal(){
+async function openAddressModal(){
   closeUserMenu();
   if(!currentUser){showToast('⚠️ Please sign in',2200);return;}
+  const ready=await ensureCurrentUserRecord('user profile');
+  if(!ready)return;
   document.getElementById('address-overlay').classList.add('open');
   subscribeAddresses();
 }
 function closeAddressModal(){document.getElementById('address-overlay').classList.remove('open');if(_addressesUnsub){_addressesUnsub();_addressesUnsub=null;}}
 function subscribeAddresses(){
-  if(!db||!currentUser?.email)return;
+  const col=getUserAddressesCollection();
+  if(!col)return;
   if(_addressesUnsub)_addressesUnsub();
-  const col=db.collection('users').doc(currentUser.email).collection('addresses').orderBy('updatedAt','desc');
-  _addressesUnsub=col.onSnapshot(snap=>renderAddressList(snap.docs.map(d=>({id:d.id,...d.data()}))));
+  _addressesUnsub=col.orderBy('updatedAt','desc').onSnapshot(
+    snap=>renderAddressList(snap.docs.map(d=>({id:d.id,...d.data()}))),
+    err=>showFirestoreWriteError('Could not load addresses',err)
+  );
 }
 function renderAddressList(addresses){
   const list=document.getElementById('address-list');
   if(!addresses.length){list.innerHTML='<div class="empty-cat-msg"><div class="big">🏠</div>No saved addresses yet.</div>';return;}
   list.innerHTML=addresses.map(a=>{
-    const safeLabel=(a.label||'Address').toString();
-    const line=(a.line||a.addressText||'').toString();
+    const safeLabel=escapeHtml(a.label||'Address');
+    const line=escapeHtml((a.line||a.addressText||'').toString());
     const distM=a.pin&&typeof a.pin.lat==='number'?distanceMeters(SERVICE_CENTER,a.pin).toFixed(0):null;
+    const safePhone=escapeHtml((a.phone||'').toString());
     return`<div class="menu-card" style="padding:12px">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap">
         <div style="flex:1">
@@ -3550,7 +3909,7 @@ function renderAddressList(addresses){
           <div style="color:#555;margin-top:4px;line-height:1.35;font-size:.85rem">${line}</div>
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:7px">
             ${distM!==null?`<span class="om-route-badge">📏 ${(distM/1000).toFixed(2)} km</span>`:''}
-            ${a.phone?`<span class="om-route-badge">📞 ${a.phone}</span>`:''}
+            ${a.phone?`<span class="om-route-badge">📞 ${safePhone}</span>`:''}
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
@@ -3562,13 +3921,23 @@ function renderAddressList(addresses){
   }).join('');
 }
 async function deleteAddress(id){
-  if(!db||!currentUser?.email)return;
+  const ready=await ensureCurrentUserRecord('user profile');
+  if(!ready)return;
+  const col=getUserAddressesCollection();
+  if(!col)return;
   if(!confirm('Delete this address?'))return;
-  await db.collection('users').doc(currentUser.email).collection('addresses').doc(id).delete();
-  showToast('🗑 Address deleted',1800);
+  try{
+    await col.doc(id).delete();
+    await ensureUserRecord(currentUser);
+    showToast('🗑 Address deleted',1800);
+  }catch(err){
+    showFirestoreWriteError('Could not delete address',err);
+  }
 }
 async function openAddressEditor(id=null){
   if(!currentUser)return;
+  const ready=await ensureCurrentUserRecord('user profile');
+  if(!ready)return;
   _addrEditorId=id;
   document.getElementById('addr-editor-title').textContent=id?'✏️ Edit Address':'➕ Add Address';
   document.getElementById('addr-label').value='';
@@ -3580,14 +3949,19 @@ async function openAddressEditor(id=null){
   document.getElementById('addr-distance').textContent='—';
   document.getElementById('address-editor-overlay').classList.add('open');
   setTimeout(()=>initAddrMap(),220);
-  if(id&&db&&currentUser?.email){
-    const doc=await db.collection('users').doc(currentUser.email).collection('addresses').doc(id).get();
-    if(doc.exists){
-      const a=doc.data();
-      document.getElementById('addr-label').value=a.label||'';
-      document.getElementById('addr-phone').value=a.phone||'';
-      document.getElementById('addr-line').value=a.line||'';
-      if(a.pin&&typeof a.pin.lat==='number'){setTimeout(()=>{const ll=L.latLng(a.pin.lat,a.pin.lng);addrMap.setView(ll,16);addrSetPin(ll,true);},300);}
+  const col=getUserAddressesCollection();
+  if(id&&col){
+    try{
+      const doc=await col.doc(id).get();
+      if(doc.exists){
+        const a=doc.data();
+        document.getElementById('addr-label').value=a.label||'';
+        document.getElementById('addr-phone').value=a.phone||'';
+        document.getElementById('addr-line').value=a.line||'';
+        if(a.pin&&typeof a.pin.lat==='number'){setTimeout(()=>{addrMap.setView([a.pin.lat,a.pin.lng],16);addrSetPin(L.latLng(a.pin.lat,a.pin.lng),true);},300);}
+      }
+    }catch(err){
+      showFirestoreWriteError('Could not load address',err);
     }
   }
 }
@@ -3621,24 +3995,32 @@ function addrUseMyLocation(){
   },()=>{showToast('⚠️ Location access denied');btn.textContent='🎯 Use My Location';btn.disabled=false;});
 }
 async function saveAddressFromEditor(){
-  if(!db||!currentUser?.email)return;
+  const ready=await ensureCurrentUserRecord('user profile');
+  if(!ready)return;
+  const col=getUserAddressesCollection();
+  if(!col)return;
   const label=document.getElementById('addr-label').value.trim();
   const phone=document.getElementById('addr-phone').value.trim();
   const line=document.getElementById('addr-line').value.trim();
   if(!label||!line){showToast('⚠️ Enter Label and Address');return;}
   if(!addrLatLng){showToast('⚠️ Pin a serviceable location');return;}
   if(!isServiceableLatLng(addrLatLng.lat,addrLatLng.lng)){showToast('⚠️ Not serviceable',2600);return;}
-  const col=db.collection('users').doc(currentUser.email).collection('addresses');
-  if(!_addrEditorId){
-    const snap=await col.get();
-    if(snap.size>=5){showToast('⚠️ Max 5 addresses allowed',2400);return;}
-    await col.add({label,phone:phone||'',line,pin:{lat:addrLatLng.lat,lng:addrLatLng.lng},createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    showToast('✅ Address saved',1800);
-  }else{
-    await col.doc(_addrEditorId).set({label,phone:phone||'',line,pin:{lat:addrLatLng.lat,lng:addrLatLng.lng},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
-    showToast('✅ Address updated',1800);
+  try{
+    if(!_addrEditorId){
+      const snap=await col.get();
+      if(snap.size>=5){showToast('⚠️ Max 5 addresses allowed',2400);return;}
+      await col.add({label,phone:phone||'',line,pin:{lat:addrLatLng.lat,lng:addrLatLng.lng},createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+      await ensureUserRecord(currentUser);
+      showToast('✅ Address saved',1800);
+    }else{
+      await col.doc(_addrEditorId).set({label,phone:phone||'',line,pin:{lat:addrLatLng.lat,lng:addrLatLng.lng},updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+      await ensureUserRecord(currentUser);
+      showToast('✅ Address updated',1800);
+    }
+    closeAddressEditor();
+  }catch(err){
+    showFirestoreWriteError('Could not save address',err);
   }
-  closeAddressEditor();
 }
 
 // ============================================================
