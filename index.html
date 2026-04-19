@@ -73,7 +73,7 @@
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Chapati Express Sircilla","item":"https://chapatiexpress.github.io/Chapati-Express/"},{"@type":"ListItem","position":2,"name":"Order Chapati Online Sircilla","item":"https://chapatiexpress.github.io/Chapati-Express/"}]}
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,700;1,400&family=Poppins:wght@300;400;700&family=Roboto:wght@300;400;700&family=Nunito:wght@300;400;700&family=Merriweather:wght@300;400;700&family=Josefin+Sans:wght@300;400;700&family=Raleway:wght@300;400;700&family=Dancing+Script:wght@700&family=Ubuntu:wght@300;400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
@@ -97,7 +97,7 @@
       --cream:#0f0a05;
       --card-bg:#1a1008;
       --border:#3a2010;
-      --deep:#f5ddb5;
+      --deep:#c8882a;
       --brown:#f5a623;
       --shadow:0 4px 24px rgba(0,0,0,0.55);
     }
@@ -878,6 +878,44 @@
     .popup-ofd{flex:1;background:linear-gradient(90deg,#5c2d0a,#7a3b10);color:#fff;border:none;border-radius:10px;padding:11px;font-family:"Yeseva One",serif;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation}
     .popup-delivered{flex:1;background:linear-gradient(90deg,#2e7d32,#43a047);color:#fff;border:none;border-radius:10px;padding:11px;font-family:"Yeseva One",serif;font-size:.85rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;touch-action:manipulation}
     .no-pay-warn{background:#fff3e0;border:2px solid var(--turmeric);border-radius:12px;padding:12px 15px;font-size:.85rem;color:var(--brown);margin-top:10px;text-align:center;font-weight:700}
+
+    /* ===== FONT PICKER MODAL ===== */
+    .font-picker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:2100;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(4px)}
+    .font-picker-overlay.open{display:flex}
+    .font-picker-modal{background:#fff;border-radius:24px;width:100%;max-width:560px;max-height:92vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 80px rgba(0,0,0,0.45);animation:modalIn .3s cubic-bezier(0.34,1.56,0.64,1)}
+    body.dark-mode .font-picker-modal{background:#1a1008;}
+    .fp-header{background:linear-gradient(135deg,var(--brown),#7a3b10);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-shrink:0}
+    .fp-header-left{display:flex;align-items:center;gap:12px}
+    .fp-title{font-family:"Yeseva One",serif;color:var(--turmeric);font-size:1.15rem}
+    .fp-subtitle{font-size:.72rem;color:#f5ddb5;margin-top:2px}
+    .fp-close{background:none;border:none;color:#fff;font-size:1.4rem;cursor:pointer;line-height:1;padding:2px 6px;border-radius:8px;transition:background .2s}
+    .fp-close:hover{background:rgba(255,255,255,0.15)}
+    .fp-body{padding:18px 20px;flex:1;overflow-y:auto}
+    .fp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin-bottom:16px}
+    .fp-card{background:var(--cream);border:2.5px solid var(--border);border-radius:14px;padding:13px 16px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:4px;position:relative}
+    body.dark-mode .fp-card{background:#120c04;}
+    .fp-card:hover{border-color:var(--saffron);transform:translateY(-2px);box-shadow:0 6px 20px rgba(232,130,12,0.18)}
+    .fp-card.selected{border-color:var(--saffron);background:linear-gradient(135deg,#fff8ef,#fff3e0)}
+    body.dark-mode .fp-card.selected{background:#2a1a08;}
+    .fp-card-check{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--saffron);color:#fff;font-size:.75rem;display:none;align-items:center;justify-content:center;font-weight:900}
+    .fp-card.selected .fp-card-check{display:flex}
+    .fp-font-name{font-size:.72rem;font-weight:800;color:var(--saffron);text-transform:uppercase;letter-spacing:.8px;margin-bottom:2px}
+    .fp-font-sample{font-size:1.15rem;color:var(--brown);line-height:1.3}
+    body.dark-mode .fp-font-sample{color:var(--turmeric);}
+    .fp-font-desc{font-size:.68rem;color:#888;margin-top:3px}
+    .fp-preview-bar{background:linear-gradient(135deg,#fff8ef,#fff3e0);border:1.5px solid var(--border);border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+    body.dark-mode .fp-preview-bar{background:#120c04;}
+    .fp-preview-label{font-size:.7rem;font-weight:800;color:var(--saffron);text-transform:uppercase;letter-spacing:.8px;white-space:nowrap}
+    .fp-preview-text{font-size:1rem;color:var(--brown);flex:1}
+    body.dark-mode .fp-preview-text{color:var(--turmeric);}
+    .fp-footer{padding:14px 20px;border-top:1.5px solid var(--border);display:flex;gap:10px;flex-shrink:0;background:var(--cream)}
+    body.dark-mode .fp-footer{background:#120c04;}
+    .fp-reset-btn{flex:1;background:var(--cream);border:1.5px solid var(--border);border-radius:11px;padding:11px;font-size:.85rem;font-weight:700;color:var(--brown);cursor:pointer;transition:background .2s}
+    body.dark-mode .fp-reset-btn{background:#1a1008;color:var(--turmeric);}
+    .fp-reset-btn:hover{background:#f0e0c8}
+    .fp-apply-btn{flex:2;background:linear-gradient(90deg,var(--brown),var(--saffron));color:#fff;border:none;border-radius:11px;padding:11px;font-family:"Yeseva One",serif;font-size:.95rem;cursor:pointer;transition:opacity .2s}
+    .fp-apply-btn:hover{opacity:.88}
+    @media(max-width:500px){.fp-grid{grid-template-columns:1fr 1fr}}
   </style>
 </head>
 <body>
@@ -1066,6 +1104,16 @@
       <span class="admin-sb-icon">💬</span>
       <span class="admin-sb-label">Help &amp; Support</span>
     </button>
+
+    <hr class="admin-sb-divider"/>
+    <div class="admin-sb-section">Appearance</div>
+
+    <!-- Font Style -->
+    <button class="admin-sb-item" id="asb-font" onclick="openFontPicker()">
+      <span class="admin-sb-icon">🔤</span>
+      <span class="admin-sb-label">Font Style</span>
+      <span class="admin-sb-badge visible" id="asb-font-badge" style="background:var(--saffron);color:#1a0a00;font-size:.58rem">Aa</span>
+    </button>
   </div>
 
   <div class="admin-sb-footer">
@@ -1077,6 +1125,35 @@
       </div>
     </div>
     <button class="admin-sb-customer-btn" onclick="switchRole('customer')">👤 Switch to Customer View</button>
+  </div>
+</div>
+
+<!-- ===== FONT PICKER MODAL ===== -->
+<div class="font-picker-overlay" id="font-picker-overlay" onclick="if(event.target===this)closeFontPicker()">
+  <div class="font-picker-modal" id="font-picker-modal">
+    <div class="fp-header">
+      <div class="fp-header-left">
+        <span style="font-size:1.4rem">🔤</span>
+        <div>
+          <div class="fp-title">Font Style</div>
+          <div class="fp-subtitle">Choose a font for the entire website</div>
+        </div>
+      </div>
+      <button class="fp-close" onclick="closeFontPicker()">✕</button>
+    </div>
+    <div class="fp-body">
+      <div class="fp-grid" id="fp-grid">
+        <!-- filled by JS -->
+      </div>
+      <div class="fp-preview-bar">
+        <span class="fp-preview-label">Preview:</span>
+        <span class="fp-preview-text" id="fp-preview-text">Chapati Express — Garam Garam Chapati! 🫓</span>
+      </div>
+    </div>
+    <div class="fp-footer">
+      <button class="fp-reset-btn" onclick="applyFont('Lato')">↺ Reset to Default</button>
+      <button class="fp-apply-btn" onclick="closeFontPicker()">✓ Apply &amp; Close</button>
+    </div>
   </div>
 </div>
 
@@ -4323,6 +4400,75 @@ if(savedRole)currentRole=savedRole;
 updateRoleUI();
 renderMenuPage();
 document.getElementById('hero-section').style.display='block';
+
+// ============================================================
+// FONT PICKER
+// ============================================================
+const FONTS=[
+  {name:'Lato',          label:'Lato',           sample:'Fresh chapati daily!',      desc:'Clean & Modern (Default)'},
+  {name:'Poppins',       label:'Poppins',         sample:'Fresh chapati daily!',      desc:'Friendly & Round'},
+  {name:'Roboto',        label:'Roboto',          sample:'Fresh chapati daily!',      desc:'Crisp & Professional'},
+  {name:'Nunito',        label:'Nunito',          sample:'Fresh chapati daily!',      desc:'Soft & Playful'},
+  {name:'Raleway',       label:'Raleway',         sample:'Fresh chapati daily!',      desc:'Elegant & Stylish'},
+  {name:'Josefin Sans',  label:'Josefin Sans',    sample:'Fresh chapati daily!',      desc:'Geometric & Bold'},
+  {name:'Ubuntu',        label:'Ubuntu',          sample:'Fresh chapati daily!',      desc:'Rounded & Friendly'},
+  {name:'Merriweather',  label:'Merriweather',    sample:'Fresh chapati daily!',      desc:'Classic Serif'},
+  {name:'Playfair Display',label:'Playfair',      sample:'Fresh chapati daily!',      desc:'Luxury Serif'},
+  {name:'Dancing Script',label:'Dancing Script',  sample:'Fresh chapati daily!',      desc:'Handwritten Charm'},
+];
+let currentFont=localStorage.getItem('chapatiFont')||'Lato';
+
+function buildFontGrid(){
+  const grid=document.getElementById('fp-grid');
+  if(!grid)return;
+  grid.innerHTML=FONTS.map(f=>`
+    <div class="fp-card${f.name===currentFont?' selected':''}" onclick="applyFont('${f.name}')" id="fpcard-${f.name.replace(/\s/g,'_')}">
+      <div class="fp-card-check">✓</div>
+      <div class="fp-font-name">${f.label}</div>
+      <div class="fp-font-sample" style="font-family:'${f.name}',sans-serif">${f.sample}</div>
+      <div class="fp-font-desc">${f.desc}</div>
+    </div>
+  `).join('');
+}
+
+function applyFont(fontName){
+  currentFont=fontName;
+  localStorage.setItem('chapatiFont',fontName);
+  document.body.style.fontFamily=`'${fontName}',sans-serif`;
+  // Update preview
+  const prev=document.getElementById('fp-preview-text');
+  if(prev)prev.style.fontFamily=`'${fontName}',sans-serif`;
+  // Update badge
+  const badge=document.getElementById('asb-font-badge');
+  if(badge)badge.textContent=fontName.split(' ')[0].substring(0,4);
+  // Refresh grid selection
+  document.querySelectorAll('.fp-card').forEach(c=>c.classList.remove('selected'));
+  const sel=document.getElementById('fpcard-'+fontName.replace(/\s/g,'_'));
+  if(sel)sel.classList.add('selected');
+  showToast('🔤 Font changed to '+fontName);
+}
+
+function openFontPicker(){
+  buildFontGrid();
+  document.getElementById('font-picker-overlay').classList.add('open');
+  // Update preview font
+  const prev=document.getElementById('fp-preview-text');
+  if(prev)prev.style.fontFamily=`'${currentFont}',sans-serif`;
+}
+function closeFontPicker(){
+  document.getElementById('font-picker-overlay').classList.remove('open');
+}
+
+// Apply saved font on load
+(function initFont(){
+  const f=localStorage.getItem('chapatiFont');
+  if(f&&f!=='Lato'){
+    currentFont=f;
+    document.body.style.fontFamily=`'${f}',sans-serif`;
+    const badge=document.getElementById('asb-font-badge');
+    if(badge)badge.textContent=f.split(' ')[0].substring(0,4);
+  }
+})();
 </script>
 </body>
 </html>
