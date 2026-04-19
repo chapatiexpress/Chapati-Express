@@ -918,60 +918,90 @@
     .fp-apply-btn:hover{opacity:.88}
     @media(max-width:500px){.fp-grid{grid-template-columns:1fr 1fr}}
 
-    /* ===== THEMES ===== */
-    /* --- Midnight Blue --- */
-    body.theme-midnight {
-      --saffron:#4f8ef7;--turmeric:#7eb8f7;--deep:#e8f0ff;
-      --cream:#0a0f1e;--brown:#7eb8f7;--green:#34c97b;
-      --red:#f76a6a;--card-bg:#111827;--border:#1e2d4f;
-      --shadow:0 4px 24px rgba(79,142,247,0.15);
-      --blue:#4f8ef7;
-    }
-    body.theme-midnight header{background:linear-gradient(135deg,#07102a 0%,#0a1a3f 60%,#1a3569 100%)}
-    body.theme-midnight .hero{background:linear-gradient(160deg,#060e22 0%,#0d1f4f 40%,#1e3a8a 100%)}
-    body.theme-midnight .admin-sidebar{background:linear-gradient(180deg,#07102a 0%,#0a1a3f 40%,#07102a 100%);border-right-color:rgba(79,142,247,0.18)}
-    body.theme-midnight .admin-sb-item.active{background:linear-gradient(90deg,rgba(79,142,247,0.25),rgba(79,142,247,0.08));border-left-color:#4f8ef7}
-    body.theme-midnight .admin-sb-item::before{background:#4f8ef7}
-    body.theme-midnight .fp-card.selected,.body.theme-midnight .tp-card.selected{background:linear-gradient(135deg,#111827,#1e2d4f)}
+    /* ===== 10 GRAND THEMES ===== */
 
-    /* --- Emerald Forest --- */
-    body.theme-forest {
-      --saffron:#27ae60;--turmeric:#2ecc71;--deep:#0a2d1a;
-      --cream:#f0faf4;--brown:#1a7a40;--green:#1e8449;
-      --red:#e74c3c;--card-bg:#f8fffe;--border:#b2dfdb;
-      --shadow:0 4px 24px rgba(39,174,96,0.12);
-    }
-    body.theme-forest header{background:linear-gradient(135deg,#0d3b1f 0%,#1a7a40 60%,#27ae60 100%)}
-    body.theme-forest .hero{background:linear-gradient(160deg,#0a2d1a 0%,#1a7a40 40%,#27ae60 100%)}
-    body.theme-forest .admin-sidebar{background:linear-gradient(180deg,#0a1f12 0%,#0d3b1f 40%,#0a1f12 100%);border-right-color:rgba(39,174,96,0.18)}
-    body.theme-forest .admin-sb-item.active{background:linear-gradient(90deg,rgba(39,174,96,0.25),rgba(39,174,96,0.08));border-left-color:#27ae60}
-    body.theme-forest .admin-sb-item::before{background:#27ae60}
+    /* 1. Ocean Tide */
+    body.theme-ocean{--saffron:#00BCD4;--turmeric:#4DD0E1;--deep:#002B36;--cream:#E0F7FA;--brown:#006064;--green:#26A69A;--red:#EF5350;--card-bg:#F0FDFF;--border:#B2EBF2;--shadow:0 4px 24px rgba(0,188,212,0.15)}
+    body.theme-ocean header{background:linear-gradient(135deg,#003B46 0%,#006064 55%,#00838F 100%)}
+    body.theme-ocean .hero{background:linear-gradient(160deg,#001F26 0%,#004D5B 40%,#00BCD4 100%)}
+    body.theme-ocean .admin-sidebar{background:linear-gradient(180deg,#001F26 0%,#003B46 40%,#001F26 100%);border-right-color:rgba(0,188,212,0.25)}
+    body.theme-ocean .admin-sb-item.active{background:linear-gradient(90deg,rgba(0,188,212,0.22),rgba(0,188,212,0.06));border-left-color:#00BCD4}
+    body.theme-ocean .admin-sb-item::before{background:#00BCD4}
 
-    /* --- Royal Purple --- */
-    body.theme-royal {
-      --saffron:#9b59b6;--turmeric:#d7bde2;--deep:#1a0a2e;
-      --cream:#faf5ff;--brown:#6c3483;--green:#27ae60;
-      --red:#e74c3c;--card-bg:#fdf8ff;--border:#e8d5f5;
-      --shadow:0 4px 24px rgba(155,89,182,0.12);
-    }
-    body.theme-royal header{background:linear-gradient(135deg,#1a0a2e 0%,#4a235a 60%,#6c3483 100%)}
-    body.theme-royal .hero{background:linear-gradient(160deg,#1a0a2e 0%,#4a235a 40%,#9b59b6 100%)}
-    body.theme-royal .admin-sidebar{background:linear-gradient(180deg,#0f0618 0%,#1a0a2e 40%,#0f0618 100%);border-right-color:rgba(155,89,182,0.18)}
-    body.theme-royal .admin-sb-item.active{background:linear-gradient(90deg,rgba(155,89,182,0.25),rgba(155,89,182,0.08));border-left-color:#9b59b6}
-    body.theme-royal .admin-sb-item::before{background:#9b59b6}
+    /* 2. Sunset Blaze */
+    body.theme-sunset{--saffron:#FF6B35;--turmeric:#FFD166;--deep:#2D0A00;--cream:#FFF6F2;--brown:#BF3A10;--green:#06D6A0;--red:#D62828;--card-bg:#FFF2EE;--border:#FFDDD0;--shadow:0 4px 24px rgba(255,107,53,0.18)}
+    body.theme-sunset header{background:linear-gradient(135deg,#3D0C00 0%,#BF3A10 50%,#FF6B35 100%)}
+    body.theme-sunset .hero{background:linear-gradient(160deg,#2D0A00 0%,#8C2200 35%,#FF6B35 70%,#FFD166 100%)}
+    body.theme-sunset .admin-sidebar{background:linear-gradient(180deg,#1F0600 0%,#3D0C00 40%,#1F0600 100%);border-right-color:rgba(255,107,53,0.25)}
+    body.theme-sunset .admin-sb-item.active{background:linear-gradient(90deg,rgba(255,107,53,0.22),rgba(255,107,53,0.06));border-left-color:#FF6B35}
+    body.theme-sunset .admin-sb-item::before{background:#FF6B35}
 
-    /* --- Ruby Red --- */
-    body.theme-ruby {
-      --saffron:#e74c3c;--turmeric:#f1948a;--deep:#2c0a0a;
-      --cream:#fff5f5;--brown:#922b21;--green:#27ae60;
-      --red:#c0392b;--card-bg:#fff8f8;--border:#f5c6c6;
-      --shadow:0 4px 24px rgba(231,76,60,0.12);
-    }
-    body.theme-ruby header{background:linear-gradient(135deg,#2c0a0a 0%,#6e1a1a 60%,#a93226 100%)}
-    body.theme-ruby .hero{background:linear-gradient(160deg,#2c0a0a 0%,#6e1a1a 40%,#e74c3c 100%)}
-    body.theme-ruby .admin-sidebar{background:linear-gradient(180deg,#1a0505 0%,#2c0a0a 40%,#1a0505 100%);border-right-color:rgba(231,76,60,0.18)}
-    body.theme-ruby .admin-sb-item.active{background:linear-gradient(90deg,rgba(231,76,60,0.25),rgba(231,76,60,0.08));border-left-color:#e74c3c}
-    body.theme-ruby .admin-sb-item::before{background:#e74c3c}
+    /* 3. Cyberpunk Neon */
+    body.theme-cyberpunk{--saffron:#FFE500;--turmeric:#00FFDD;--deep:#E0E0FF;--cream:#05050F;--brown:#FFE500;--green:#00FF88;--red:#FF2D55;--card-bg:#0A0A1E;--border:#1A1A3A;--shadow:0 4px 28px rgba(255,229,0,0.18)}
+    body.theme-cyberpunk header{background:linear-gradient(135deg,#000005 0%,#0A0520 60%,#1A0540 100%)}
+    body.theme-cyberpunk .hero{background:linear-gradient(160deg,#000005 0%,#0A0520 30%,#1A0060 65%,#2D0080 100%)}
+    body.theme-cyberpunk .admin-sidebar{background:linear-gradient(180deg,#000008 0%,#08021A 40%,#000008 100%);border-right-color:rgba(255,229,0,0.3)}
+    body.theme-cyberpunk .admin-sb-item.active{background:linear-gradient(90deg,rgba(255,229,0,0.18),rgba(255,229,0,0.04));border-left-color:#FFE500}
+    body.theme-cyberpunk .admin-sb-item::before{background:#FFE500}
+    body.theme-cyberpunk .admin-sb-logo-text{color:#FFE500}
+    body.theme-cyberpunk .admin-sb-logo-sub{color:rgba(0,255,221,0.6)}
+
+    /* 4. Rose Bloom */
+    body.theme-rose{--saffron:#E91E8C;--turmeric:#F48FB1;--deep:#2D0018;--cream:#FFF0F5;--brown:#880E4F;--green:#26A69A;--red:#D32F2F;--card-bg:#FFF5F9;--border:#FDDDE6;--shadow:0 4px 24px rgba(233,30,140,0.14)}
+    body.theme-rose header{background:linear-gradient(135deg,#1A0011 0%,#6A0636 55%,#C2185B 100%)}
+    body.theme-rose .hero{background:linear-gradient(160deg,#1A0011 0%,#880E4F 40%,#E91E8C 80%,#F48FB1 100%)}
+    body.theme-rose .admin-sidebar{background:linear-gradient(180deg,#0F0009 0%,#1A0011 40%,#0F0009 100%);border-right-color:rgba(233,30,140,0.25)}
+    body.theme-rose .admin-sb-item.active{background:linear-gradient(90deg,rgba(233,30,140,0.22),rgba(233,30,140,0.06));border-left-color:#E91E8C}
+    body.theme-rose .admin-sb-item::before{background:#E91E8C}
+
+    /* 5. Arctic Sky */
+    body.theme-arctic{--saffron:#2979FF;--turmeric:#82B1FF;--deep:#0A1628;--cream:#F0F5FF;--brown:#1565C0;--green:#00BFA5;--red:#FF1744;--card-bg:#F5F9FF;--border:#C5D8FF;--shadow:0 4px 24px rgba(41,121,255,0.14)}
+    body.theme-arctic header{background:linear-gradient(135deg,#0A1628 0%,#1565C0 55%,#2979FF 100%)}
+    body.theme-arctic .hero{background:linear-gradient(160deg,#050C1A 0%,#0D47A1 40%,#2979FF 75%,#82B1FF 100%)}
+    body.theme-arctic .admin-sidebar{background:linear-gradient(180deg,#050C1A 0%,#0A1628 40%,#050C1A 100%);border-right-color:rgba(41,121,255,0.25)}
+    body.theme-arctic .admin-sb-item.active{background:linear-gradient(90deg,rgba(41,121,255,0.22),rgba(41,121,255,0.06));border-left-color:#2979FF}
+    body.theme-arctic .admin-sb-item::before{background:#2979FF}
+
+    /* 6. Volcanic Dark */
+    body.theme-volcanic{--saffron:#FF4500;--turmeric:#FF8C00;--deep:#FFD0B0;--cream:#080300;--brown:#FF6500;--green:#39D353;--red:#FF0000;--card-bg:#120800;--border:#2A1400;--shadow:0 4px 28px rgba(255,69,0,0.25)}
+    body.theme-volcanic header{background:linear-gradient(135deg,#050200 0%,#1F0800 55%,#3D1400 100%)}
+    body.theme-volcanic .hero{background:linear-gradient(160deg,#050200 0%,#280900 30%,#551200 60%,#FF4500 100%)}
+    body.theme-volcanic .admin-sidebar{background:linear-gradient(180deg,#030100 0%,#100500 40%,#030100 100%);border-right-color:rgba(255,69,0,0.3)}
+    body.theme-volcanic .admin-sb-item.active{background:linear-gradient(90deg,rgba(255,69,0,0.22),rgba(255,69,0,0.06));border-left-color:#FF4500}
+    body.theme-volcanic .admin-sb-item::before{background:#FF4500}
+
+    /* 7. Tropical Coral */
+    body.theme-tropical{--saffron:#FF5722;--turmeric:#FFB300;--deep:#002420;--cream:#E8FFF8;--brown:#00796B;--green:#00BFA5;--red:#E53935;--card-bg:#F0FFFB;--border:#B2DFDB;--shadow:0 4px 24px rgba(0,188,165,0.15)}
+    body.theme-tropical header{background:linear-gradient(135deg,#001A16 0%,#00574B 50%,#00897B 100%)}
+    body.theme-tropical .hero{background:linear-gradient(160deg,#001A16 0%,#00574B 35%,#00BFA5 65%,#FFB300 100%)}
+    body.theme-tropical .admin-sidebar{background:linear-gradient(180deg,#000F0C 0%,#001A16 40%,#000F0C 100%);border-right-color:rgba(0,191,165,0.25)}
+    body.theme-tropical .admin-sb-item.active{background:linear-gradient(90deg,rgba(0,191,165,0.22),rgba(0,191,165,0.06));border-left-color:#00BFA5}
+    body.theme-tropical .admin-sb-item::before{background:#00BFA5}
+
+    /* 8. Galaxy Purple */
+    body.theme-galaxy{--saffron:#AA00FF;--turmeric:#E040FB;--deep:#F0E0FF;--cream:#06000F;--brown:#AA00FF;--green:#69F0AE;--red:#FF1744;--card-bg:#0E001C;--border:#220040;--shadow:0 4px 28px rgba(170,0,255,0.22)}
+    body.theme-galaxy header{background:linear-gradient(135deg,#030008 0%,#0E0025 55%,#1E004D 100%)}
+    body.theme-galaxy .hero{background:linear-gradient(160deg,#030008 0%,#100030 30%,#2D007A 60%,#6D00CC 85%,#AA00FF 100%)}
+    body.theme-galaxy .admin-sidebar{background:linear-gradient(180deg,#020005 0%,#0A001A 40%,#020005 100%);border-right-color:rgba(170,0,255,0.3)}
+    body.theme-galaxy .admin-sb-item.active{background:linear-gradient(90deg,rgba(170,0,255,0.22),rgba(224,64,251,0.06));border-left-color:#AA00FF}
+    body.theme-galaxy .admin-sb-item::before{background:#AA00FF}
+
+    /* 9. Imperial Gold */
+    body.theme-imperial{--saffron:#D4AF37;--turmeric:#F5D060;--deep:#0A0600;--cream:#FFFBEF;--brown:#6B4F00;--green:#33691E;--red:#B71C1C;--card-bg:#FFFCF5;--border:#EDD87A;--shadow:0 4px 24px rgba(212,175,55,0.2)}
+    body.theme-imperial header{background:linear-gradient(135deg,#0A0600 0%,#2E1F00 50%,#6B4F00 80%,#B8960C 100%)}
+    body.theme-imperial .hero{background:linear-gradient(160deg,#0A0600 0%,#3D2B00 35%,#8B6914 65%,#D4AF37 100%)}
+    body.theme-imperial .admin-sidebar{background:linear-gradient(180deg,#050300 0%,#140E00 40%,#050300 100%);border-right-color:rgba(212,175,55,0.3)}
+    body.theme-imperial .admin-sb-item.active{background:linear-gradient(90deg,rgba(212,175,55,0.22),rgba(212,175,55,0.06));border-left-color:#D4AF37}
+    body.theme-imperial .admin-sb-item::before{background:#D4AF37}
+    body.theme-imperial .admin-sb-logo-text{color:#D4AF37}
+
+    /* 10. Mint Luxe */
+    body.theme-mint{--saffron:#00C896;--turmeric:#5EEDC8;--deep:#002E22;--cream:#F0FFF9;--brown:#007A5E;--green:#00A878;--red:#FF3D57;--card-bg:#F5FFFC;--border:#B2F0DC;--shadow:0 4px 24px rgba(0,200,150,0.15)}
+    body.theme-mint header{background:linear-gradient(135deg,#001A12 0%,#00573F 55%,#00875A 100%)}
+    body.theme-mint .hero{background:linear-gradient(160deg,#001409 0%,#004D38 35%,#00A878 65%,#00C896 100%)}
+    body.theme-mint .admin-sidebar{background:linear-gradient(180deg,#000F09 0%,#001A12 40%,#000F09 100%);border-right-color:rgba(0,200,150,0.25)}
+    body.theme-mint .admin-sb-item.active{background:linear-gradient(90deg,rgba(0,200,150,0.22),rgba(0,200,150,0.06));border-left-color:#00C896}
+    body.theme-mint .admin-sb-item::before{background:#00C896}
 
     /* ===== THEME PICKER MODAL ===== */
     .theme-picker-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:2200;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(4px)}
@@ -4613,34 +4643,20 @@ function closeFontPicker(){
 // COLOR THEME PICKER
 // ============================================================
 const COLOR_THEMES=[
-  {
-    id:'saffron', name:'\ud83e\uded3 Saffron', label:'Saffron\n(Default)',
-    swatches:['#5c2d0a','#e8820c','#f5a623','#fdf6ec'],
-    dot:'#e8820c'
-  },
-  {
-    id:'midnight', name:'\ud83c\udf1a Midnight', label:'Midnight Blue',
-    swatches:['#07102a','#0a1a3f','#4f8ef7','#0a0f1e'],
-    dot:'#4f8ef7'
-  },
-  {
-    id:'forest', name:'\ud83c\udf32 Forest', label:'Emerald Forest',
-    swatches:['#0d3b1f','#1a7a40','#27ae60','#f0faf4'],
-    dot:'#27ae60'
-  },
-  {
-    id:'royal', name:'\ud83d\udc51 Royal', label:'Royal Purple',
-    swatches:['#1a0a2e','#4a235a','#9b59b6','#faf5ff'],
-    dot:'#9b59b6'
-  },
-  {
-    id:'ruby', name:'\ud83d\udc8e Ruby', label:'Ruby Red',
-    swatches:['#2c0a0a','#6e1a1a','#e74c3c','#fff5f5'],
-    dot:'#e74c3c'
-  },
+  {id:'saffron',  label:'🫓 Saffron Gold',    swatches:['#3b1a06','#e8820c','#f5a623','#fdf6ec'], dot:'#e8820c'},
+  {id:'ocean',    label:'🌊 Ocean Tide',       swatches:['#003B46','#006064','#00BCD4','#E0F7FA'], dot:'#00BCD4'},
+  {id:'sunset',   label:'🌅 Sunset Blaze',     swatches:['#3D0C00','#BF3A10','#FF6B35','#FFD166'], dot:'#FF6B35'},
+  {id:'cyberpunk',label:'⚡ Cyberpunk Neon',   swatches:['#000005','#0A0520','#FFE500','#00FFDD'], dot:'#FFE500'},
+  {id:'rose',     label:'🌸 Rose Bloom',       swatches:['#1A0011','#880E4F','#E91E8C','#FFF0F5'], dot:'#E91E8C'},
+  {id:'arctic',   label:'🧊 Arctic Sky',       swatches:['#0A1628','#1565C0','#2979FF','#F0F5FF'], dot:'#2979FF'},
+  {id:'volcanic', label:'🌋 Volcanic Dark',    swatches:['#050200','#1F0800','#FF4500','#FF8C00'], dot:'#FF4500'},
+  {id:'tropical', label:'🌺 Tropical Coral',   swatches:['#001A16','#00574B','#00BFA5','#FFB300'], dot:'#00BFA5'},
+  {id:'galaxy',   label:'🌌 Galaxy Purple',    swatches:['#030008','#1E004D','#AA00FF','#E040FB'], dot:'#AA00FF'},
+  {id:'imperial', label:'👑 Imperial Gold',    swatches:['#0A0600','#2E1F00','#D4AF37','#F5D060'], dot:'#D4AF37'},
+  {id:'mint',     label:'💎 Mint Luxe',        swatches:['#001A12','#007A5E','#00C896','#F0FFF9'], dot:'#00C896'},
 ];
 let currentColorTheme=localStorage.getItem('chapatiColorTheme')||'saffron';
-const THEME_CLASSES=['theme-midnight','theme-forest','theme-royal','theme-ruby'];
+const THEME_CLASSES=['theme-ocean','theme-sunset','theme-cyberpunk','theme-rose','theme-arctic','theme-volcanic','theme-tropical','theme-galaxy','theme-imperial','theme-mint'];
 
 function buildThemeGrid(){
   const grid=document.getElementById('tp-grid');
