@@ -625,49 +625,6 @@
       body.admin-mode .float-order-bar{left:0;}
     }
 
-    /* ===== LIVE CLOCK ===== */
-    .dash-clock-bar{
-      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
-      background:linear-gradient(90deg,#1a0a00,#3b1a06);
-      border-radius:14px;padding:12px 20px;margin-bottom:18px;gap:10px;
-    }
-    .dash-clock-time{
-      font-family:'Yeseva One',serif;font-size:2rem;
-      color:var(--turmeric);letter-spacing:2px;
-      text-shadow:0 0 20px rgba(245,166,35,.4);
-    }
-    .dash-clock-date{font-size:.78rem;color:rgba(255,255,255,.55);margin-top:2px;font-weight:700;letter-spacing:.5px;}
-    .dash-clock-status{
-      display:flex;align-items:center;gap:8px;
-      background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
-      border-radius:10px;padding:8px 14px;
-    }
-    .dash-clock-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse-dot 1.5s infinite;flex-shrink:0}
-    .dash-clock-info{font-size:.78rem;color:rgba(255,255,255,.7);font-weight:700}
-
-    /* ===== CUSTOMER CARDS ===== */
-    .cust-card{
-      background:#fff;border:1.5px solid var(--border);border-radius:16px;
-      padding:16px 18px;display:flex;align-items:center;gap:14px;
-      box-shadow:var(--shadow);transition:transform .2s;
-    }
-    .cust-card:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(232,130,12,.15)}
-    .cust-avatar{
-      width:46px;height:46px;border-radius:50%;flex-shrink:0;
-      background:linear-gradient(135deg,var(--turmeric),var(--saffron));
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;font-size:1.1rem;color:var(--deep);
-    }
-    .cust-info{flex:1;min-width:0}
-    .cust-name{font-weight:900;color:var(--brown);font-size:.92rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .cust-meta{font-size:.78rem;color:#777;margin-top:2px}
-    .cust-badge{
-      background:var(--cream);border:1px solid var(--border);border-radius:10px;
-      padding:6px 12px;text-align:center;flex-shrink:0;
-    }
-    .cust-badge .cb-val{font-family:'Yeseva One',serif;font-size:1.1rem;color:var(--saffron)}
-    .cust-badge .cb-lbl{font-size:.65rem;color:#888;font-weight:700;text-transform:uppercase}
-
     /* ===== PAYMENT TOGGLE ===== */
     .pay-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;margin-bottom:10px;gap:10px}
     .pay-toggle-label{font-weight:800;color:var(--brown);font-size:.88rem;display:flex;align-items:center;gap:9px}
@@ -839,12 +796,6 @@
       <span class="admin-sb-label">Manage Menu</span>
     </button>
 
-    <!-- Customers -->
-    <button class="admin-sb-item" id="asb-customers" onclick="adminSidebarGo('customers')">
-      <span class="admin-sb-icon">👥</span>
-      <span class="admin-sb-label">Customers</span>
-    </button>
-
     <!-- Dashboard -->
     <button class="admin-sb-item" id="asb-dashboard" onclick="adminSidebarGo('dashboard')">
       <span class="admin-sb-icon">📊</span>
@@ -971,110 +922,10 @@
     <div class="manage-items-grid" id="manage-items-list"></div>
   </div>
 
-  <!-- CUSTOMERS PAGE -->
-  <div class="page" id="page-customers">
-    <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
-      <div class="section-title" style="margin-bottom:0">👥 Customers</div>
-      <div style="display:flex;gap:7px;align-items:center">
-        <input id="cust-search" type="text" class="aip-input" placeholder="🔍 Search by name or phone..." style="width:220px;font-size:.82rem" oninput="filterCustomers(this.value)"/>
-        <button class="orders-tab" onclick="loadCustomers()" style="background:rgba(232,130,12,.15);color:var(--saffron);white-space:nowrap">🔄 Refresh</button>
-      </div>
-    </div>
-    <div id="customers-stats" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:20px"></div>
-    <div id="customers-list" style="display:grid;gap:12px"><div class="empty-cat-msg"><div class="big">👥</div>Loading customers...</div></div>
-  </div>
-
-  <!-- SUPPORT PAGE -->
-  <div class="page" id="page-support">
-    <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
-    <div class="section-title">💬 Help &amp; Support</div>
-    <div style="display:grid;gap:16px">
-      <!-- Contact Card -->
-      <div style="background:#fff;border:2px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow)">
-        <div style="font-family:'Yeseva One',serif;color:var(--brown);font-size:1.1rem;margin-bottom:14px">📞 Contact Information</div>
-        <div style="display:grid;gap:10px">
-          <div style="display:flex;align-items:center;gap:12px;background:var(--cream);border-radius:12px;padding:12px 16px">
-            <span style="font-size:1.5rem">📱</span>
-            <div><div style="font-weight:800;color:var(--brown);font-size:.88rem">Phone / WhatsApp</div><div style="font-size:.85rem;color:#555">+91 98765 43210</div></div>
-            <a href="tel:+919876543210" style="margin-left:auto;background:var(--green);color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:.8rem;font-weight:700;text-decoration:none">Call</a>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;background:var(--cream);border-radius:12px;padding:12px 16px">
-            <span style="font-size:1.5rem">📧</span>
-            <div><div style="font-weight:800;color:var(--brown);font-size:.88rem">Email</div><div style="font-size:.85rem;color:#555">chapatiexpress5@gmail.com</div></div>
-            <a href="mailto:chapatiexpress5@gmail.com" style="margin-left:auto;background:var(--blue);color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:.8rem;font-weight:700;text-decoration:none">Email</a>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;background:var(--cream);border-radius:12px;padding:12px 16px">
-            <span style="font-size:1.5rem">📍</span>
-            <div><div style="font-weight:800;color:var(--brown);font-size:.88rem">Location</div><div style="font-size:.85rem;color:#555">Peddha Baazar, Sircilla, Telangana</div></div>
-            <a href="https://maps.google.com/?q=18.38973,78.812042" target="_blank" style="margin-left:auto;background:var(--saffron);color:#fff;border:none;border-radius:10px;padding:7px 14px;font-size:.8rem;font-weight:700;text-decoration:none">Map</a>
-          </div>
-        </div>
-      </div>
-      <!-- Hours -->
-      <div style="background:#fff;border:2px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow)">
-        <div style="font-family:'Yeseva One',serif;color:var(--brown);font-size:1.1rem;margin-bottom:14px">🕐 Business Hours</div>
-        <div style="display:grid;gap:8px;font-size:.88rem">
-          <div style="display:flex;justify-content:space-between;padding:8px 14px;background:var(--cream);border-radius:10px">
-            <span style="font-weight:700;color:var(--brown)">Mon – Sat</span><span style="color:var(--green);font-weight:700">7:00 AM – 9:00 PM</span>
-          </div>
-          <div style="display:flex;justify-content:space-between;padding:8px 14px;background:var(--cream);border-radius:10px">
-            <span style="font-weight:700;color:var(--brown)">Sunday</span><span style="color:var(--saffron);font-weight:700">8:00 AM – 6:00 PM</span>
-          </div>
-        </div>
-      </div>
-      <!-- FAQ -->
-      <div style="background:#fff;border:2px solid var(--border);border-radius:18px;padding:22px;box-shadow:var(--shadow)">
-        <div style="font-family:'Yeseva One',serif;color:var(--brown);font-size:1.1rem;margin-bottom:14px">❓ Frequently Asked Questions</div>
-        <div style="display:grid;gap:8px">
-          <details style="background:var(--cream);border-radius:12px;padding:12px 16px;cursor:pointer">
-            <summary style="font-weight:800;color:var(--brown);font-size:.88rem">How long does delivery take?</summary>
-            <p style="margin-top:8px;font-size:.85rem;color:#555;line-height:1.5">Usually 25–40 minutes depending on distance and order volume.</p>
-          </details>
-          <details style="background:var(--cream);border-radius:12px;padding:12px 16px;cursor:pointer">
-            <summary style="font-weight:800;color:var(--brown);font-size:.88rem">What is the minimum order amount?</summary>
-            <p style="margin-top:8px;font-size:.85rem;color:#555;line-height:1.5">Minimum order is ₹50 for delivery.</p>
-          </details>
-          <details style="background:var(--cream);border-radius:12px;padding:12px 16px;cursor:pointer">
-            <summary style="font-weight:800;color:var(--brown);font-size:.88rem">What payment methods are accepted?</summary>
-            <p style="margin-top:8px;font-size:.85rem;color:#555;line-height:1.5">We accept Cash on Delivery (COD) and UPI (GPay, PhonePe, Paytm).</p>
-          </details>
-          <details style="background:var(--cream);border-radius:12px;padding:12px 16px;cursor:pointer">
-            <summary style="font-weight:800;color:var(--brown);font-size:.88rem">How do I cancel an order?</summary>
-            <p style="margin-top:8px;font-size:.85rem;color:#555;line-height:1.5">Call us immediately. Orders can be cancelled before they are accepted by the kitchen.</p>
-          </details>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- DASHBOARD PAGE -->
   <div class="page" id="page-dashboard">
     <button class="back-btn-light" onclick="showPage('menu')">← Back to Menu</button>
-
-    <!-- Date filter bar -->
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:18px">
-      <div class="section-title" style="margin-bottom:0">📊 Real-time Dashboard</div>
-      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
-        <div id="dash-date-label" style="font-size:.75rem;color:#888;font-weight:700;margin-right:4px"></div>
-        <button class="orders-tab active" id="dtab-today"     onclick="setDashDateFilter('today')">📅 Today</button>
-        <button class="orders-tab"        id="dtab-yesterday" onclick="setDashDateFilter('yesterday')">🗓 Yesterday</button>
-        <button class="orders-tab"        id="dtab-all"       onclick="setDashDateFilter('all')">📋 All Time</button>
-        <button class="orders-tab" onclick="renderDashboard()" style="background:rgba(232,130,12,.15);color:var(--saffron)">🔄 Refresh</button>
-      </div>
-    </div>
-    <!-- Live Clock -->
-    <div class="dash-clock-bar">
-      <div>
-        <div class="dash-clock-time" id="dash-clock-time">--:--:-- --</div>
-        <div class="dash-clock-date" id="dash-clock-date"></div>
-      </div>
-      <div class="dash-clock-status">
-        <div class="dash-clock-dot"></div>
-        <div class="dash-clock-info">🔴 Live &nbsp;|&nbsp; Auto-updating</div>
-      </div>
-    </div>
-
+    <div class="section-title">📊 Admin Dashboard</div>
     <div class="dashboard-grid">
       <div class="dash-card"><div class="dc-icon">🧾</div><div class="dc-value" id="dash-total-orders">0</div><div class="dc-label">Total Orders</div></div>
       <div class="dash-card"><div class="dc-icon">💰</div><div class="dc-value" id="dash-total-revenue">₹0</div><div class="dc-label">Revenue</div></div>
@@ -1097,7 +948,7 @@
     </div>
     <div class="revenue-section">
       <div class="revenue-header">
-        <div class="section-title" style="margin-bottom:0">📋 Orders List</div>
+        <div class="section-title" style="margin-bottom:0">📋 All Orders</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap">
           <select id="txn-filter-status" class="aip-select" style="width:130px;font-size:.78rem" onchange="renderDashOrders()">
             <option value="all">All Status</option>
@@ -1680,16 +1531,13 @@ function updateRoleUI(){
 function adminSidebarGo(page){
   showPage(page);
   setAdminSidebarActive(page);
-  if(page==='dashboard'){startDashClock();renderDashboard();}
-  else{stopDashClock();}
-  if(page==='customers'){loadCustomers();}
 }
 function adminSidebarOrders(){
   openOrdersModal();
   setAdminSidebarActive('orders');
 }
 function setAdminSidebarActive(pageKey){
-  ['menu','orders','manage','customers','dashboard','support'].forEach(k=>{
+  ['menu','orders','manage','dashboard','support'].forEach(k=>{
     const el=document.getElementById('asb-'+k);
     if(el)el.classList.toggle('active',k===pageKey);
   });
@@ -2636,38 +2484,7 @@ function renderOrdersList(orders,tab='all'){
   const payIcons={'cod':'💵','upi':'📱','card':'💳','wallet':'👛'};
   el.innerHTML=orders.map(o=>{
     const created=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
-    const dt=created?fmtDateTime(created):'—';
-    const dayTag=created?fmtDayTag(created):'';
-    const itms=Array.isArray(o.items)?o.items:[];
-    const itemLine=itms.slice(0,3).map(it=>`${it.name} ×${it.qty}`).join(', ');
-    const mapLink=o.deliveryPin?` <a href="https://maps.google.com/?q=${o.deliveryPin.lat},${o.deliveryPin.lng}" target="_blank" style="color:var(--blue);font-size:.75rem;text-decoration:none">📍 Map</a>`:'';
-    return`<div class="menu-card" style="padding:12px">
-      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:center">
-        <div style="font-weight:900;color:var(--brown);font-size:.9rem">₹${o.total||0} <span style="font-size:.75rem;font-weight:400;color:#888">${o.orderId||''}</span></div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">${badgeForStatus(o.status)}<span class="om-route-badge">${payIcons[o.paymentMethod]||'💵'} ${(o.paymentMethod||'cod').toUpperCase()}</span></div>
-      </div>
-      <div style="margin-top:7px;color:#555;line-height:1.55;font-size:.82rem">
-        <div><strong>👤 Customer:</strong> ${(o.customerName||'—').toString().replace(/</g,'&lt;')} &nbsp;📞 ${(o.customerPhone||'—').toString()}</div>
-        <div><strong>📍 Delivery:</strong> ${(o.addressText||'—').toString().replace(/</g,'&lt;').slice(0,80)}${(o.addressText||'').length>80?'…':''}${mapLink}</div>
-        <div style="margin-top:4px"><strong>🍽 Items:</strong> ${itemLine||'—'}${itms.length>3?` <span style="color:#aaa">+${itms.length-3} more</span>`:''}</div>
-        <div style="margin-top:5px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <span style="background:#fff7ea;border:1px solid #f0dcc0;border-radius:8px;padding:2px 9px;font-size:.73rem;font-weight:800;color:var(--brown)">🕒 ${dt}</span>
-          ${dayTag?`<span style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:2px 9px;font-size:.7rem;font-weight:800;color:#1b5e20">${dayTag}</span>`:''}
-        </div>
-      </div>
-      <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;align-items:center">
-        ${currentRole==='admin'?`
-          <button class="cat-save-btn" style="font-size:.76rem;padding:6px 10px" onclick="updateOrderStatus('${o.id}','accepted')" ${(o.status!=='pending'&&o.status!=='rejected')||o.status==='cancelled'?'disabled':''}>✅ Accept</button>
-          <button class="cat-cancel-btn" style="font-size:.76rem;padding:6px 10px" onclick="updateOrderStatus('${o.id}','rejected')" ${o.status==='rejected'||o.status==='completed'||o.status==='delivered'||o.status==='cancelled'?'disabled':''}>❌ Reject</button>
-          <button style="font-size:.76rem;padding:6px 10px;background:linear-gradient(90deg,#f5a623,#e8820c);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700" onclick="updateOrderStatus('${o.id}','ready')" ${o.status==='completed'||o.status==='delivered'||o.status==='rejected'||o.status==='cancelled'?'disabled':''}>🍳 Ready</button>
-          <button style="font-size:.76rem;padding:6px 10px;background:linear-gradient(90deg,#5c2d0a,#7a3b10);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700" onclick="updateOrderStatus('${o.id}','out_for_delivery')" ${o.status==='completed'||o.status==='delivered'||o.status==='rejected'||o.status==='cancelled'?'disabled':''}>🚴 OFD</button>
-          <button class="cat-save-btn" style="font-size:.76rem;padding:6px 10px;background:linear-gradient(90deg,#2e7d32,#43a047)" onclick="updateOrderStatus('${o.id}','completed')" ${o.status==='completed'||o.status==='delivered'?'disabled':''}>🎉 Delivered</button>
-        `:''}  
-        ${(o.status==='completed'||o.status==='delivered')?`<button class="cat-save-btn" style="background:linear-gradient(90deg,#f5a623,#e8820c);font-size:.8rem;padding:7px 12px;margin-left:auto" onclick="openRatingModal('${o.orderId||o.id}')">⭐ Rate</button>`:''}
-      </div>
-    </div>`;
-  }).join('');
-}
+    const dt=created?created.toLocaleString():'—';
     const itms=Array.isArray(o.items)?o.items:[];
     const itemLine=itms.slice(0,3).map(it=>`${it.name} ×${it.qty}`).join(', ');
     return`<div class="menu-card" style="padding:12px">
@@ -3080,87 +2897,19 @@ function stopAdminPendingBadgeWatcher(){
 }
 
 // ============================================================
-// DATE / TIME HELPERS
-// ============================================================
-function fmtDateTime(d){
-  if(!d)return '—';
-  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const day=d.getDate(),mon=months[d.getMonth()],yr=d.getFullYear();
-  let h=d.getHours(),min=d.getMinutes();
-  const ampm=h>=12?'PM':'AM'; h=h%12||12;
-  return `${day} ${mon} ${yr}, ${h}:${String(min).padStart(2,'0')} ${ampm}`;
-}
-function fmtDayTag(d){
-  if(!d)return '';
-  const now=new Date();
-  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-  const yestStart=new Date(todayStart);yestStart.setDate(yestStart.getDate()-1);
-  if(d>=todayStart)return '📅 Today';
-  if(d>=yestStart)return '🗓 Yesterday';
-  return '';
-}
-function getDateRange(filter){
-  const now=new Date();
-  if(filter==='today'){
-    const s=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-    const e=new Date(s);e.setDate(e.getDate()+1);
-    return{start:s,end:e};
-  }
-  if(filter==='yesterday'){
-    const e=new Date(now.getFullYear(),now.getMonth(),now.getDate());
-    const s=new Date(e);s.setDate(s.getDate()-1);
-    return{start:s,end:e};
-  }
-  return null;
-}
-
-// ============================================================
 // DASHBOARD
 // ============================================================
-let _dashOrdersUnsub=null,_dashOrders=[],_dashDateFilter='today',_midnightTimer=null;
-
-function setDashDateFilter(f){
-  _dashDateFilter=f;
-  ['today','yesterday','all'].forEach(k=>{
-    const el=document.getElementById('dtab-'+k);
-    if(el)el.classList.toggle('active',k===f);
-  });
-  const labels={today:'📅 Showing: Today',yesterday:'🗓 Showing: Yesterday',all:'📋 Showing: All Time'};
-  const lbl=document.getElementById('dash-date-label');
-  if(lbl)lbl.textContent=labels[f]||'';
-  const range=getDateRange(f);
-  const filtered=range?_dashOrders.filter(o=>{
-    const d=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
-    return d&&d>=range.start&&d<range.end;
-  }):_dashOrders;
-  updateDashStats(filtered);
-  renderDashOrders();
-}
-
-function scheduleMidnightRefresh(){
-  if(_midnightTimer)clearTimeout(_midnightTimer);
-  const now=new Date();
-  const tomorrow=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1);
-  const msToMidnight=tomorrow-now+500;
-  _midnightTimer=setTimeout(()=>{
-    if(_dashDateFilter==='today')setDashDateFilter('today');
-    showToast('🌅 Dashboard refreshed for new day!',3000);
-    scheduleMidnightRefresh();
-  },msToMidnight);
-}
-
+let _dashOrdersUnsub=null,_dashOrders=[];
 function renderDashboard(){
   if(!db){showToast('⚠️ Database not ready',2000);return;}
   if(_dashOrdersUnsub)_dashOrdersUnsub();
-  _dashDateFilter='today';
-  _dashOrdersUnsub=db.collection('orders').orderBy('createdAt','desc').limit(1000).onSnapshot(snap=>{
+  _dashOrdersUnsub=db.collection('orders').orderBy('createdAt','desc').limit(500).onSnapshot(snap=>{
     _dashOrders=snap.docs.map(d=>({id:d.id,...d.data()}));
-    setDashDateFilter(_dashDateFilter);
+    updateDashStats(_dashOrders);
+    renderDashOrders();
     computeAnalytics(_dashOrders);
   });
-  scheduleMidnightRefresh();
 }
-
 function updateDashStats(orders){
   const total=orders.length;
   const revenue=orders.filter(o=>o.status==='completed'||o.status==='delivered').reduce((a,o)=>a+(o.total||0),0);
@@ -3183,205 +2932,36 @@ function updateDashStats(orders){
   document.getElementById('rev-withdrawn').textContent='₹'+withdrawn;
   document.getElementById('withdraw-avail-bal').textContent='₹'+(revenue-withdrawn);
 }
-
 function renderDashOrders(){
   const filterStatus=document.getElementById('txn-filter-status')?.value||'all';
   const filterPay=document.getElementById('txn-filter-pay')?.value||'all';
-  const range=getDateRange(_dashDateFilter);
-  let filtered=range?_dashOrders.filter(o=>{
-    const d=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
-    return d&&d>=range.start&&d<range.end;
-  }):[..._dashOrders];
+  let filtered=[..._dashOrders];
   if(filterStatus!=='all')filtered=filtered.filter(o=>o.status===filterStatus);
   if(filterPay!=='all')filtered=filtered.filter(o=>o.paymentMethod===filterPay);
   const el=document.getElementById('dash-txn-list');
   if(!el)return;
-  if(!filtered.length){
-    el.innerHTML='<div class="empty-cat-msg" style="padding:20px"><div class="big">📋</div>No orders for this period.</div>';
-    return;
-  }
+  if(!filtered.length){el.innerHTML='<div class="empty-cat-msg" style="padding:20px"><div class="big">📋</div>No orders found.</div>';return;}
   const payIcons={'cod':'💵','upi':'📱','card':'💳'};
-  el.innerHTML=filtered.map(o=>{
+  el.innerHTML=filtered.slice(0,60).map(o=>{
     const created=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
-    const dt=created?fmtDateTime(created):'—';
-    const dayTag=created?fmtDayTag(created):'';
-    const itms=Array.isArray(o.items)?o.items:[];
-    const itemLine=itms.slice(0,3).map(it=>`${it.emoji||''}${it.name} ×${it.qty}`).join(', ');
-    const mapLink=o.deliveryPin?` <a href="https://maps.google.com/?q=${o.deliveryPin.lat},${o.deliveryPin.lng}" target="_blank" style="color:var(--blue);text-decoration:none;font-size:.68rem">📍 Map</a>`:'';
-    return`<div class="txn-item" style="flex-direction:column;align-items:stretch;gap:8px">
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px">
-        <div>
-          <div class="txn-id">${o.orderId||o.id.slice(-6)} &nbsp;·&nbsp; <span style="color:var(--brown)">${(o.customerName||'—').toString().slice(0,22)}</span></div>
-          <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:3px">
-            <span style="background:#fff7ea;border:1px solid #f0dcc0;border-radius:6px;padding:2px 8px;font-size:.7rem;font-weight:800;color:var(--brown)">🕒 ${dt}</span>
-            ${dayTag?`<span style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:2px 8px;font-size:.68rem;font-weight:800;color:#1b5e20">${dayTag}</span>`:''}
-          </div>
-        </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-          <div class="txn-amount">${payIcons[o.paymentMethod]||'💵'} ₹${o.total||0}</div>
-          ${badgeForStatus(o.status)}
-        </div>
+    const dt=created?created.toLocaleString():'—';
+    return`<div class="txn-item">
+      <div class="txn-info" style="flex:1;min-width:0">
+        <div class="txn-id">${o.orderId||o.id.slice(-6)} · ${(o.customerName||'—').toString().slice(0,20)}</div>
+        <div class="txn-meta">${dt}</div>
       </div>
-      <div style="font-size:.78rem;color:#555;display:flex;flex-direction:column;gap:3px;line-height:1.5">
-        <div>📞 <strong>${(o.customerPhone||'—').toString()}</strong> &nbsp;|&nbsp; 📧 ${(o.customerEmail||'—').toString().slice(0,30)}</div>
-        <div>📍 ${(o.addressText||'—').toString().replace(/</g,'&lt;').slice(0,75)}${(o.addressText||'').length>75?'…':''}${mapLink}</div>
-        <div style="color:#888">🍽 ${itemLine||'—'}${itms.length>3?` +${itms.length-3} more`:''}</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
+        <div class="txn-amount">${payIcons[o.paymentMethod]||'💵'} ₹${o.total||0}</div>
+        ${badgeForStatus(o.status)}
       </div>
-      <div style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="cat-save-btn" style="font-size:.72rem;padding:5px 9px" onclick="updateOrderStatus('${o.id}','accepted')" ${o.status!=='pending'?'disabled':''}>✅ Accept</button>
-        <button class="cat-cancel-btn" style="font-size:.72rem;padding:5px 9px" onclick="updateOrderStatus('${o.id}','rejected')" ${o.status==='rejected'||o.status==='completed'||o.status==='delivered'?'disabled':''}>❌ Reject</button>
-        <button style="font-size:.72rem;padding:5px 9px;background:linear-gradient(90deg,#f5a623,#e8820c);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700" onclick="updateOrderStatus('${o.id}','ready')" ${o.status==='completed'||o.status==='delivered'||o.status==='rejected'?'disabled':''}>🍳 Ready</button>
-        <button style="font-size:.72rem;padding:5px 9px;background:linear-gradient(90deg,#5c2d0a,#7a3b10);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700" onclick="updateOrderStatus('${o.id}','out_for_delivery')" ${o.status==='completed'||o.status==='delivered'||o.status==='rejected'?'disabled':''}>🚴 OFD</button>
-        <button style="font-size:.72rem;padding:5px 9px;background:linear-gradient(90deg,#2e7d32,#43a047);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700" onclick="updateOrderStatus('${o.id}','completed')" ${o.status==='completed'||o.status==='delivered'?'disabled':''}>🎉 Done</button>
+      <div style="display:flex;flex-direction:column;gap:4px;min-width:80px;flex-shrink:0">
+        <button class="cat-save-btn" style="font-size:.72rem;padding:5px 8px" onclick="updateOrderStatus('${o.id}','accepted')" ${o.status!=='pending'?'disabled':''}>✅</button>
+        <button class="cat-cancel-btn" style="font-size:.72rem;padding:5px 8px" onclick="updateOrderStatus('${o.id}','completed')" ${o.status==='completed'?'disabled':''}>🎯</button>
       </div>
     </div>`;
   }).join('');
 }
 function computeAnalytics(orders){/* analytics optional */}
-
-// ============================================================
-// LIVE CLOCK
-// ============================================================
-let _clockTimer=null;
-function startDashClock(){
-  stopDashClock();
-  function tick(){
-    const now=new Date();
-    const timeEl=document.getElementById('dash-clock-time');
-    const dateEl=document.getElementById('dash-clock-date');
-    if(!timeEl)return;
-    let h=now.getHours(),m=now.getMinutes(),s=now.getSeconds();
-    const ampm=h>=12?'PM':'AM';
-    h=h%12||12;
-    timeEl.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')} ${ampm}`;
-    if(dateEl){
-      const days=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-      const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
-      dateEl.textContent=`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-    }
-  }
-  tick();
-  _clockTimer=setInterval(tick,1000);
-}
-function stopDashClock(){
-  if(_clockTimer){clearInterval(_clockTimer);_clockTimer=null;}
-}
-
-// ============================================================
-// CUSTOMERS
-// ============================================================
-let _allCustomers=[],_custUnsub=null;
-
-function loadCustomers(){
-  if(!db){showToast('⚠️ Database not ready',2000);return;}
-  const listEl=document.getElementById('customers-list');
-  const statsEl=document.getElementById('customers-stats');
-  if(listEl)listEl.innerHTML='<div class="empty-cat-msg"><div class="big">⏳</div>Loading...</div>';
-
-  if(_custUnsub){_custUnsub();_custUnsub=null;}
-
-  _custUnsub=db.collection('orders').orderBy('createdAt','desc').limit(2000)
-    .onSnapshot(snap=>{
-      const orders=snap.docs.map(d=>({id:d.id,...d.data()}));
-      // Aggregate by customer email
-      const map={};
-      orders.forEach(o=>{
-        const email=(o.customerEmail||'').toLowerCase()||o.id;
-        if(!map[email]){
-          map[email]={
-            email:email,
-            name:o.customerName||'Unknown',
-            phone:o.customerPhone||'—',
-            orders:[],
-            totalSpent:0
-          };
-        }
-        map[email].orders.push(o);
-        if(o.status==='completed'||o.status==='delivered')
-          map[email].totalSpent+=(o.total||0);
-        // Keep most complete name/phone
-        if(o.customerName&&o.customerName.length>(map[email].name||'').length)
-          map[email].name=o.customerName;
-        if(o.customerPhone&&o.customerPhone!=='—')
-          map[email].phone=o.customerPhone;
-      });
-      _allCustomers=Object.values(map).sort((a,b)=>b.orders.length-a.orders.length);
-
-      // Render stats strip
-      if(statsEl){
-        const totalCust=_allCustomers.length;
-        const totalOrders=orders.length;
-        const todayStart=new Date();todayStart.setHours(0,0,0,0);
-        const newToday=orders.filter(o=>{
-          const d=o.createdAt&&o.createdAt.toDate?o.createdAt.toDate():null;
-          return d&&d>=todayStart;
-        }).length;
-        const repeatCust=_allCustomers.filter(c=>c.orders.length>1).length;
-        statsEl.innerHTML=[
-          {icon:'👥',val:totalCust,lbl:'Total Customers'},
-          {icon:'🧾',val:totalOrders,lbl:'Total Orders'},
-          {icon:'📅',val:newToday,lbl:"Today's Orders"},
-          {icon:'🔁',val:repeatCust,lbl:'Repeat Customers'},
-        ].map(s=>`<div class="dash-card"><div class="dc-icon">${s.icon}</div><div class="dc-value">${s.val}</div><div class="dc-label">${s.lbl}</div></div>`).join('');
-      }
-      renderCustomersList(_allCustomers);
-    },()=>{
-      if(listEl)listEl.innerHTML='<div class="empty-cat-msg"><div class="big">❌</div>Could not load customers.</div>';
-    });
-}
-
-function renderCustomersList(customers){
-  const el=document.getElementById('customers-list');
-  if(!el)return;
-  if(!customers.length){
-    el.innerHTML='<div class="empty-cat-msg"><div class="big">👥</div>No customers found.</div>';
-    return;
-  }
-  el.innerHTML=customers.map((c,idx)=>{
-    const lastOrder=c.orders[0];
-    const lastDate=lastOrder&&lastOrder.createdAt&&lastOrder.createdAt.toDate
-      ?fmtDateTime(lastOrder.createdAt.toDate()):'—';
-    const initial=(c.name||'?')[0].toUpperCase();
-    const dayTag=lastOrder&&lastOrder.createdAt&&lastOrder.createdAt.toDate
-      ?fmtDayTag(lastOrder.createdAt.toDate()):'';
-    return`<div class="cust-card">
-      <div class="cust-avatar">${initial}</div>
-      <div class="cust-info">
-        <div class="cust-name">${(c.name||'—').toString().replace(/</g,'&lt;')}</div>
-        <div class="cust-meta">
-          📞 ${c.phone}
-          &nbsp;|&nbsp; 📧 <span style="color:#aaa">${c.email.slice(0,26)}</span>
-        </div>
-        <div class="cust-meta" style="margin-top:3px">
-          🕒 Last order: <strong>${lastDate}</strong>
-          ${dayTag?`<span style="background:#e8f5e9;border:1px solid #a5d6a7;border-radius:6px;padding:1px 7px;font-size:.68rem;font-weight:800;color:#1b5e20;margin-left:4px">${dayTag}</span>`:''}
-        </div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
-        <div class="cust-badge">
-          <div class="cb-val">${c.orders.length}</div>
-          <div class="cb-lbl">Orders</div>
-        </div>
-        <div class="cust-badge">
-          <div class="cb-val" style="font-size:.9rem">₹${c.totalSpent}</div>
-          <div class="cb-lbl">Spent</div>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function filterCustomers(q){
-  const query=(q||'').toLowerCase().trim();
-  if(!query){renderCustomersList(_allCustomers);return;}
-  const filtered=_allCustomers.filter(c=>
-    (c.name||'').toLowerCase().includes(query)||
-    (c.phone||'').toLowerCase().includes(query)||
-    (c.email||'').toLowerCase().includes(query)
-  );
-  renderCustomersList(filtered);
-}
-
 function saveSvcSettings(){showToast('✅ Settings saved!',2000);}
 function openWithdrawModal(){document.getElementById('withdraw-modal-overlay').classList.add('open');}
 function closeWithdrawModal(){document.getElementById('withdraw-modal-overlay').classList.remove('open');}
