@@ -88,6 +88,162 @@
       --shadow:0 4px 24px rgba(232,130,12,0.1);
       --blue:#1565c0;--purple:#6a1b9a;
       --header-h:64px;
+      /* Theme transition */
+      --theme-transition:background .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease;
+    }
+
+    /* ===== DARK THEME ===== */
+    body.dark-mode {
+      --cream:#0f0a05;
+      --card-bg:#1a1008;
+      --border:#3a2010;
+      --deep:#f5ddb5;
+      --brown:#f5a623;
+      --shadow:0 4px 24px rgba(0,0,0,0.55);
+    }
+    body.dark-mode {
+      background:var(--cream);
+      color:var(--deep);
+    }
+    /* Dark mode overrides for white backgrounds */
+    body.dark-mode .user-menu-popup,
+    body.dark-mode .search-results-drop,
+    body.dark-mode .orders-modal,
+    body.dark-mode .auth-modal,
+    body.dark-mode .order-modal,
+    body.dark-mode .cat-modal,
+    body.dark-mode .rating-modal,
+    body.dark-mode .upi-redirect-modal,
+    body.dark-mode .customer-alert-modal
+    { background:#1a1008; color:var(--deep); }
+
+    body.dark-mode .cart-panel { background:#120c04; }
+    body.dark-mode .cart-item-name { color:var(--turmeric); }
+    body.dark-mode .cart-item-price { color:var(--saffron); }
+    body.dark-mode .cart-total { color:var(--turmeric); }
+    body.dark-mode .qty-btn { background:#2a1a08; border-color:#3a2010; color:var(--turmeric); }
+
+    body.dark-mode .menu-card,
+    body.dark-mode .mng-card,
+    body.dark-mode .dash-card,
+    body.dark-mode .add-item-panel,
+    body.dark-mode .tracking-panel,
+    body.dark-mode .order-section,
+    body.dark-mode .support-card,
+    body.dark-mode .revenue-section
+    { background:var(--card-bg); border-color:var(--border); }
+
+    body.dark-mode .card-name,
+    body.dark-mode .mng-name,
+    body.dark-mode .section-title
+    { color:var(--turmeric); }
+
+    body.dark-mode .card-type,
+    body.dark-mode .mng-meta,
+    body.dark-mode .dc-label,
+    body.dark-mode .step-info .step-time,
+    body.dark-mode .step-info .step-desc
+    { color:#8a7060; }
+
+    body.dark-mode .aip-input,
+    body.dark-mode .aip-select,
+    body.dark-mode .om-form input,
+    body.dark-mode .om-form textarea,
+    body.dark-mode .om-form select,
+    body.dark-mode .form-group input,
+    body.dark-mode .form-group textarea,
+    body.dark-mode .form-group select,
+    body.dark-mode .rating-feedback
+    { background:#1a1008; border-color:var(--border); color:var(--deep); }
+
+    body.dark-mode .aip-label,
+    body.dark-mode .om-form label,
+    body.dark-mode .form-group label,
+    body.dark-mode .payment-title,
+    body.dark-mode .om-map-label
+    { color:var(--turmeric); }
+
+    body.dark-mode .om-summary { background:#1a1008; border-color:var(--border); }
+    body.dark-mode .om-summary-title { color:var(--turmeric); }
+    body.dark-mode .om-item-row { color:var(--deep); border-color:var(--border); }
+    body.dark-mode .om-cancel { background:#1a1008; border-color:var(--border); color:var(--turmeric); }
+
+    body.dark-mode .payment-opt { background:#1a1008; border-color:var(--border); color:var(--turmeric); }
+    body.dark-mode .payment-opt.selected { background:#2a1a08; }
+    body.dark-mode .payment-opt .po-label { color:var(--turmeric); }
+    body.dark-mode .payment-opt .po-sub { color:#8a7060; }
+
+    body.dark-mode .cat-tab { background:#1a1008; border-color:var(--border); color:var(--turmeric); }
+    body.dark-mode .mfb-tab { background:#1a1008; border-color:var(--border); color:var(--turmeric); }
+    body.dark-mode .orders-tab { background:#1a1008; border-color:var(--border); color:var(--turmeric); }
+    body.dark-mode .user-menu-item { background:#1a1008; border-color:var(--border); color:var(--turmeric); }
+    body.dark-mode .user-menu-item:hover { background:#2a1a08; }
+    body.dark-mode .user-menu-item.danger { background:#1a0808; border-color:#3a1010; color:#ff6b6b; }
+    body.dark-mode .user-menu-head { background:#120c04; border-color:var(--border); }
+    body.dark-mode .user-menu-head .email { color:var(--turmeric); }
+
+    body.dark-mode .search-result-item { background:#1a1008; border-color:var(--border); }
+    body.dark-mode .search-result-item:hover { background:#2a1a08; }
+    body.dark-mode .search-result-item .sri-info .sri-name { color:var(--turmeric); }
+    body.dark-mode .search-result-item .sri-info .sri-meta { color:#8a7060; }
+
+    body.dark-mode .rev-stat { background:#120c04; border-color:var(--border); }
+    body.dark-mode .txn-item { background:#120c04; border-color:var(--border); }
+    body.dark-mode .txn-info .txn-id { color:var(--turmeric); }
+    body.dark-mode .txn-info .txn-meta { color:#8a7060; }
+
+    body.dark-mode .map-info { background:var(--card-bg); border-color:var(--border); color:var(--turmeric); }
+    body.dark-mode .manage-banner { background:#1a1008; border-color:var(--saffron); color:var(--turmeric); }
+    body.dark-mode .pay-toggle-row { background:#1a1008; border-color:var(--border); }
+    body.dark-mode .pay-toggle-label { color:var(--turmeric); }
+    body.dark-mode .pay-toggle-sublabel { color:#8a7060; }
+    body.dark-mode .delivery-zone-info { background:#0a1a0a; border-color:#2e7d32; color:var(--turmeric); }
+    body.dark-mode .no-pay-warn { background:#1a1008; border-color:var(--saffron); color:var(--turmeric); }
+    body.dark-mode .admin-sb-item:hover { background:rgba(245,166,35,0.12); }
+    body.dark-mode .popup-header { background:linear-gradient(135deg,#1a1008,#2a1a08); }
+    body.dark-mode #admin-order-popup { background:#1a1008; border-color:var(--saffron); }
+    body.dark-mode .om-selected-address { background:#120c04; border-color:var(--border); }
+    body.dark-mode .om-address-picker { background:#1a1008; border-color:var(--border); }
+    body.dark-mode .om-address-manage-btn { background:#1a1008; border-color:var(--border); color:var(--turmeric); }
+    body.dark-mode .om-gps-btn { background:#1a1008; border-color:var(--border); color:var(--turmeric); }
+    body.dark-mode .cam-body { color:#c0a090; }
+
+    /* All transitions for smooth switching */
+    body, .menu-card, .mng-card, .dash-card, .add-item-panel, .tracking-panel, .order-section,
+    .support-card, .revenue-section, .cart-panel, .user-menu-popup, .auth-modal, .order-modal,
+    .cat-modal, .rating-modal, .upi-redirect-modal, .customer-alert-modal, .payment-opt,
+    .cat-tab, .mfb-tab, .orders-tab, .user-menu-item, .search-result-item, .rev-stat, .txn-item,
+    .aip-input, .aip-select, .om-form input, .om-form textarea, .om-form select,
+    .form-group input, .form-group textarea, .form-group select
+    { transition: var(--theme-transition); }
+
+    /* ===== THEME TOGGLE BUTTON ===== */
+    .theme-toggle-btn {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.25);
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+      font-size: 1.15rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .25s, border-color .25s, transform .25s;
+      flex-shrink: 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .theme-toggle-btn:hover {
+      background: rgba(255,255,255,0.22);
+      border-color: var(--turmeric);
+      transform: rotate(20deg) scale(1.08);
+    }
+    .theme-toggle-btn .toggle-icon {
+      display: inline-block;
+      transition: transform .4s cubic-bezier(0.34,1.56,0.64,1), opacity .3s;
+    }
+    body.dark-mode .theme-toggle-btn {
+      background: rgba(245,166,35,0.18);
+      border-color: var(--turmeric);
     }
     *{box-sizing:border-box;margin:0;padding:0}
     html{scroll-behavior:smooth}
@@ -751,6 +907,7 @@
         <div class="search-results-drop" id="search-drop"></div>
       </div>
       <button class="mob-search-btn" onclick="openMobSearch()">🔍</button>
+      <button class="theme-toggle-btn" id="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Dark / Light Mode" aria-label="Toggle theme"><span class="toggle-icon" id="theme-icon">🌙</span></button>
       <div class="user-menu">
         <button id="signin-top-btn" class="signin-top-btn" onclick="signInWithGoogle()" style="display:none">Sign in</button>
         <div id="user-status-display" class="user-status" style="display:none">
@@ -4128,6 +4285,35 @@ window.addEventListener('scroll',()=>{
   const btn=document.getElementById('scroll-top-btn');
   if(btn)btn.classList.toggle('visible',window.scrollY>400);
 },{passive:true});
+
+// ============================================================
+// THEME TOGGLE
+// ============================================================
+function toggleTheme(){
+  const isDark=document.body.classList.toggle('dark-mode');
+  localStorage.setItem('chapatiTheme',isDark?'dark':'light');
+  updateThemeIcon(isDark);
+}
+function updateThemeIcon(isDark){
+  const icon=document.getElementById('theme-icon');
+  if(!icon)return;
+  icon.style.transform='rotate(360deg) scale(0)';
+  icon.style.opacity='0';
+  setTimeout(()=>{
+    icon.textContent=isDark?'☀️':'🌙';
+    icon.style.transform='rotate(0deg) scale(1)';
+    icon.style.opacity='1';
+  },200);
+}
+(function initTheme(){
+  const saved=localStorage.getItem('chapatiTheme');
+  const prefersDark=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const useDark=saved==='dark'||(saved===null&&prefersDark);
+  if(useDark){document.body.classList.add('dark-mode');}
+  // Set icon immediately without animation on load
+  const icon=document.getElementById('theme-icon');
+  if(icon)icon.textContent=useDark?'☀️':'🌙';
+})();
 
 // ============================================================
 // INIT
