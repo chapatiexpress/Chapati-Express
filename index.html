@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-  <title>Chapati Express Sircilla | Chapati Express Sircilla Home Delivery | Order Now</title>
+  <link rel="icon" href="./favicon.jpg" type="image/jpeg">
+  <title>Chapati Express Sircilla | Best Chapati Home Delivery in Sircilla</title>
   <meta name="description" content="Chapati Express Sircilla — Best chapati home delivery in Sircilla. Order Godhuma, Jonna, Makka, Pacha Jonna chapati online from Peddha Baazar. COD &amp; UPI. Fast delivery within 4km. Open 9 AM–10 PM daily."/>
   <meta name="keywords" content="Chapati Express Sircilla, chapatiexpress sircilla, chapati express sircilla, chapati delivery sircilla, chapati order online sircilla, best chapati sircilla, online food sircilla, Godhuma chapati, Jonna chapati, Makka chapati, Pacha Jonna chapati, Peddha Baazar Sircilla, chapati near me sircilla, Rajanna Sircilla food delivery, chapati home delivery sircilla"/>
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
@@ -901,6 +902,7 @@
   </style>
 </head>
 <body>
+  <h1 style="display:none;">Chapati Express Sircilla</h1>
 
 <!-- MOBILE SEARCH OVERLAY -->
 <div class="mob-search-overlay" id="mob-search-overlay">
@@ -1528,6 +1530,7 @@
       <div class="om-form" id="om-form-fields">
         <div><label>Your Name *</label><input type="text" id="om-name" placeholder="Full name"/></div>
         <div><label>Phone *</label><input type="tel" id="om-phone" placeholder="10-digit mobile number" maxlength="10" pattern="[0-9]{10}" inputmode="numeric"/></div>
+        <div class="full"><label>Email (optional — to link past orders)</label><input type="email" id="om-email" placeholder="your@email.com"/></div>
         <div class="full" id="om-saved-address-wrap" style="display:none">
           <label>Saved Address</label>
           <div class="om-address-picker">
@@ -1881,14 +1884,18 @@ function getPreferredCustomerPhone(){
 function prefillOrderCustomerFields(){
   const nameInput=document.getElementById('om-name');
   const phoneInput=document.getElementById('om-phone');
+  const emailInput=document.getElementById('om-email');
   const activeUid=currentUser?.uid||'';
   const lastFilledUid=nameInput?.dataset.userUid||'';
   if(nameInput&&activeUid&&lastFilledUid!==activeUid)nameInput.value=getPreferredCustomerName();
   else if(nameInput&&!nameInput.value.trim())nameInput.value=getPreferredCustomerName();
   if(phoneInput&&activeUid&&lastFilledUid!==activeUid)phoneInput.value=getPreferredCustomerPhone();
   else if(phoneInput&&!phoneInput.value.trim())phoneInput.value=getPreferredCustomerPhone();
+  if(emailInput&&activeUid&&lastFilledUid!==activeUid)emailInput.value=currentUser?.email||'';
+  else if(emailInput&&!emailInput.value.trim())emailInput.value=currentUser?.email||'';
   if(nameInput)nameInput.dataset.userUid=activeUid;
   if(phoneInput)phoneInput.dataset.userUid=activeUid;
+  if(emailInput)emailInput.dataset.userUid=activeUid;
 }
 async function saveCustomerProfileContact(name,phone){
   if(!currentUser?.uid||!db)return;
@@ -2755,7 +2762,10 @@ function renderOrderAddressOptions(addresses){
   savedWrap.style.display='block';
   manualWrap.style.display='none';
   emptyNote.style.display='none';
-  if(!_selectedOrderAddressId||!addresses.some(a=>a.id===_selectedOrderAddressId))_selectedOrderAddressId=addresses[0].id;
+  if(!_selectedOrderAddressId||!addresses.some(a=>a.id===_selectedOrderAddressId)){
+    const defAddr = addresses.find(a=>a.isDefault);
+    _selectedOrderAddressId = defAddr ? defAddr.id : addresses[0].id;
+  }
   select.innerHTML=addresses.map(a=>{
     const label=escapeHtml(a.label||'Saved Address');
     const line=escapeHtml((a.line||a.addressText||'').toString().slice(0,44));
@@ -2866,11 +2876,12 @@ function openRazorpayCheckout(totalAmount, customerName, customerPhone){
         const total=keys.reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
         const name=document.getElementById('om-name').value.trim();
         const phone=document.getElementById('om-phone').value.trim();
+        const emailField=document.getElementById('om-email') ? document.getElementById('om-email').value.trim().toLowerCase() : '';
         db.collection('razorpay_payments').add({
           razorpayPaymentId:paymentId,
           amount:total,
           customerUid:currentUser?.uid||null,
-          customerEmail:currentUser?.email||null,
+          customerEmail:emailField||currentUser?.email||null,
           customerName:name,
           customerPhone:phone,
           status:'captured',
@@ -2885,7 +2896,7 @@ function openRazorpayCheckout(totalAmount, customerName, customerPhone){
             customerUid:currentUser?.uid||null,
             customerName:name,
             customerPhone:phone,
-            customerEmail:currentUser?.email||null,
+            customerEmail:emailField||currentUser?.email||null,
             createdAt:firebase.firestore.FieldValue.serverTimestamp(),
             read:false
           }).catch(()=>{});
@@ -2923,7 +2934,7 @@ function updateFloatingBar(){
   }else bar.classList.remove('visible');
 }
 function openOrderModal(){
-  if(!currentUser){showToast('⚠️ Please sign in first',2000);openAuthModal();return;}
+  // if(!currentUser){showToast('⚠️ Please sign in first',2000);openAuthModal();return;}
   syncCartWithInventory(true);
   const keys=Object.keys(cart);
   if(!keys.length){showToast('⚠️ Add items first!');return;}
@@ -2947,7 +2958,7 @@ function closeOrderModal(){
   stopOrderAddressSubscription();
 }
 function submitOrder(){
-  if(!currentUser){showToast('⚠️ Please sign in',2000);return;}
+  // if(!currentUser){showToast('⚠️ Please sign in',2000);return;}
   if(syncCartWithInventory(true).length){return;}
   const name=document.getElementById('om-name').value.trim();
   const phone=document.getElementById('om-phone').value.trim();
@@ -2971,6 +2982,7 @@ function finalizeOrder(paymentMethod,paymentDone,razorpayPaymentId){
   const keys=Object.keys(cart),total=keys.reduce((a,k)=>a+cart[k].price*cart[k].qty,0);
   const name=document.getElementById('om-name').value.trim();
   const phone=document.getElementById('om-phone').value.trim();
+  const emailField=document.getElementById('om-email') ? document.getElementById('om-email').value.trim().toLowerCase() : '';
   const address=document.getElementById('om-address').value.trim();
   const landmark=document.getElementById('om-landmark').value.trim();
   const time=document.getElementById('om-time').value;
@@ -2986,8 +2998,8 @@ function finalizeOrder(paymentMethod,paymentDone,razorpayPaymentId){
         createdAt:firebase.firestore.FieldValue.serverTimestamp(),
         updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
         autoRejectAt:new Date(Date.now()+ORDER_AUTO_CANCEL_MS),
-        customerUid:currentUser.uid||null,
-        customerEmail:currentUser.email||null,
+        customerUid:currentUser?.uid||null,
+        customerEmail:emailField||currentUser?.email||null,
         customerName:name,customerPhone:phone,
         customerAddressId:_selectedOrderAddressId||null,
         addressText:address,landmark:landmark||'',
@@ -3082,7 +3094,6 @@ function renderTrackingUI(container,order){
       <div class="edb-icon" id="edb-icon-anim">${isFinished?(status==='delivered'||status==='completed'?'🎉':'🚫'):isPending?'⏳':'🚴'}</div>
       <div class="edb-info">
         <div class="edb-title">${isFinished?(status==='delivered'||status==='completed'?'Order Delivered!':status==='cancelled'?'Order Cancelled':status==='rejected'?'Order Rejected':'Done'):isPending?'Waiting for Restaurant':'Estimated Delivery'}</div>
-        <div class="edb-time" id="edb-eta-time">${countdownReady?estDelivery.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'—'}</div>
         ${!isFinished?`<div id="edb-countdown" style="font-size:.75rem;color:var(--saffron);font-weight:800;margin-top:3px">${isPending?'⏳ Restaurant is reviewing your order...':'Calculating...'}</div>`:`<div style="font-size:.75rem;color:var(--green);font-weight:800;margin-top:3px">${status==='delivered'||status==='completed'?'✅ Delivered successfully':'🚫 No longer active'}</div>`}
       </div>
       <div style="margin-left:auto;text-align:right">
@@ -3234,7 +3245,7 @@ function subscribeOrders(){
   if(_ordersUnsub)_ordersUnsub();
   const q=currentRole==='admin'
     ? db.collection('orders').orderBy('createdAt','desc').limit(200)
-    : db.collection('orders').where('customerUid','==',currentUser.uid).limit(200);
+    : db.collection('orders').where('customerEmail','==',currentUser.email).limit(200);
   _ordersUnsub=q.onSnapshot(snap=>{
     let orders=snap.docs.map(d=>({id:d.id,...d.data()}));
     orders.sort((a,b)=>{
@@ -3244,6 +3255,9 @@ function subscribeOrders(){
     });
     _allOrders=orders;
     renderOrdersByTab(_currentOrderTab);
+  }, err => {
+    console.error('My Orders listener error:', err);
+    showFirestoreWriteError('Could not load orders', err);
   });
 }
 
@@ -4242,7 +4256,8 @@ function subscribeAddresses(){
 function renderAddressList(addresses){
   const list=document.getElementById('address-list');
   if(!addresses.length){list.innerHTML='<div class="empty-cat-msg"><div class="big">🏠</div>No saved addresses yet.</div>';return;}
-  list.innerHTML=addresses.map(a=>{
+  list.innerHTML=addresses.map((a, index)=>{
+    const isDefault = a.isDefault || (!addresses.some(addr=>addr.isDefault) && index === 0);
     const safeLabel=escapeHtml(a.label||'Address');
     const line=escapeHtml((a.line||a.addressText||'').toString());
     const distM=a.pin&&typeof a.pin.lat==='number'?distanceMeters(SERVICE_CENTER,a.pin).toFixed(0):null;
@@ -4250,7 +4265,7 @@ function renderAddressList(addresses){
     return`<div class="menu-card" style="padding:12px">
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap">
         <div style="flex:1">
-          <div style="font-weight:900;color:var(--brown);font-size:.92rem">${safeLabel}</div>
+          <div style="font-weight:900;color:var(--brown);font-size:.92rem">${safeLabel} ${isDefault?`<span style="margin-left:5px;background:var(--saffron);color:#fff;padding:2px 6px;border-radius:12px;font-size:0.7rem;">★ Default</span>`:''}</div>
           <div style="color:#555;margin-top:4px;line-height:1.35;font-size:.85rem">${line}</div>
           <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:7px">
             ${distM!==null?`<span class="om-route-badge">📏 ${(distM/1000).toFixed(2)} km</span>`:''}
@@ -4258,12 +4273,29 @@ function renderAddressList(addresses){
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:7px">
+          ${!isDefault?`<button class="cat-save-btn" style="font-size:.8rem;padding:7px 12px;background:var(--blue);color:white" onclick="setAddressDefault('${a.id}')">★ Set Default</button>`:''}
           <button class="cat-save-btn" style="font-size:.8rem;padding:7px 12px" onclick="openAddressEditor('${a.id}')">✏️ Edit</button>
           <button class="cat-cancel-btn" style="font-size:.8rem;padding:7px 12px" onclick="deleteAddress('${a.id}')">🗑 Delete</button>
         </div>
       </div>
     </div>`;
   }).join('');
+}
+async function setAddressDefault(id){
+  const col=getUserAddressesCollection();
+  if(!col)return;
+  showToast('⏳ Updating default address...',2000);
+  try{
+    const snap=await col.get();
+    const batch=db.batch();
+    snap.docs.forEach(doc=>{
+      batch.set(doc.ref, {isDefault: doc.id===id}, {merge:true});
+    });
+    await batch.commit();
+    showToast('✅ Default address set!',1800);
+  }catch(err){
+    showFirestoreWriteError('Could not set default address',err);
+  }
 }
 async function deleteAddress(id){
   const ready=await ensureCurrentUserRecord('user profile');
@@ -4570,4 +4602,25 @@ function closeThemePicker(){
 })();
 </script>
 </body>
+<script>
+  document.addEventListener('contextmenu', event => event.preventDefault());
+  document.addEventListener('keydown', event => {
+      if (event.keyCode == 123) { // F12
+          event.preventDefault();
+          return false;
+      }
+      if (event.ctrlKey && event.shiftKey && (event.key === 'I' || event.key === 'i')) { // Ctrl+Shift+I
+          event.preventDefault();
+          return false;
+      }
+      if (event.ctrlKey && event.shiftKey && (event.key === 'J' || event.key === 'j')) { // Ctrl+Shift+J
+          event.preventDefault();
+          return false;
+      }
+      if (event.ctrlKey && (event.key === 'U' || event.key === 'u')) { // Ctrl+U
+          event.preventDefault();
+          return false;
+      }
+  });
+</script>
 </html>
