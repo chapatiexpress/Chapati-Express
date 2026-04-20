@@ -2214,9 +2214,11 @@ function handleSearch(val,source='desktop'){
     else document.getElementById('mob-search-results').style.display='none';
     return;
   }
-  const results=items.filter(i=>
-    (i.name||'').toLowerCase().includes(q)||(i.type||'').toLowerCase().includes(q)
-  );
+  const results=items.filter(i=>{
+    // Customers never see out-of-stock items in search results
+    if(currentRole!=='admin'&&!i.inStock)return false;
+    return (i.name||'').toLowerCase().includes(q)||(i.type||'').toLowerCase().includes(q);
+  });
   if(source==='desktop'){
     const drop=document.getElementById('search-drop');
     if(!results.length){
@@ -2279,6 +2281,8 @@ function renderMenuPage(filterCatId='all'){
   catsToShow.forEach(cat=>{
     const catItems=items.filter(i=>i.catId===cat.id);
     if(!catItems.length)return;
+    // For customers, skip entire category section if all items are out of stock
+    if(currentRole!=='admin'&&!catItems.some(i=>i.inStock))return;
     const section=document.createElement('div');
     section.className='menu-section';section.id='menu-sec-'+cat.id;
     section.innerHTML=`<div class="section-title">${cat.emoji} ${cat.name}</div><div class="menu-grid" id="mgrid-${cat.id}"></div>`;
@@ -2289,9 +2293,14 @@ function renderMenuPage(filterCatId='all'){
 function renderCatGrid(catId){
   const grid=document.getElementById('mgrid-'+catId);
   if(!grid)return;
-  const catItems=items.filter(i=>i.catId===catId);
+  const allCatItems=items.filter(i=>i.catId===catId);
+  // Customers only see in-stock items; admin sees everything
+  const catItems=currentRole==='admin'?allCatItems:allCatItems.filter(i=>i.inStock);
   grid.innerHTML='';
-  if(!catItems.length){grid.innerHTML='<div class="empty-cat-msg"><div class="big">🍽</div>No items yet.</div>';return;}
+  if(!catItems.length){
+    if(currentRole==='admin')grid.innerHTML='<div class="empty-cat-msg"><div class="big">🍽</div>No items yet.</div>';
+    return;
+  }
   catItems.forEach(item=>{
     const card=document.createElement('div');
     card.className='menu-card'+(item.inStock?'':' out-of-stock');
@@ -2330,12 +2339,30 @@ function refreshCard(id){
   if(!item)return;
   const card=document.getElementById('mcard-'+id);
   if(card){
-    if(item.inStock)card.classList.remove('out-of-stock');else card.classList.add('out-of-stock');
-    const pill=card.querySelector('.stock-pill');
-    if(pill){
-      pill.className='stock-pill '+(item.inStock?'in-stock':'out-stock');
-      const t=item.inStock?'In Stock':'Out of Stock';
-      pill.innerHTML=`<span class="stock-dot"></span>${t}`;
+    if(currentRole==='admin'){
+      // Admin: show all items, just update stock pill and out-of-stock style
+      if(item.inStock)card.classList.remove('out-of-stock');else card.classList.add('out-of-stock');
+      const pill=card.querySelector('.stock-pill');
+      if(pill){
+        pill.className='stock-pill '+(item.inStock?'in-stock':'out-stock');
+        pill.innerHTML=`<span class="stock-dot"></span>${item.inStock?'In Stock':'Out of Stock'}`;
+      }
+    }else{
+      // Customer: hide card entirely when out of stock, show when back in stock
+      if(!item.inStock){
+        card.style.display='none';
+        // Also hide parent section if all cards in it are now hidden
+        const grid=card.closest('.menu-grid');
+        if(grid){
+          const visible=[...grid.querySelectorAll('.menu-card')].filter(c=>c.style.display!=='none');
+          const section=grid.closest('.menu-section');
+          if(section)section.style.display=visible.length?'':'none';
+        }
+      }else{
+        card.style.display='';
+        const section=card.closest('.menu-section');
+        if(section)section.style.display='';
+      }
     }
   }
   const qb=document.getElementById('qblock-'+id);
