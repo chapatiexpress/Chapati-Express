@@ -464,8 +464,8 @@
     .scroll-top-btn:hover{transform:translateY(-3px) scale(1.06)}
 
     /* ===== TOAST ===== */
-    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--green);color:#fff;padding:11px 22px;border-radius:28px;font-weight:700;font-size:.88rem;z-index:999;transition:transform .35s;box-shadow:0 4px 20px rgba(0,0,0,0.25);white-space:nowrap;max-width:90vw;text-align:center}
-    .toast.show{transform:translateX(-50%) translateY(0)}
+    .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(80px);opacity:0;pointer-events:none;background:var(--green);color:#fff;padding:11px 22px;border-radius:28px;font-weight:700;font-size:.88rem;z-index:9999;transition:transform .35s,opacity .35s;box-shadow:0 4px 20px rgba(0,0,0,0.25);white-space:nowrap;max-width:90vw;text-align:center}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:auto}
     .toast.error{background:var(--red)}
     .toast.info{background:var(--blue)}
 
@@ -4356,9 +4356,12 @@ function submitSupportTicket(){
 function showToast(msg,duration=2400,type=''){
   const t=document.getElementById('toast');
   clearTimeout(t._to);
-  t.textContent=msg;t.className='toast '+(type||'');
+  t.classList.remove('show');
+  void t.offsetWidth;
+  t.textContent=msg;
+  t.className='toast'+(type?' '+type:'');
   t.classList.add('show');
-  t._to=setTimeout(()=>t.classList.remove('show'),duration);
+  t._to=setTimeout(()=>{t.classList.remove('show');},duration);
 }
 
 // ============================================================
