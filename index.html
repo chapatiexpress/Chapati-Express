@@ -4355,8 +4355,9 @@ function submitSupportTicket(){
 // ============================================================
 function showToast(msg,duration=2400,type=''){
   const t=document.getElementById('toast');
+  clearTimeout(t._to);
   t.textContent=msg;t.className='toast '+(type||'');
-  t.classList.add('show');clearTimeout(t._to);
+  t.classList.add('show');
   t._to=setTimeout(()=>t.classList.remove('show'),duration);
 }
 
