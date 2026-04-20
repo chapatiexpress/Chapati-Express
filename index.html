@@ -3581,7 +3581,7 @@ function stopAutoRejectTicker(){if(_autoRejectTicker){clearInterval(_autoRejectT
 // ============================================================
 // CUSTOMER ALERT MODAL
 // ============================================================
-function showCustomerAlertModal(title,body,type='success',onOk=null){
+function showCustomerAlertModal(title,body,type='success',onOk=null,toastMsg='',toastDuration=3000){
   const overlay=document.getElementById('customer-alert-modal-overlay');
   const iconRing=document.getElementById('cam-icon-ring');
   const topBar=document.getElementById('cam-top-bar');
@@ -3605,6 +3605,11 @@ function showCustomerAlertModal(title,body,type='success',onOk=null){
   okBtn.onclick=()=>{closeCustomerAlertModal();if(onOk)onOk();};
   overlay.classList.add('open');
   try{navigator.vibrate&&navigator.vibrate([100,50,100]);}catch(e){}
+  // Show toast AFTER modal animation settles (400ms delay) so timers don't collide
+  if(toastMsg){
+    const toastType=(type==='error'||type==='cancelled')?'error':(type==='info'?'info':'');
+    setTimeout(()=>showToast(toastMsg,toastDuration,toastType),400);
+  }
 }
 function closeCustomerAlertModal(){
   document.getElementById('customer-alert-modal-overlay').classList.remove('open');
@@ -3640,58 +3645,58 @@ function syncCustomerOrderWatcher(){
         _notifiedStatuses[ordId]=st;
         if(st==='accepted'){
           playOrderPlacedSound();
-          showToast('✅ Your order was accepted! Preparing now 🍳',3000);
           showPromoNotification('🎉 Order Accepted!','Your chapati is being prepared now! ~30 mins to delivery.','🫓');
           showCustomerAlertModal(
             '🎉 Order Accepted!',
             'Great news! <strong>Your chapati is being freshly made</strong> and will be delivered in ~30 minutes.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
             'success',
-            ()=>{showPage('tracking');setMobNav('track');}
+            ()=>{showPage('tracking');setMobNav('track');},
+            '✅ Your order was accepted! Preparing now 🍳',3000
           );
         } else if(st==='rejected'){
-          showToast('❌ Your order was rejected',2800,'error');
           showPromoNotification('❌ Order Update','Sorry, your order was rejected. Please contact us or try again.','😔');
           showCustomerAlertModal(
             '❌ Order Rejected',
             'We\'re sorry, your order was <strong>rejected by the restaurant</strong>. This may be due to high demand or a closed kitchen.<br/><br/>Please try placing a new order or contact us for help.<br/><small style="color:#888">Order ID: '+ordId+'</small>',
-            'error'
+            'error',null,
+            '❌ Your order was rejected',2800
           );
         } else if(st==='ready'){
           playOrderPlacedSound();
-          showToast('🍳 Your order is ready! On its way soon 🚴',3000);
           showPromoNotification('🍳 Order Ready!','Your chapati is packed and ready for delivery!','🫓');
           showCustomerAlertModal(
             '🍳 Order Ready!',
             '<strong>Your chapati is freshly made and packed!</strong> Our delivery partner will pick it up shortly.\'<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
             'info',
-            ()=>{showPage('tracking');setMobNav('track');}
+            ()=>{showPage('tracking');setMobNav('track');},
+            '🍳 Your order is ready! On its way soon 🚴',3000
           );
         } else if(st==='out_for_delivery'){
           playOrderPlacedSound();
-          showToast('🚴 Your order is out for delivery!',3000);
           showPromoNotification('🚴 Out for Delivery!','Your order is on its way — get ready!','🛵');
           showCustomerAlertModal(
             '🚴 Out for Delivery!',
             '<strong>Your chapati is on its way!</strong> Our delivery partner is heading to your location right now.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
             'info',
-            ()=>{showPage('tracking');setMobNav('track');}
+            ()=>{showPage('tracking');setMobNav('track');},
+            '🚴 Your order is out for delivery!',3000
           );
         } else if(st==='completed'||st==='delivered'){
-          showToast('🎉 Order delivered! Enjoy your meal!',3000);
           showPromoNotification('🎉 Order Delivered!','Your fresh chapati has arrived! Tap to rate your experience.','🫓');
           showCustomerAlertModal(
             '🎉 Order Delivered!',
             'Your <strong>fresh hot chapati has arrived!</strong> Enjoy your meal and don\'t forget to leave a review.<br/><br/><small style="color:#888">Order ID: '+ordId+'</small>',
             'success',
-            ()=>setTimeout(()=>openRatingModal(ordId),600)
+            ()=>setTimeout(()=>openRatingModal(ordId),600),
+            '🎉 Order delivered! Enjoy your meal!',3000
           );
         } else if(st==='cancelled'||st==='auto-cancelled'){
-          showToast('🚫 Order was cancelled (no response)',2800,'error');
           showPromoNotification('🚫 Order Cancelled','Your order was auto-cancelled. Please place a new order.','⏰');
           showCustomerAlertModal(
             '🚫 Order Cancelled',
             'Your order was <strong>automatically cancelled</strong> because no one responded in time.<br/><br/>Please place a new order. We apologize for the inconvenience.',
-            'cancelled'
+            'cancelled',null,
+            '🚫 Order was cancelled (no response)',2800
           );
         }
         // Update tracking page & localStorage
@@ -4356,12 +4361,16 @@ function submitSupportTicket(){
 function showToast(msg,duration=2400,type=''){
   const t=document.getElementById('toast');
   clearTimeout(t._to);
+  clearTimeout(t._hideDelay);
   t.classList.remove('show');
-  void t.offsetWidth;
+  void t.offsetWidth; // force reflow — restarts CSS transition every time
   t.textContent=msg;
   t.className='toast'+(type?' '+type:'');
   t.classList.add('show');
-  t._to=setTimeout(()=>{t.classList.remove('show');},duration);
+  // Primary timer: remove .show class (triggers CSS fade-out)
+  t._to=setTimeout(()=>{
+    t.classList.remove('show');
+  },duration);
 }
 
 // ============================================================
