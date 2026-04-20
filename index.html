@@ -2983,7 +2983,12 @@ function finalizeOrder(paymentMethod,paymentDone,razorpayPaymentId){
   document.getElementById('success-payment-badge').textContent=payLabels[paymentMethod]||paymentMethod;
   document.getElementById('om-success').style.display='block';
   setTimeout(()=>{
-    cart={};updateCart();updateFloatingBar();
+    // Capture cart keys BEFORE clearing, so we can refresh each card's UI
+    const _prevCartIds=Object.keys(cart);
+    cart={};
+    // Flip every card that had items back to the '+ Add' button state
+    _prevCartIds.forEach(id=>refreshCard(id));
+    updateCart();updateFloatingBar();
     // Auto-navigate to live tracking page
     closeOrderModal();
     showPage('tracking');
