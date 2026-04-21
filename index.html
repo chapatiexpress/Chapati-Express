@@ -2034,7 +2034,7 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
 })();
 </script>
 
-<!-- ===== GUEST ORDER NOTIFICATION PATCH ===== -->
+<!-- ===== GUEST ORDER NOTIFICATION PATCH v2 ===== -->
 <!-- Fixes: customers who order without sign-in don't receive status popup notifications -->
 <!-- Root cause: syncCustomerOrderWatcher() queries by customerUid which is null for guests -->
 <script>
@@ -2156,30 +2156,56 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
     }
   }
 
+  let _pollInterval = null;
+
+  /* ── Poll Firestore every 8s as backup (handles permission-denied on onSnapshot) ── */
+  function startPolling(orderId) {
+    if (_pollInterval) clearInterval(_pollInterval);
+    _pollInterval = setInterval(async () => {
+      if (typeof db === 'undefined' || !db) return;
+      // Don't poll if order is in a terminal state
+      const terminal = ['completed','delivered','cancelled','auto-cancelled','rejected'];
+      if (terminal.includes(_guestLastStatus)) {
+        clearInterval(_pollInterval);
+        _pollInterval = null;
+        return;
+      }
+      try {
+        const snap = await db.collection('orders')
+          .where('orderId', '==', orderId).limit(1).get();
+        if (!snap.empty) {
+          const data = snap.docs[0].data() || {};
+          handleStatusChange((data.status || '').toLowerCase(), orderId);
+        }
+      } catch (e) { /* ignore poll errors */ }
+    }, 8000);
+  }
+
   /* ── Subscribe to a specific orderId in Firestore ── */
   function watchOrderById(orderId) {
-    if (!orderId || orderId === _guestWatchedOrderId) return;
+    if (!orderId) return;
 
-    // Stop any previous watcher
-    if (_guestWatcherUnsub) { _guestWatcherUnsub(); _guestWatcherUnsub = null; }
-
-    _guestWatchedOrderId = orderId;
-    _guestLastStatus = '';
-
-    // Seed the last-known status from localStorage so we don't re-alert on page load
-    const stored = getStoredOrder();
-    if (stored && stored.orderId === orderId && stored.status) {
-      _guestLastStatus = stored.status;
+    // Allow re-watch if orderId changed
+    if (orderId !== _guestWatchedOrderId) {
+      if (_guestWatcherUnsub) { _guestWatcherUnsub(); _guestWatcherUnsub = null; }
+      if (_pollInterval)       { clearInterval(_pollInterval); _pollInterval = null; }
+      _guestWatchedOrderId = orderId;
+      _guestLastStatus = '';
+      // Seed from localStorage so existing statuses don't re-fire
+      const stored = getStoredOrder();
+      if (stored && stored.orderId === orderId && stored.status) {
+        _guestLastStatus = stored.status;
+      }
     }
 
     if (typeof db === 'undefined' || !db) {
-      // db not ready yet — retry
       setTimeout(() => watchOrderById(orderId), 800);
       return;
     }
 
-    console.log('[GuestPatch] Watching order:', orderId);
+    console.log('[GuestPatch] Watching order:', orderId, '| Last known status:', _guestLastStatus || 'none');
 
+    // ── Primary: real-time onSnapshot ──
     _guestWatcherUnsub = db.collection('orders')
       .where('orderId', '==', orderId)
       .limit(1)
@@ -2189,8 +2215,28 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
         const newStatus = (data.status || '').toLowerCase();
         handleStatusChange(newStatus, orderId);
       }, err => {
-        console.warn('[GuestPatch] Watcher error:', err && (err.code || err.message));
+        const code = err && (err.code || '');
+        console.warn('[GuestPatch] onSnapshot error:', code, err && err.message);
+        if (code === 'permission-denied') {
+          // Show visible hint and fall back to polling
+          console.error(
+            '%c[GuestPatch] FIRESTORE RULES block guest reads!\n' +
+            'Go to Firebase Console → Firestore → Rules and add:\n\n' +
+            'match /orders/{id} {\n' +
+            '  allow read: if resource.data.customerUid == null;\n' +
+            '}',
+            'color:#e8820c;font-weight:bold;font-size:13px'
+          );
+          if (typeof showToast === 'function') {
+            showToast('⚠️ Fix Firestore rules so guests can track orders', 5000, 'warn');
+          }
+        }
+        // Always fall back to polling
+        startPolling(orderId);
       });
+
+    // ── Backup: polling (runs in parallel, handles edge cases) ──
+    startPolling(orderId);
   }
 
   /* ── Decide if we need the guest watcher ── */
