@@ -2114,16 +2114,13 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
       }
     } catch (e) {}
 
-    // Retry if the popup function isn't ready yet (page still initialising)
+    // Retry if the popup function isn't ready yet (race on page load)
     if (typeof showCustomerAlertModal !== 'function') {
-      setTimeout(function(){ handleStatusChange(status, orderId); }, 700);
+      // Reset _guestLastStatus so the retry actually fires
+      _guestLastStatus = '';
+      setTimeout(function(){ handleStatusChange(status, orderId); }, 800);
       return;
     }
-
-    // Dedup: prevent double popups when signed-in watcher AND guest watcher both fire
-    var dedupKey = '__lastShown_' + orderId;
-    if (window[dedupKey] === status) return;
-    window[dedupKey] = status;
 
     switch (status) {
       case 'accepted':
