@@ -2033,4 +2033,223 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
   }
 })();
 </script>
+
+<!-- ===== GUEST ORDER NOTIFICATION PATCH ===== -->
+<!-- Fixes: customers who order without sign-in don't receive status popup notifications -->
+<!-- Root cause: syncCustomerOrderWatcher() queries by customerUid which is null for guests -->
+<script>
+(function guestOrderNotificationPatch() {
+  'use strict';
+
+  let _guestWatcherUnsub   = null;
+  let _guestLastStatus     = '';
+  let _guestWatchedOrderId = '';
+
+  /* ── Read the stored order from localStorage ── */
+  function getStoredOrder() {
+    try {
+      const raw = localStorage.getItem('lastOrder');
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  /* ── Show the customer alert popup (mirrors the obfuscated logic) ── */
+  function handleStatusChange(status, orderId) {
+    if (!status || status === _guestLastStatus) return;
+    _guestLastStatus = status;
+
+    // Update localStorage status so tracking page stays in sync
+    try {
+      const stored = getStoredOrder();
+      if (stored && stored.orderId === orderId) {
+        stored.status = status;
+        localStorage.setItem('lastOrder', JSON.stringify(stored));
+      }
+    } catch (e) {}
+
+    // Trigger the appropriate popup
+    if (typeof showCustomerAlertModal !== 'function') return;
+
+    switch (status) {
+      case 'accepted':
+        if (typeof playOrderPlacedSound === 'function') playOrderPlacedSound();
+        if (typeof showPromoNotification === 'function')
+          showPromoNotification('✅ Your order was accepted!', 'Your chapati is being prepared now! ~30 mins to delivery.', '🫓');
+        showCustomerAlertModal(
+          '🎉 Order Accepted!',
+          'Great news! <strong>Your chapati is being freshly made</strong> and will be delivered in ~30 minutes.<br/><br/><small style="color:#888">Order ID: ' + orderId + '</small>',
+          'success',
+          () => { if (typeof showPage === 'function') showPage('tracking'); },
+          '✅ Your order was accepted! Preparing now 🍳',
+          3000
+        );
+        break;
+
+      case 'rejected':
+        if (typeof showPromoNotification === 'function')
+          showPromoNotification('❌ Order Update', 'Sorry, your order was rejected. Please contact us or try again.', '😔');
+        showCustomerAlertModal(
+          '❌ Your order was rejected',
+          'We\'re sorry, your order was <strong>rejected by the restaurant</strong>. This may be due to high demand or a closed kitchen.<br/><br/>Please try placing a new order or contact us for help.<br/><small style="color:#888">Order ID: ' + orderId + '</small>',
+          'error',
+          null,
+          '❌ Order rejected',
+          2800
+        );
+        break;
+
+      case 'ready':
+        if (typeof playOrderPlacedSound === 'function') playOrderPlacedSound();
+        if (typeof showPromoNotification === 'function')
+          showPromoNotification('🍳 Order Ready!', 'Your food is packed and ready!', '🫓');
+        showCustomerAlertModal(
+          '🍳 Order Ready!',
+          '<strong>Your chapati is freshly made and packed!</strong> Our delivery partner will pick it up shortly.<br/><br/><small style="color:#888">Order ID: ' + orderId + '</small>',
+          'info',
+          () => { if (typeof showPage === 'function') showPage('tracking'); },
+          '🍳 Your order is ready! On its way soon 🚴',
+          3000
+        );
+        break;
+
+      case 'out_for_delivery':
+        if (typeof playOrderPlacedSound === 'function') playOrderPlacedSound();
+        if (typeof showPromoNotification === 'function')
+          showPromoNotification('🚴 Out for Delivery!', 'Your order is on its way — get ready!', '🛵');
+        showCustomerAlertModal(
+          '🚴 Out for Delivery!',
+          '<strong>Your chapati is on its way!</strong> Our delivery partner is heading to your location right now.<br/><br/><small style="color:#888">Order ID: ' + orderId + '</small>',
+          'info',
+          () => { if (typeof showPage === 'function') showPage('tracking'); },
+          '🚴 Your order is out for delivery!',
+          3000
+        );
+        break;
+
+      case 'completed':
+      case 'delivered':
+        if (typeof showPromoNotification === 'function')
+          showPromoNotification('🎉 Order Delivered!', 'Your fresh chapati has arrived! Tap to rate your experience.', '🫓');
+        showCustomerAlertModal(
+          '🎉 Order Delivered!',
+          'Your <strong>fresh hot chapati has arrived!</strong> Enjoy your meal and don\'t forget to leave a review.<br/><br/><small style="color:#888">Order ID: ' + orderId + '</small>',
+          'success',
+          () => { setTimeout(() => { if (typeof openRatingModal === 'function') openRatingModal(orderId); }, 600); },
+          '🎉 Order delivered! Enjoy your meal!',
+          3000
+        );
+        break;
+
+      case 'cancelled':
+      case 'auto-cancelled':
+        if (typeof showPromoNotification === 'function')
+          showPromoNotification('⏰ Order auto-cancelled', 'Your order was auto-cancelled. Please place a new order.', '⏰');
+        showCustomerAlertModal(
+          '🚫 Order Cancelled',
+          'Your order was <strong>automatically cancelled</strong> because no one responded in time.<br/><br/>Please place a new order. We apologize for the inconvenience.',
+          'cancelled',
+          null,
+          '🚫 Order was cancelled (no response)',
+          2800
+        );
+        break;
+    }
+  }
+
+  /* ── Subscribe to a specific orderId in Firestore ── */
+  function watchOrderById(orderId) {
+    if (!orderId || orderId === _guestWatchedOrderId) return;
+
+    // Stop any previous watcher
+    if (_guestWatcherUnsub) { _guestWatcherUnsub(); _guestWatcherUnsub = null; }
+
+    _guestWatchedOrderId = orderId;
+    _guestLastStatus = '';
+
+    // Seed the last-known status from localStorage so we don't re-alert on page load
+    const stored = getStoredOrder();
+    if (stored && stored.orderId === orderId && stored.status) {
+      _guestLastStatus = stored.status;
+    }
+
+    if (typeof db === 'undefined' || !db) {
+      // db not ready yet — retry
+      setTimeout(() => watchOrderById(orderId), 800);
+      return;
+    }
+
+    console.log('[GuestPatch] Watching order:', orderId);
+
+    _guestWatcherUnsub = db.collection('orders')
+      .where('orderId', '==', orderId)
+      .limit(1)
+      .onSnapshot(snap => {
+        if (snap.empty) return;
+        const data = snap.docs[0].data() || {};
+        const newStatus = (data.status || '').toLowerCase();
+        handleStatusChange(newStatus, orderId);
+      }, err => {
+        console.warn('[GuestPatch] Watcher error:', err && (err.code || err.message));
+      });
+  }
+
+  /* ── Decide if we need the guest watcher ── */
+  function maybeStartGuestWatcher() {
+    const stored = getStoredOrder();
+    if (!stored || !stored.orderId) return; // No order placed
+
+    // If user is signed in AND has a customerUid, the main watcher handles it.
+    // We still start the by-orderId watcher as a safety net for any customer.
+    watchOrderById(stored.orderId);
+  }
+
+  /* ── Patch finalizeOrder to start watcher immediately after order is placed ── */
+  function hookFinalizeOrder() {
+    const orig = window.finalizeOrder;
+    if (typeof orig !== 'function') {
+      setTimeout(hookFinalizeOrder, 500);
+      return;
+    }
+    window.finalizeOrder = async function(...args) {
+      const result = typeof orig === 'function' ? await orig.apply(this, args) : undefined;
+      // After order is placed, start watching it
+      setTimeout(() => {
+        const stored = getStoredOrder();
+        if (stored && stored.orderId) watchOrderById(stored.orderId);
+      }, 1000);
+      return result;
+    };
+  }
+
+  /* ── Bootstrap ── */
+  function bootstrap() {
+    hookFinalizeOrder();
+
+    // Watch on page load (handles refresh case)
+    const waitForDb = setInterval(() => {
+      if (typeof db !== 'undefined' && db) {
+        clearInterval(waitForDb);
+        maybeStartGuestWatcher();
+      }
+    }, 400);
+
+    // Also watch when auth state resolves (in case db wasn't ready)
+    const waitForAuth = setInterval(() => {
+      if (typeof auth !== 'undefined' && auth) {
+        clearInterval(waitForAuth);
+        auth.onAuthStateChanged(() => {
+          // Re-evaluate on every auth change (login/logout)
+          setTimeout(maybeStartGuestWatcher, 300);
+        });
+      }
+    }, 300);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+  } else {
+    setTimeout(bootstrap, 50);
+  }
+})();
+</script>
 </html>
