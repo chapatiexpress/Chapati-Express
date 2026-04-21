@@ -1461,9 +1461,11 @@
       <div class="section-title" style="margin-bottom:0">💬 Support</div>
       <button class="new-cat-btn" id="support-new-btn" onclick="openSupportForm()" style="display:none">➕ Create Ticket</button>
     </div>
-    
-    <div id="support-tickets-list" style="display:none;margin-bottom:20px;grid-gap:10px;"></div>
-    
+
+    <!-- Tickets List: shown when user has existing tickets -->
+    <div id="support-tickets-list" style="display:none;margin-bottom:20px;display:grid;grid-gap:10px;"></div>
+
+    <!-- Support Form: shown initially or when creating new ticket -->
     <div class="order-section" id="support-form-section">
       <div class="support-options">
         <div class="support-card" onclick="showToast('📞 Calling...', 2000)"><div class="sc-icon">📞</div><div class="sc-title">Call Us</div><div class="sc-desc">Talk to support</div></div>
@@ -1826,5 +1828,209 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
           return false;
       }
   });
+</script>
+
+<!-- ===== SUPPORT TICKETS PATCH: fixes ticket list not showing on refresh ===== -->
+<script>
+(function patchSupportTickets() {
+  'use strict';
+
+  /* ── helpers ── */
+  const $ = id => document.getElementById(id);
+  const ticketsList  = () => $('support-tickets-list');
+  const formSection  = () => $('support-form-section');
+  const newBtn       = () => $('support-new-btn');
+  const cancelBtn    = () => $('support-cancel-btn');
+
+  /* ── show ticket list, hide form ── */
+  function showTicketList() {
+    const tl = ticketsList(), fs = formSection();
+    if (tl) { tl.style.display = 'grid'; }
+    if (fs) { fs.style.display = 'none'; }
+    if (newBtn())   newBtn().style.display   = 'inline-flex';
+    if (cancelBtn()) cancelBtn().style.display = 'none';
+  }
+
+  /* ── show form (for new ticket) ── */
+  function showTicketForm() {
+    const tl = ticketsList(), fs = formSection();
+    if (tl && tl.innerHTML.trim() !== '' && !tl.innerHTML.includes('Loading')) {
+      if (tl) tl.style.display = 'grid';   // keep list visible above form
+    }
+    if (fs) { fs.style.display = 'block'; }
+    if (cancelBtn()) cancelBtn().style.display = 'inline-flex';
+    if (newBtn())    newBtn().style.display    = 'none';
+  }
+
+  /* ── render a single ticket card ── */
+  function renderTicketCard(docSnap) {
+    const d   = docSnap.data ? docSnap.data() : docSnap;
+    const id  = docSnap.id || d.id || '';
+    const ts  = d.createdAt?.toDate ? d.createdAt.toDate().toLocaleString('en-IN', {dateStyle:'medium',timeStyle:'short'}) : '';
+    const statusColor = { open:'#e8820c', resolved:'#2e7d32', pending:'#1565c0' };
+    const col = statusColor[d.status] || '#888';
+    const adminReply = d.adminReply
+      ? `<div style="margin-top:8px;background:#f0fff4;border:1px solid #b2dfdb;border-radius:8px;padding:8px 11px;font-size:.8rem"><strong style="color:#2e7d32">💬 Admin Reply:</strong> ${d.adminReply}</div>`
+      : '';
+    return `
+      <div style="background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
+          <div>
+            <div style="font-weight:800;color:var(--brown);font-size:.92rem">${d.type || 'Issue'}</div>
+            <div style="font-size:.75rem;color:#888;margin-top:2px">${ts}${d.orderId ? ' · Order: '+d.orderId : ''}</div>
+          </div>
+          <span style="background:${col}18;color:${col};border:1.5px solid ${col};border-radius:12px;padding:3px 10px;font-size:.7rem;font-weight:800;text-transform:uppercase">${(d.status||'open').toUpperCase()}</span>
+        </div>
+        <div style="margin-top:8px;font-size:.85rem;color:#444;line-height:1.5">${d.description || ''}</div>
+        ${adminReply}
+      </div>`;
+  }
+
+  /* ── load tickets from Firestore for current user ── */
+  async function loadTickets() {
+    const tl = ticketsList();
+    if (!tl) return;
+
+    // Wait for db + auth to be ready (Firebase loads deferred)
+    if (typeof db === 'undefined' || !db) {
+      tl.innerHTML = '<div class="empty-cat-msg"><div class="big">⏳</div>Loading...</div>';
+      tl.style.display = 'grid';
+      setTimeout(loadTickets, 1200);
+      return;
+    }
+
+    const user = typeof currentUser !== 'undefined' ? currentUser : null;
+    if (!user || !user.uid) {
+      // Not signed in — just show the form
+      if (formSection()) formSection().style.display = 'block';
+      tl.style.display = 'none';
+      if (newBtn()) newBtn().style.display = 'none';
+      return;
+    }
+
+    // Signed in — show the "Create Ticket" button
+    if (newBtn()) newBtn().style.display = 'inline-flex';
+
+    tl.innerHTML = '<div class="empty-cat-msg"><div class="big">⏳</div>Loading your tickets...</div>';
+    tl.style.display = 'grid';
+
+    try {
+      const snap = await db.collection('support_tickets')
+        .where('customerUid', '==', user.uid)
+        .orderBy('createdAt', 'desc')
+        .get();
+
+      if (snap.empty) {
+        // No tickets — show the form directly
+        tl.style.display = 'none';
+        if (formSection()) formSection().style.display = 'block';
+        if (newBtn()) newBtn().style.display = 'none';
+      } else {
+        let html = '';
+        snap.forEach(doc => { html += renderTicketCard(doc); });
+        tl.innerHTML = html;
+        showTicketList();
+      }
+    } catch (err) {
+      console.warn('[SupportPatch] Ticket load error:', err && (err.code || err.message));
+      // Firestore rules may be blocking — show form as fallback
+      tl.style.display = 'none';
+      if (formSection()) formSection().style.display = 'block';
+      if (newBtn()) newBtn().style.display = 'none';
+      // Helpful console hint for the developer
+      if (err && err.code === 'permission-denied') {
+        console.warn(
+          '%c[SupportPatch] Firestore permission denied for support_tickets.\n' +
+          'Add these rules in Firebase Console → Firestore → Rules:\n\n' +
+          'match /support_tickets/{id} {\n' +
+          '  allow read, write: if request.auth != null\n' +
+          '    && request.auth.uid == resource.data.customerUid;\n' +
+          '  allow create: if request.auth != null;\n' +
+          '}',
+          'color:#e8820c;font-weight:bold'
+        );
+      }
+    }
+  }
+
+  /* ── patch showPage to trigger ticket loading ── */
+  function hookShowPage() {
+    const original = window.showPage;
+    if (typeof original !== 'function') {
+      // showPage not yet defined — retry
+      setTimeout(hookShowPage, 400);
+      return;
+    }
+    window.showPage = function(page, ...rest) {
+      original.call(this, page, ...rest);
+      if (page === 'support') {
+        // Small delay so the page element is visible first
+        setTimeout(loadTickets, 80);
+      }
+    };
+  }
+
+  /* ── patch openSupportForm so it shows the ticket form ── */
+  function hookOpenSupportForm() {
+    const origOpen  = window.openSupportForm;
+    const origClose = window.closeSupportForm;
+
+    window.openSupportForm = function(...args) {
+      if (typeof origOpen === 'function') origOpen.apply(this, args);
+      showTicketForm();
+    };
+
+    window.closeSupportForm = function(...args) {
+      if (typeof origClose === 'function') origClose.apply(this, args);
+      // After closing form, reload tickets so the list shows
+      setTimeout(loadTickets, 100);
+    };
+  }
+
+  /* ── patch submitSupportTicket to reload list after submit ── */
+  function hookSubmitTicket() {
+    const orig = window.submitSupportTicket;
+    window.submitSupportTicket = async function(...args) {
+      let result;
+      if (typeof orig === 'function') result = await orig.apply(this, args);
+      // Reload after a short delay to let Firestore write settle
+      setTimeout(loadTickets, 800);
+      return result;
+    };
+  }
+
+  /* ── bootstrap: run after DOM + Firebase ready ── */
+  function bootstrap() {
+    hookShowPage();
+    hookOpenSupportForm();
+    hookSubmitTicket();
+
+    // If page loads directly on the support tab, trigger loading
+    const activePage = document.querySelector('.page.active');
+    if (activePage && activePage.id === 'page-support') {
+      setTimeout(loadTickets, 500);
+    }
+
+    // Also trigger when auth state is known (covers the refresh case)
+    const authCheckInterval = setInterval(() => {
+      if (typeof auth !== 'undefined' && auth) {
+        clearInterval(authCheckInterval);
+        auth.onAuthStateChanged(() => {
+          const ap = document.querySelector('.page.active');
+          if (ap && ap.id === 'page-support') {
+            setTimeout(loadTickets, 300);
+          }
+        });
+      }
+    }, 300);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+  } else {
+    // DOMContentLoaded already fired
+    setTimeout(bootstrap, 50);
+  }
+})();
 </script>
 </html>
