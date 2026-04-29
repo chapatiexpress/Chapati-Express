@@ -699,13 +699,22 @@
       transition:all .2s;text-align:center;
     }
     .admin-sb-customer-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
-    /* Push .main right when admin sidebar is visible */
+    /* Push layout right when admin sidebar is visible */
+    header,
+    body.admin-mode header,
+    body.admin-mode .hero,
+    body.admin-mode .main,
+    body.admin-mode .float-order-bar
+    { transition: margin-left .3s cubic-bezier(.4,0,.2,1), left .3s cubic-bezier(.4,0,.2,1); }
+
+    body.admin-mode header{margin-left:230px;}
     body.admin-mode .main{margin-left:230px;}
     body.admin-mode .hero{margin-left:230px;}
     body.admin-mode .float-order-bar{left:230px;}
     body.admin-mode #admin-order-popup{right:14px;}
     @media(max-width:768px){
       .admin-sidebar{width:200px;}
+      body.admin-mode header{margin-left:0;}
       body.admin-mode .main{margin-left:0;}
       body.admin-mode .hero{margin-left:0;}
       body.admin-mode .float-order-bar{left:0;}
