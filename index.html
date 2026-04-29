@@ -791,6 +791,31 @@
       font-weight:900;font-size:1rem;color:var(--brown);
     }
 
+    /* ===== BUSINESS HOURS ===== */
+    .bh-settings-card{background:var(--cream);border:1.5px solid var(--border);border-radius:18px;padding:20px 22px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06);}
+    .bh-card-title{font-family:'Yeseva One',serif;font-size:1rem;color:var(--brown);margin-bottom:14px;display:flex;align-items:center;gap:9px;}
+    .bh-time-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+    @media(max-width:500px){.bh-time-row{grid-template-columns:1fr;}}
+    .bh-time-group label{display:block;font-size:.75rem;font-weight:800;color:var(--brown);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;}
+    .bh-time-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.95rem;font-weight:700;color:var(--brown);background:#fff;font-family:'Lato',sans-serif;transition:border-color .2s;outline:none;}
+    .bh-time-input:focus{border-color:var(--saffron);}
+    .bh-save-btn{width:100%;max-width:240px;background:linear-gradient(90deg,var(--brown),var(--saffron));color:#fff;border:none;border-radius:12px;padding:13px;font-family:'Yeseva One',serif;font-size:1rem;cursor:pointer;transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+    .bh-save-btn:hover{opacity:.88;}
+    .bh-status-pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:800;}
+    .bh-status-pill.open{background:#e8f5e9;color:#2e7d32;}
+    .bh-status-pill.closed{background:#fce4ec;color:#c62828;}
+    .bh-preview-box{background:linear-gradient(135deg,#fff8ef,#fff3e0);border:1.5px solid var(--saffron);border-radius:13px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+    .bh-preview-label{font-size:.78rem;color:var(--brown);font-weight:700;}
+    .bh-preview-time{font-family:'Yeseva One',serif;font-size:1.2rem;color:var(--brown);}
+    /* Customer closed overlay */
+    .bh-closed-overlay{display:none;position:fixed;inset:0;z-index:3000;background:linear-gradient(160deg,#1a0a00 0%,#3b1a06 40%,#7a3b10 100%);flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
+    .bh-closed-overlay.visible{display:flex;animation:camFadeIn .4s ease;}
+    .bh-closed-icon{font-size:5rem;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
+    .bh-closed-title{font-family:'Yeseva One',serif;font-size:1.9rem;color:var(--turmeric);margin-bottom:12px;line-height:1.2;}
+    .bh-closed-msg{color:#f5ddb5;font-size:.98rem;line-height:1.75;margin-bottom:22px;max-width:420px;}
+    .bh-closed-badge{background:rgba(245,166,35,.15);border:2px solid var(--turmeric);border-radius:16px;padding:12px 28px;margin-bottom:28px;font-family:'Yeseva One',serif;font-size:1.3rem;color:var(--turmeric);display:inline-block;}
+    .bh-closed-footer{color:rgba(245,221,181,.5);font-size:.78rem;letter-spacing:.5px;}
+
     /* ===== PAYMENT TOGGLE ===== */
     .pay-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;margin-bottom:10px;gap:10px}
     .pay-toggle-label{font-weight:800;color:var(--brown);font-size:.88rem;display:flex;align-items:center;gap:9px}
@@ -1198,6 +1223,12 @@
     <button class="admin-sb-item" id="asb-delivery-settings" onclick="adminSidebarGo('delivery-settings')">
       <span class="admin-sb-icon">🚚</span>
       <span class="admin-sb-label">Delivery Settings</span>
+    </button>
+
+    <!-- Business Hours -->
+    <button class="admin-sb-item" id="asb-business-hours" onclick="adminSidebarGo('business-hours')">
+      <span class="admin-sb-icon">🕐</span>
+      <span class="admin-sb-label">Business Hours</span>
     </button>
 
     <hr class="admin-sb-divider"/>
@@ -1676,7 +1707,69 @@
     </div>
   </div>
 
+  <!-- BUSINESS HOURS ADMIN PAGE -->
+  <div class="page" id="page-business-hours">
+    <button class="back-btn-light" onclick="adminSidebarGo('dashboard')">← Back to Dashboard</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+      <div class="section-title" style="margin-bottom:0">🕐 Business Hours</div>
+      <span id="bh-status-pill" class="bh-status-pill open">🟢 Open Now</span>
+    </div>
+    <div class="bh-settings-card">
+      <div class="bh-card-title">⏰ Store Timings</div>
+      <div class="ds-toggle-row" style="margin-bottom:14px">
+        <div class="ds-toggle-label">
+          <strong>Enforce Business Hours</strong>
+          <span>When OFF — store is open 24/7</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="bh-enabled-toggle" onchange="onBhToggleChange()" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+      <div class="bh-time-row">
+        <div class="bh-time-group">
+          <label>🌅 Opening Time</label>
+          <input type="time" id="bh-open-time" class="bh-time-input" value="09:00" oninput="updateBhPreview()"/>
+        </div>
+        <div class="bh-time-group">
+          <label>🌙 Closing Time</label>
+          <input type="time" id="bh-close-time" class="bh-time-input" value="21:00" oninput="updateBhPreview()"/>
+        </div>
+      </div>
+      <div class="bh-preview-box">
+        <div>
+          <div class="bh-preview-label">Store Hours Preview</div>
+          <div style="font-size:.75rem;color:#888;margin-top:2px" id="bh-preview-sub">Open 9:00 AM – 9:00 PM</div>
+        </div>
+        <div id="bh-preview-time" class="bh-preview-time">9 AM – 9 PM</div>
+      </div>
+      <button class="bh-save-btn" id="bh-save-btn" onclick="saveBhSettings()">💾 Save Business Hours</button>
+    </div>
+    <div class="bh-settings-card" style="border-color:rgba(232,130,12,.25);background:linear-gradient(135deg,#fff8ef,#fff3e0)">
+      <div class="bh-card-title" style="margin-bottom:10px">ℹ️ How It Works</div>
+      <ul style="font-size:.82rem;color:#7a3b10;line-height:1.8;padding-left:18px;margin:0">
+        <li>Customers outside business hours see a <strong>"We're Closed"</strong> screen</li>
+        <li>Changes apply <strong>instantly</strong> to all active sessions</li>
+        <li>Toggle <strong>OFF</strong> to run 24/7 with no restrictions</li>
+        <li>Orders are also <strong>blocked</strong> at checkout when closed</li>
+      </ul>
+    </div>
+  </div>
+
 </div><!-- end .main -->
+
+<!-- BUSINESS HOURS CLOSED OVERLAY -->
+<div class="bh-closed-overlay" id="bh-closed-overlay">
+  <div class="bh-closed-icon">🫓</div>
+  <div class="bh-closed-title">Our Kitchen is Resting!</div>
+  <div class="bh-closed-msg">
+    We're not taking orders right now, but don't worry —<br>
+    fresh, hot chapatis will be waiting for you when we open.<br>
+    See you soon! 🔥
+  </div>
+  <div class="bh-closed-badge" id="bh-closed-badge">Open 9:00 AM – 9:00 PM</div>
+  <div class="bh-closed-footer">Chapati Express · Peddha Baazar, Sircilla · Pure Veg</div>
+</div>
 
 <footer style="background:var(--brown);color:#f5ddb5;text-align:center;padding:22px 16px 80px;font-size:.82rem">
   <strong>Chapati Express</strong> · 📍 Peddha Baazar, Sircilla · 🕐 9 AM – 10 PM<br/>
@@ -2732,5 +2825,172 @@ document.addEventListener('DOMContentLoaded', () => {
   }, 400);
 });
 </script>
-  
+
+<script>
+/* =====================================================
+   BUSINESS HOURS — Admin Config + Customer Gate
+   Firestore path: settings/businessHours
+   Fields: { enabled: bool, openTime: "09:00", closeTime: "21:00" }
+   ===================================================== */
+
+let _bhSettings = { enabled: true, openTime: '09:00', closeTime: '21:00' };
+let _bhUnsub    = null;
+
+/* Format "HH:MM" → "9:00 AM" */
+function bhFmt(t) {
+  if (!t) return '';
+  const [hh, mm] = t.split(':').map(Number);
+  const ampm = hh < 12 ? 'AM' : 'PM';
+  const h    = hh % 12 || 12;
+  return mm === 0 ? `${h} ${ampm}` : `${h}:${String(mm).padStart(2,'0')} ${ampm}`;
+}
+
+/* Is the store open right now? */
+function isBhOpen() {
+  if (!_bhSettings.enabled) return true;
+  const now  = new Date();
+  const cur  = now.getHours() * 60 + now.getMinutes();
+  const [oh, om] = _bhSettings.openTime.split(':').map(Number);
+  const [ch, cm] = _bhSettings.closeTime.split(':').map(Number);
+  return cur >= (oh * 60 + om) && cur < (ch * 60 + cm);
+}
+
+/* Firestore real-time listener */
+function startBhListener() {
+  if (!db) { setTimeout(startBhListener, 500); return; }
+  if (_bhUnsub) return;
+  _bhUnsub = db.collection('settings').doc('businessHours')
+    .onSnapshot(snap => {
+      if (snap.exists) {
+        const d = snap.data();
+        _bhSettings = {
+          enabled   : d.enabled !== false,
+          openTime  : d.openTime  || '09:00',
+          closeTime : d.closeTime || '21:00'
+        };
+      } else {
+        _bhSettings = { enabled: true, openTime: '09:00', closeTime: '21:00' };
+      }
+      applyBhToCustomer();
+      applyBhToAdminPage();
+    }, err => console.error('BH listener error:', err));
+}
+
+/* Customer gate — show/hide closed overlay */
+function applyBhToCustomer() {
+  const overlay = document.getElementById('bh-closed-overlay');
+  if (!overlay) return;
+  const open = isBhOpen();
+  overlay.classList.toggle('visible', !open);
+  document.body.style.overflow = open ? '' : 'hidden';
+  const badge = document.getElementById('bh-closed-badge');
+  if (badge) badge.textContent = `Open ${bhFmt(_bhSettings.openTime)} – ${bhFmt(_bhSettings.closeTime)}`;
+}
+
+/* Admin page: sync form fields from Firestore data */
+function applyBhToAdminPage() {
+  const tog  = document.getElementById('bh-enabled-toggle');
+  const opIn = document.getElementById('bh-open-time');
+  const clIn = document.getElementById('bh-close-time');
+  if (!tog) return;
+  tog.checked  = _bhSettings.enabled;
+  opIn.value   = _bhSettings.openTime;
+  clIn.value   = _bhSettings.closeTime;
+  updateBhPreview();
+}
+
+/* Admin: toggle changed */
+function onBhToggleChange() { updateBhPreview(); }
+
+/* Admin: live preview */
+function updateBhPreview() {
+  const enabled = document.getElementById('bh-enabled-toggle')?.checked ?? true;
+  const openT   = document.getElementById('bh-open-time')?.value  || '09:00';
+  const closeT  = document.getElementById('bh-close-time')?.value || '21:00';
+  const prev    = document.getElementById('bh-preview-time');
+  const sub     = document.getElementById('bh-preview-sub');
+  const pill    = document.getElementById('bh-status-pill');
+  if (prev) prev.textContent = enabled ? `${bhFmt(openT)} – ${bhFmt(closeT)}` : '24/7 (Always Open)';
+  if (sub)  sub.textContent  = enabled ? `Open ${bhFmt(openT)} – ${bhFmt(closeT)}` : 'No restrictions — store is always open';
+  const open = isBhOpen();
+  if (pill) { pill.textContent = open ? '🟢 Open Now' : '🔴 Closed Now'; pill.className = 'bh-status-pill ' + (open ? 'open' : 'closed'); }
+}
+
+/* Save to Firestore */
+async function saveBhSettings() {
+  if (!db || currentRole !== 'admin') { showToast('⚠️ Only admin can update business hours'); return; }
+  const enabled   = document.getElementById('bh-enabled-toggle').checked;
+  const openTime  = document.getElementById('bh-open-time').value  || '09:00';
+  const closeTime = document.getElementById('bh-close-time').value || '21:00';
+  if (enabled && openTime >= closeTime) { showToast('⚠️ Opening time must be before closing time'); return; }
+  const btn = document.getElementById('bh-save-btn');
+  if (btn) { btn.textContent = '⏳ Saving...'; btn.disabled = true; }
+  try {
+    await db.collection('settings').doc('businessHours').set(
+      { enabled, openTime, closeTime, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: currentUser?.email || 'admin' },
+      { merge: true }
+    );
+    showToast(enabled ? `✅ Hours saved: ${bhFmt(openTime)} – ${bhFmt(closeTime)}` : '✅ 24/7 mode activated');
+  } catch(e) {
+    console.error('saveBhSettings error:', e);
+    showToast('❌ Failed to save: ' + (e.message || 'unknown error'));
+  } finally {
+    if (btn) { btn.textContent = '💾 Save Business Hours'; btn.disabled = false; }
+  }
+}
+
+/* Wire showPage for business-hours */
+(function() {
+  const origShow = window.showPage;
+  window.showPage = function(page, ...rest) {
+    if (page === 'business-hours') {
+      if (currentRole !== 'admin') { showToast('⚠️ Only admin can access Business Hours'); return; }
+      if (typeof origShow === 'function') origShow('business-hours', ...rest);
+      setTimeout(applyBhToAdminPage, 60);
+      return;
+    }
+    if (typeof origShow === 'function') origShow(page, ...rest);
+  };
+  const origActive = window.setAdminSidebarActive;
+  window.setAdminSidebarActive = function(page) {
+    if (typeof origActive === 'function') origActive(page);
+    const btn = document.getElementById('asb-business-hours');
+    if (btn) btn.classList.toggle('active', page === 'business-hours');
+  };
+})();
+
+/* Block order modal — require sign-in + business hours */
+(function() {
+  const origOpen = window.openOrderModal;
+  window.openOrderModal = function(...args) {
+    // 1. Must be signed in
+    if (!currentUser) {
+      showToast('🔐 Please sign in to place an order', 2500);
+      const overlay = document.getElementById('auth-overlay');
+      if (overlay) overlay.classList.add('open');
+      return;
+    }
+    // 2. Must be within business hours
+    if (!isBhOpen()) {
+      showToast(`🕐 We're closed! Open ${bhFmt(_bhSettings.openTime)} – ${bhFmt(_bhSettings.closeTime)}`, 3500);
+      return;
+    }
+    if (typeof origOpen === 'function') origOpen.apply(this, args);
+  };
+})();
+
+/* Auto-check every minute (handles exact open/close transitions) */
+setInterval(applyBhToCustomer, 60000);
+
+/* Bootstrap after Firebase ready */
+document.addEventListener('DOMContentLoaded', () => {
+  const waitForDb = setInterval(() => {
+    if (typeof db !== 'undefined' && db) {
+      clearInterval(waitForDb);
+      startBhListener();
+    }
+  }, 400);
+});
+</script>
+
 </html>
