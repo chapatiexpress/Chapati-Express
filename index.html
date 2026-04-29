@@ -2318,5 +2318,57 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
     setTimeout(bootstrap, 50);
   }
 })();
+  
 </script>
+  // --- ADMIN NOTIFICATION SYSTEM WITH RINGTONE ---
+document.addEventListener('DOMContentLoaded', function() {
+    const pageLoadTime = new Date();
+
+    // 1. Function to play the sound
+    window.playNotificationSound = function() {
+        const sound = document.getElementById("adminNotificationSound");
+        if (sound) {
+            sound.play().catch(error => console.log("Autoplay blocked. Click page to enable sound."));
+        }
+    };
+
+    setTimeout(() => {
+        if (typeof db !== 'undefined') {
+            console.log("📡 Notification Watcher active for Sircilla Admin...");
+
+            db.collection("support")
+              .orderBy("createdAt", "desc")
+              .limit(1)
+              .onSnapshot((snapshot) => {
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added" && !snapshot.metadata.hasPendingWrites) {
+                        const data = change.doc.data();
+                        const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
+
+                        // Only trigger for tickets created AFTER refresh
+                        if (createdAt > pageLoadTime) {
+                            
+                            // A. PLAY RINGTONE
+                            playNotificationSound();
+
+                            // B. SHOW POPUP ALERT
+                            // Using a confirm box so you can click 'View' to refresh
+                            const userAction = confirm("🔔 NEW SUPPORT TICKET RECEIVED!\n\nMessage: " + data.message + "\n\nClick OK to refresh the list.");
+                            
+                            if (userAction) {
+                                if (typeof renderSupportPage === "function") {
+                                    renderSupportPage();
+                                } else {
+                                    location.reload(); // Hard refresh if function is missing
+                                }
+                            }
+                        }
+                    }
+                });
+            });
+        }
+    }, 2000);
+});
+</script>
+
 </html>
