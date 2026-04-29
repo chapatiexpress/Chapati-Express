@@ -2876,10 +2876,15 @@ function startBhListener() {
     }, err => console.error('BH listener error:', err));
 }
 
-/* Customer gate — show/hide closed overlay */
+/* Customer gate — show/hide closed overlay (admin always bypasses) */
 function applyBhToCustomer() {
   const overlay = document.getElementById('bh-closed-overlay');
   if (!overlay) return;
+  if (typeof currentRole !== 'undefined' && currentRole === 'admin') {
+    overlay.classList.remove('visible');   // admin always sees site open
+    document.body.style.overflow = '';
+    return;
+  }
   const open = isBhOpen();
   overlay.classList.toggle('visible', !open);
   document.body.style.overflow = open ? '' : 'hidden';
@@ -2959,7 +2964,7 @@ async function saveBhSettings() {
   };
 })();
 
-/* Block order modal — require sign-in + business hours */
+/* Block order modal — require sign-in + business hours (admin bypasses BH) */
 (function() {
   const origOpen = window.openOrderModal;
   window.openOrderModal = function(...args) {
@@ -2970,8 +2975,8 @@ async function saveBhSettings() {
       if (overlay) overlay.classList.add('open');
       return;
     }
-    // 2. Must be within business hours
-    if (!isBhOpen()) {
+    // 2. Business hours — admin is exempt
+    if (currentRole !== 'admin' && !isBhOpen()) {
       showToast(`🕐 We're closed! Open ${bhFmt(_bhSettings.openTime)} – ${bhFmt(_bhSettings.closeTime)}`, 3500);
       return;
     }
