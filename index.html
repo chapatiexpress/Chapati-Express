@@ -714,6 +714,83 @@
       body.admin-mode .float-order-bar{left:0;}
     }
 
+    /* ===== DELIVERY SETTINGS PAGE ===== */
+    .delivery-settings-card{
+      background:var(--cream);border:1.5px solid var(--border);
+      border-radius:18px;padding:20px 22px;margin-bottom:16px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.06);
+    }
+    .ds-card-title{
+      font-family:'Yeseva One',serif;font-size:1rem;color:var(--brown);
+      margin-bottom:14px;display:flex;align-items:center;gap:9px;
+    }
+    .ds-toggle-row{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:14px 18px;border-radius:13px;margin-bottom:12px;gap:12px;
+      background:#fff;border:1.5px solid var(--border);
+    }
+    body.dark-mode .ds-toggle-row{background:#1a1008;}
+    .ds-toggle-label{display:flex;flex-direction:column;gap:3px;}
+    .ds-toggle-label strong{font-size:.92rem;color:var(--brown);font-weight:800;}
+    .ds-toggle-label span{font-size:.73rem;color:#888;}
+    .ds-fee-row{
+      display:grid;grid-template-columns:1fr 1fr;gap:12px;
+      margin-bottom:14px;
+    }
+    @media(max-width:500px){.ds-fee-row{grid-template-columns:1fr;}}
+    .ds-fee-group label{
+      display:block;font-size:.75rem;font-weight:800;color:var(--brown);
+      text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px;
+    }
+    .ds-fee-input{
+      width:100%;border:1.5px solid var(--border);border-radius:10px;
+      padding:10px 14px;font-size:.95rem;font-weight:700;color:var(--brown);
+      background:#fff;transition:border-color .2s,opacity .2s;
+      font-family:'Lato',sans-serif;
+    }
+    .ds-fee-input:focus{outline:none;border-color:var(--saffron);}
+    .ds-fee-input:disabled{opacity:.45;cursor:not-allowed;}
+    body.dark-mode .ds-fee-input{background:#120c04;color:var(--turmeric);}
+    .ds-preview-box{
+      background:linear-gradient(135deg,#fff8ef,#fff3e0);
+      border:1.5px solid var(--saffron);border-radius:13px;
+      padding:14px 18px;display:flex;justify-content:space-between;
+      align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;
+    }
+    body.dark-mode .ds-preview-box{background:linear-gradient(135deg,#2a1a08,#1a0a00);}
+    .ds-preview-label{font-size:.78rem;color:var(--brown);font-weight:700;}
+    .ds-preview-fee{
+      font-family:'Yeseva One',serif;font-size:1.3rem;color:var(--saffron);
+    }
+    .ds-preview-free{
+      font-family:'Yeseva One',serif;font-size:1.1rem;color:var(--green);
+    }
+    .ds-save-btn{
+      width:100%;max-width:240px;background:linear-gradient(90deg,var(--brown),var(--saffron));
+      color:#fff;border:none;border-radius:12px;padding:13px;
+      font-family:'Yeseva One',serif;font-size:1rem;cursor:pointer;
+      transition:opacity .2s;display:flex;align-items:center;justify-content:center;gap:8px;
+    }
+    .ds-save-btn:hover{opacity:.88;}
+    .ds-status-pill{
+      display:inline-flex;align-items:center;gap:6px;
+      padding:4px 12px;border-radius:20px;font-size:.72rem;font-weight:800;
+    }
+    .ds-status-pill.on{background:#e8f5e9;color:#2e7d32;}
+    .ds-status-pill.off{background:#fce4ec;color:#c62828;}
+    /* Delivery fee row in order modal */
+    .om-delivery-row{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:8px 0;border-top:1px dashed var(--border);margin-top:6px;
+      font-size:.85rem;color:#555;
+    }
+    .om-delivery-fee-val{font-weight:800;color:var(--green);}
+    .om-grand-total-row{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:10px 0;border-top:2px solid var(--border);margin-top:4px;
+      font-weight:900;font-size:1rem;color:var(--brown);
+    }
+
     /* ===== PAYMENT TOGGLE ===== */
     .pay-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;margin-bottom:10px;gap:10px}
     .pay-toggle-label{font-weight:800;color:var(--brown);font-size:.88rem;display:flex;align-items:center;gap:9px}
@@ -1117,6 +1194,12 @@
       <span class="admin-sb-badge" id="asb-payments-badge">0</span>
     </button>
 
+    <!-- Delivery Settings -->
+    <button class="admin-sb-item" id="asb-delivery-settings" onclick="adminSidebarGo('delivery-settings')">
+      <span class="admin-sb-icon">🚚</span>
+      <span class="admin-sb-label">Delivery Settings</span>
+    </button>
+
     <hr class="admin-sb-divider"/>
     <div class="admin-sb-section">People</div>
 
@@ -1455,14 +1538,9 @@
       <div class="transaction-list" id="dash-txn-list"></div>
     </div>
     <div class="revenue-section">
-      <div class="section-title" style="margin-bottom:14px">🚚 Delivery Settings</div>
-      <div class="form-grid">
-        <div class="form-group"><label>Service Radius (km)</label><input type="number" id="svc-radius" value="4" min="1" max="20"/></div>
-        <div class="form-group"><label>Delivery Charge (₹)</label><input type="number" id="svc-charge" value="20" min="0"/></div>
-        <div class="form-group"><label>Free Above (₹)</label><input type="number" id="svc-free-above" value="200" min="0"/></div>
-        <div class="form-group"><label>Est. Time (mins)</label><input type="number" id="svc-est-time" value="30" min="5"/></div>
-      </div>
-      <button class="aip-save" style="margin-top:14px;max-width:200px" onclick="saveSvcSettings()">💾 Save Settings</button>
+      <div class="section-title" style="margin-bottom:10px">🚚 Delivery Settings</div>
+      <p style="font-size:.83rem;color:#888;margin-bottom:12px">Manage delivery fees and rules for your store.</p>
+      <button class="aip-save" style="max-width:220px" onclick="adminSidebarGo('delivery-settings')">⚙️ Open Delivery Settings</button>
     </div>
     <div class="revenue-section">
       <div class="section-title" style="margin-bottom:14px">📢 Send Promo</div>
@@ -1540,6 +1618,64 @@
     <div id="admin-support-list" style="display:grid;gap:10px;"><div class="empty-cat-msg"><div class="big">💬</div>Loading tickets...</div></div>
   </div>
 
+  <!-- DELIVERY SETTINGS PAGE -->
+  <div class="page" id="page-delivery-settings">
+    <button class="back-btn-light" onclick="adminSidebarGo('dashboard')">← Back to Dashboard</button>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:20px">
+      <div class="section-title" style="margin-bottom:0">🚚 Delivery Settings</div>
+      <span id="ds-status-pill" class="ds-status-pill off">⚪ OFF — Free Delivery</span>
+    </div>
+
+    <!-- Toggle Card -->
+    <div class="delivery-settings-card">
+      <div class="ds-card-title">🔌 Delivery Fee Toggle</div>
+      <div class="ds-toggle-row">
+        <div class="ds-toggle-label">
+          <strong>Charge Delivery Fee</strong>
+          <span>When ON, fee is added to customer orders</span>
+        </div>
+        <label class="toggle-switch">
+          <input type="checkbox" id="ds-enabled-toggle" onchange="onDsToggleChange()">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+
+      <!-- Fee Inputs -->
+      <div class="ds-fee-row">
+        <div class="ds-fee-group">
+          <label>Delivery Fee (₹)</label>
+          <input type="number" id="ds-fee-amount" class="ds-fee-input" placeholder="e.g. 20" min="0" value="0" oninput="updateDsPreview()" disabled/>
+        </div>
+        <div class="ds-fee-group">
+          <label>Free Delivery Above (₹) <span style="font-weight:400;text-transform:none">(optional)</span></label>
+          <input type="number" id="ds-free-above" class="ds-fee-input" placeholder="e.g. 200 (0 = always charged)" min="0" value="0" oninput="updateDsPreview()" disabled/>
+        </div>
+      </div>
+
+      <!-- Live Preview -->
+      <div class="ds-preview-box">
+        <div>
+          <div class="ds-preview-label">Live Preview — What Customer Sees</div>
+          <div style="font-size:.75rem;color:#888;margin-top:2px" id="ds-preview-sub">Delivery is currently <strong>free</strong></div>
+        </div>
+        <div id="ds-preview-fee" class="ds-preview-free">🎁 Free Delivery</div>
+      </div>
+
+      <button class="ds-save-btn" onclick="saveDsSettings()">💾 Save Delivery Settings</button>
+    </div>
+
+    <!-- Info Card -->
+    <div class="delivery-settings-card" style="border-color:rgba(232,130,12,.25);background:linear-gradient(135deg,#fff8ef,#fff3e0)">
+      <div class="ds-card-title" style="margin-bottom:10px">ℹ️ How It Works</div>
+      <ul style="font-size:.82rem;color:#7a3b10;line-height:1.8;padding-left:18px;margin:0">
+        <li>Changes sync to <strong>all active customer sessions instantly</strong> (real-time)</li>
+        <li>If <strong>Free Above</strong> is set, fee is waived for orders above that amount</li>
+        <li>Set <strong>Free Above = 0</strong> to always charge the delivery fee</li>
+        <li>Toggle <strong>OFF</strong> to offer free delivery to everyone</li>
+      </ul>
+    </div>
+  </div>
+
 </div><!-- end .main -->
 
 <footer style="background:var(--brown);color:#f5ddb5;text-align:center;padding:22px 16px 80px;font-size:.82rem">
@@ -1590,7 +1726,15 @@
       <div class="om-summary">
         <div class="om-summary-title">📦 Your Items</div>
         <div id="om-items-list"></div>
-        <div class="om-total-row"><span>Total</span><span id="om-total">₹0</span></div>
+        <div class="om-total-row"><span>Subtotal</span><span id="om-total">₹0</span></div>
+        <div class="om-delivery-row" id="om-delivery-row">
+          <span>🚚 Delivery Fee</span>
+          <span class="om-delivery-fee-val" id="om-delivery-fee-display">🎁 Free</span>
+        </div>
+        <div class="om-grand-total-row">
+          <span>Grand Total</span>
+          <span id="om-grand-total">₹0</span>
+        </div>
       </div>
       <div class="om-form" id="om-form-fields">
         <div><label>Your Name *</label><input type="text" id="om-name" placeholder="Full name"/></div>
@@ -2392,6 +2536,200 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }
     }, 2000);
+});
+</script>
+
+<script>
+/* =====================================================
+   DELIVERY SETTINGS — Admin Panel + Customer Checkout
+   Firestore path: settings/deliverySettings
+   Fields: { enabled: bool, fee: number, freeAbove: number }
+   ===================================================== */
+
+let _dsSettings   = { enabled: false, fee: 0, freeAbove: 0 };
+let _dsUnsub      = null;
+let _cartSubtotal = 0;   // kept in sync via updateCart() hook
+
+/* ── 1. Listen to Firestore in real-time ── */
+function startDeliverySettingsListener() {
+  if (!db) { setTimeout(startDeliverySettingsListener, 500); return; }
+  if (_dsUnsub) return;                      // already listening
+  _dsUnsub = db.collection('settings').doc('deliverySettings')
+    .onSnapshot(snap => {
+      if (snap.exists) {
+        const d = snap.data();
+        _dsSettings = {
+          enabled   : !!d.enabled,
+          fee       : Number(d.fee)       || 0,
+          freeAbove : Number(d.freeAbove) || 0
+        };
+      } else {
+        _dsSettings = { enabled: false, fee: 0, freeAbove: 0 };
+      }
+      applyDeliverySettingsEverywhere();
+    }, err => console.error('Delivery settings listener error:', err));
+}
+
+/* ── 2. Apply settings to all relevant UI areas ── */
+function applyDeliverySettingsEverywhere() {
+  applyDsToAdminPage();      // admin panel preview/pill
+  updateCartDeliveryFee();   // order modal grand total
+}
+
+/* Compute actual fee for a given subtotal */
+function calcDeliveryFee(subtotal) {
+  if (!_dsSettings.enabled) return 0;
+  if (_dsSettings.freeAbove > 0 && subtotal >= _dsSettings.freeAbove) return 0;
+  return _dsSettings.fee;
+}
+
+/* ── 3. Update order-modal grand total ── */
+function updateCartDeliveryFee() {
+  // subtotal is already shown in #om-total — parse it
+  const totalEl = document.getElementById('om-total');
+  const subtotal = totalEl ? parseInt(totalEl.textContent.replace(/[^\d]/g,'')) || 0 : _cartSubtotal;
+  const fee      = calcDeliveryFee(subtotal);
+  const grand    = subtotal + fee;
+
+  const feeEl    = document.getElementById('om-delivery-fee-display');
+  const grandEl  = document.getElementById('om-grand-total');
+
+  if (feeEl) {
+    if (fee === 0) {
+      feeEl.textContent = '🎁 Free';
+      feeEl.style.color = 'var(--green)';
+    } else {
+      feeEl.textContent = '₹' + fee;
+      feeEl.style.color = 'var(--saffron)';
+    }
+  }
+  if (grandEl) grandEl.textContent = '₹' + grand;
+}
+
+/* Hook into openOrderModal to refresh fee whenever modal opens */
+(function() {
+  const origOpenOrder = window.openOrderModal;
+  window.openOrderModal = function(...args) {
+    if (typeof origOpenOrder === 'function') origOpenOrder.apply(this, args);
+    setTimeout(updateCartDeliveryFee, 120);
+  };
+})();
+
+/* Also re-calculate whenever cart quantity changes (updateCart is called) */
+(function() {
+  const origUpdateCart = window.updateCart;
+  window.updateCart = function(...args) {
+    if (typeof origUpdateCart === 'function') origUpdateCart.apply(this, args);
+    updateCartDeliveryFee();
+  };
+})();
+
+/* ── 4. Admin Page UI ── */
+function onDsToggleChange() {
+  const enabled = document.getElementById('ds-enabled-toggle').checked;
+  const feeIn   = document.getElementById('ds-fee-amount');
+  const freeIn  = document.getElementById('ds-free-above');
+  if (feeIn)  feeIn.disabled  = !enabled;
+  if (freeIn) freeIn.disabled = !enabled;
+  updateDsPreview();
+}
+
+function updateDsPreview() {
+  const enabled   = document.getElementById('ds-enabled-toggle')?.checked || false;
+  const fee       = Number(document.getElementById('ds-fee-amount')?.value) || 0;
+  const freeAbove = Number(document.getElementById('ds-free-above')?.value) || 0;
+  const previewEl = document.getElementById('ds-preview-fee');
+  const subEl     = document.getElementById('ds-preview-sub');
+  const pillEl    = document.getElementById('ds-status-pill');
+
+  if (!enabled) {
+    if (previewEl) { previewEl.textContent = '🎁 Free Delivery'; previewEl.className = 'ds-preview-free'; }
+    if (subEl)    subEl.innerHTML = 'Delivery is currently <strong>free</strong>';
+    if (pillEl)   { pillEl.textContent = '⚪ OFF — Free Delivery'; pillEl.className = 'ds-status-pill off'; }
+    return;
+  }
+  if (pillEl) { pillEl.textContent = '🟢 ON — Fee Active'; pillEl.className = 'ds-status-pill on'; }
+  if (freeAbove > 0) {
+    if (previewEl) { previewEl.textContent = '₹' + fee + ' (free above ₹' + freeAbove + ')'; previewEl.className = 'ds-preview-fee'; }
+    if (subEl)    subEl.innerHTML = 'Free for orders above <strong>₹' + freeAbove + '</strong>';
+  } else {
+    if (previewEl) { previewEl.textContent = '₹' + fee + ' delivery fee'; previewEl.className = 'ds-preview-fee'; }
+    if (subEl)    subEl.innerHTML = 'Charged on <strong>every</strong> order';
+  }
+}
+
+/* Populate admin page from Firestore data */
+function applyDsToAdminPage() {
+  const tog  = document.getElementById('ds-enabled-toggle');
+  const feeI = document.getElementById('ds-fee-amount');
+  const freeI= document.getElementById('ds-free-above');
+  if (!tog) return;                          // page not rendered yet
+  tog.checked        = _dsSettings.enabled;
+  feeI.value         = _dsSettings.fee;
+  freeI.value        = _dsSettings.freeAbove;
+  feeI.disabled      = !_dsSettings.enabled;
+  freeI.disabled     = !_dsSettings.enabled;
+  updateDsPreview();
+}
+
+/* ── 5. Save to Firestore ── */
+async function saveDsSettings() {
+  if (!db || currentRole !== 'admin') {
+    showToast('⚠️ Only admin can update delivery settings'); return;
+  }
+  const enabled   = document.getElementById('ds-enabled-toggle').checked;
+  const fee       = Number(document.getElementById('ds-fee-amount').value) || 0;
+  const freeAbove = Number(document.getElementById('ds-free-above').value) || 0;
+
+  if (fee < 0 || freeAbove < 0) {
+    showToast('⚠️ Fee values cannot be negative'); return;
+  }
+
+  try {
+    await db.collection('settings').doc('deliverySettings').set(
+      { enabled, fee, freeAbove, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: currentUser?.email || 'admin' },
+      { merge: true }
+    );
+    showToast(enabled ? '✅ Delivery fee ₹' + fee + ' is now ACTIVE' : '✅ Free delivery is now ACTIVE', 3000);
+  } catch(e) {
+    console.error('saveDsSettings error:', e);
+    showToast('❌ Failed to save: ' + (e.message || 'unknown error'));
+  }
+}
+
+/* ── 6. Wire sidebar active state for delivery-settings ── */
+(function() {
+  const orig = window.setAdminSidebarActive;
+  window.setAdminSidebarActive = function(page) {
+    if (typeof orig === 'function') orig(page);
+    const dsBtn = document.getElementById('asb-delivery-settings');
+    if (dsBtn) dsBtn.classList.toggle('active', page === 'delivery-settings');
+  };
+})();
+
+/* ── 7. Wire showPage to handle delivery-settings page ── */
+(function() {
+  const origShow = window.showPage;
+  window.showPage = function(page, ...rest) {
+    if (page === 'delivery-settings') {
+      if (currentRole !== 'admin') { showToast('⚠️ Only admin can access Delivery Settings'); return; }
+      // Call original to switch .page.active, then populate form
+      if (typeof origShow === 'function') origShow('delivery-settings', ...rest);
+      setTimeout(applyDsToAdminPage, 60);
+      return;
+    }
+    if (typeof origShow === 'function') origShow(page, ...rest);
+  };
+})();
+
+/* ── 8. Bootstrap: start listener after Firebase is ready ── */
+document.addEventListener('DOMContentLoaded', () => {
+  const waitForDb = setInterval(() => {
+    if (typeof db !== 'undefined' && db) {
+      clearInterval(waitForDb);
+      startDeliverySettingsListener();
+    }
+  }, 400);
 });
 </script>
   
