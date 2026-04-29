@@ -699,24 +699,18 @@
       transition:all .2s;text-align:center;
     }
     .admin-sb-customer-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
-    /* Push layout right when admin sidebar is visible */
-    header,
-    body.admin-mode header,
-    body.admin-mode .hero,
-    body.admin-mode .main,
-    body.admin-mode .float-order-bar
-    { transition: margin-left .3s cubic-bezier(.4,0,.2,1), left .3s cubic-bezier(.4,0,.2,1); }
-
-    body.admin-mode header{margin-left:230px;}
-    body.admin-mode .main{margin-left:230px;}
-    body.admin-mode .hero{margin-left:230px;}
+    /* ===== ADMIN SIDEBAR LAYOUT SHIFT ===== */
+    /* Use padding-left on body so ALL elements (header, hero, main) shift right together */
+    body{ transition: padding-left .3s cubic-bezier(.4,0,.2,1); }
+    body.admin-mode{ padding-left: 230px; }
     body.admin-mode .float-order-bar{left:230px;}
     body.admin-mode #admin-order-popup{right:14px;}
+    /* Reset individual margin-lefts that were set before (not needed with body padding) */
+    body.admin-mode .main{margin-left:0;}
+    body.admin-mode .hero{margin-left:0;}
     @media(max-width:768px){
       .admin-sidebar{width:200px;}
-      body.admin-mode header{margin-left:0;}
-      body.admin-mode .main{margin-left:0;}
-      body.admin-mode .hero{margin-left:0;}
+      body.admin-mode{ padding-left: 0; }
       body.admin-mode .float-order-bar{left:0;}
     }
 
@@ -1858,43 +1852,19 @@
 </div>
 
 <script type="module">
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBz9JoZNsvryBM8ARlmXIpnUvzPWp1oOB8",
-  authDomain: "chapatiexpress-6992c.firebaseapp.com",
-  projectId: "chapatiexpress-6992c",
-  storageBucket: "chapatiexpress-6992c.firebasestorage.app",
-  messagingSenderId: "227899287972",
-  appId: "1:227899287972:web:8994dbb7d6c813845ab931",
-  measurementId: "G-QKLVLZCY4T"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
-
-// Function to save delivery fees to Firestore
+// Save delivery fees to Firestore using the existing compat SDK db instance
 window.saveDeliverySettings = async function() {
-    // These IDs must match the 'id' of your HTML input fields
-    const feeValue = document.getElementById('deliveryFeeInput').value;
-    const demandValue = document.getElementById('highDemandFeeInput').value;
-    const isEnabled = document.getElementById('highDemandToggle').checked;
-
+    if (!db) { alert("Firebase not ready. Please try again."); return; }
+    const feeValue = document.getElementById('deliveryFeeInput') ? document.getElementById('deliveryFeeInput').value : 0;
+    const demandValue = document.getElementById('highDemandFeeInput') ? document.getElementById('highDemandFeeInput').value : 0;
+    const isEnabled = document.getElementById('highDemandToggle') ? document.getElementById('highDemandToggle').checked : false;
     try {
-        const feeRef = doc(db, "settings", "fees");
-        await updateDoc(feeRef, {
+        await db.collection("settings").doc("fees").set({
             deliveryFee: Number(feeValue),
             highDemandFee: Number(demandValue),
             highDemandEnabled: isEnabled,
             lastUpdated: new Date()
-        });
+        }, { merge: true });
         alert("Success: Chapati Express fees updated!");
     } catch (error) {
         console.error("Error updating fees: ", error);
