@@ -1771,7 +1771,7 @@
     fresh, hot chapatis will be waiting for you when we open.<br>
     See you soon! 🔥
   </div>
-  <div class="bh-closed-badge" id="bh-closed-badge">Open 9:00 AM – 9:30 PM</div>
+  <div class="bh-closed-badge" id="bh-closed-badge">Open 9:00 AM – 9:00 PM</div>
   <div class="bh-closed-footer">Chapati Express · Peddha Baazar, Sircilla · Pure Veg</div>
 </div>
 
@@ -3003,11 +3003,14 @@ let _bhUnsub    = null;
 
 /* Format "HH:MM" → "9:00 AM" */
 function bhFmt(t) {
-  if (!t) return '';
-  const [hh, mm] = t.split(':').map(Number);
+  if (!t || typeof t !== 'string') return '';
+  const parts = t.split(':');
+  const hh = Number(parts[0]);
+  const mm = parts.length > 1 ? Number(parts[1]) : 0;
+  if (Number.isNaN(hh) || Number.isNaN(mm)) return String(t);
   const ampm = hh < 12 ? 'AM' : 'PM';
   const h    = hh % 12 || 12;
-  return mm === 0 ? `${h} ${ampm}` : `${h}:${String(mm).padStart(2,'0')} ${ampm}`;
+  return `${h}:${String(mm).padStart(2,'0')} ${ampm}`;
 }
 
 /* Is the store open right now? */
