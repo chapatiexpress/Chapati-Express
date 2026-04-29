@@ -1619,7 +1619,7 @@
     </div>
 
     <!-- Tickets List: shown when user has existing tickets -->
-    <div id="support-tickets-list" style="display:none;margin-bottom:20px;display:grid;grid-gap:10px;"></div>
+    <div id="support-tickets-list" style="display:none;margin-bottom:20px;grid-gap:10px;"></div>
 
     <!-- Support Form: shown initially or when creating new ticket -->
     <div class="order-section" id="support-form-section">
@@ -1645,7 +1645,13 @@
   <!-- ADMIN SUPPORT PAGE -->
   <div class="page" id="page-admin-support">
     <button class="back-btn-light" onclick="adminSidebarGo('dashboard')">← Back to Dashboard</button>
-    <div class="section-title">💬 Support Tickets</div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+      <div class="section-title" style="margin-bottom:0">💬 Support Tickets</div>
+      <input type="text" id="admin-support-search" class="aip-input"
+        placeholder="🔍 Search by Order ID..."
+        oninput="filterAdminSupportByOrderId(this.value)"
+        style="width:220px;font-size:.8rem"/>
+    </div>
     <div id="admin-support-list" style="display:grid;gap:10px;"><div class="empty-cat-msg"><div class="big">💬</div>Loading tickets...</div></div>
   </div>
 
@@ -2088,7 +2094,23 @@
   </div>
 </div>
 
+<!-- CUSTOMER ORDER STATUS ALERT MODAL -->
+<div class="auth-overlay" id="customer-alert-modal-overlay" style="z-index:9999">
+  <div class="auth-modal" style="max-width:380px;text-align:center;padding:0;overflow:hidden">
+    <div id="cam-top-bar" style="background:linear-gradient(90deg,var(--saffron),var(--brown));border-radius:18px 18px 0 0;padding:22px 20px 16px">
+      <div id="cam-icon-ring" style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;font-size:1.8rem;margin:0 auto 8px">✅</div>
+      <div id="cam-title" style="color:#fff;font-family:'Yeseva One',serif;font-size:1.1rem;font-weight:700">Order Update</div>
+    </div>
+    <div style="padding:18px 20px 22px">
+      <div id="cam-body" style="color:#444;font-size:.88rem;line-height:1.6;margin-bottom:16px"></div>
+      <button id="cam-ok-btn" class="place-order-btn" style="width:100%;padding:12px" onclick="closeCustomerAlertModal()">OK</button>
+    </div>
+  </div>
+</div>
+
 <script>
+// @ts-nocheck
+/* eslint-disable */
 // Save delivery fees to Firestore using the existing compat SDK db instance
 window.saveDeliverySettings = async function() {
     if (!db) { alert("Firebase not ready. Please try again."); return; }
@@ -2290,13 +2312,68 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
     };
   }
 
-  /* ── patch submitSupportTicket to reload list after submit ── */
+  /* ── patch submitSupportTicket with order validation + dupe check ── */
   function hookSubmitTicket() {
     const orig = window.submitSupportTicket;
     window.submitSupportTicket = async function(...args) {
+      /* 1. Must be signed in */
+      if (!currentUser) {
+        showToast('🔐 Please sign in to raise a support ticket', 2500);
+        return;
+      }
+
+      const orderId  = (document.getElementById('support-order-id')?.value || '').trim().toUpperCase();
+      const desc     = (document.getElementById('support-desc')?.value || '').trim();
+
+      /* 2. Order ID must not be empty */
+      if (!orderId) {
+        showToast('⚠️ Please enter your Order ID', 2000);
+        document.getElementById('support-order-id')?.focus();
+        return;
+      }
+      /* 3. Description must not be empty */
+      if (!desc) {
+        showToast('⚠️ Please describe your issue', 2000);
+        return;
+      }
+
+      /* 4. Verify the order exists in Firestore and belongs to this user */
+      if (!db) { showToast('⚠️ Database not ready, try again', 2000); return; }
+      let orderValid = false;
+      try {
+        const snap = await db.collection('orders')
+          .where('orderId', '==', orderId)
+          .limit(1).get();
+        if (!snap.empty) {
+          const od = snap.docs[0].data();
+          /* Match by uid (preferred) or email */
+          const matchUid   = od.customerUid   && currentUser.uid   && od.customerUid   === currentUser.uid;
+          const matchEmail = od.customerEmail && currentUser.email && od.customerEmail.toLowerCase() === currentUser.email.toLowerCase();
+          if (matchUid || matchEmail) orderValid = true;
+        }
+      } catch(e) { console.error('Order validation error:', e); }
+
+      if (!orderValid) {
+        showToast('❌ Invalid Order ID — no matching order found for your account', 3500);
+        document.getElementById('support-order-id')?.focus();
+        return;
+      }
+
+      /* 5. Check for existing OPEN (unresolved) ticket for same order */
+      try {
+        const dup = await db.collection('supportTickets')
+          .where('orderId', '==', orderId)
+          .where('status', '!=', 'resolved')
+          .limit(1).get();
+        if (!dup.empty) {
+          showToast('⚠️ You already have an open ticket for this order. Please wait for it to be resolved.', 4000);
+          return;
+        }
+      } catch(e) { /* ignore — some Firestore setups may not have composite index yet */ }
+
+      /* 6. All good — call original submit */
       let result;
       if (typeof orig === 'function') result = await orig.apply(this, args);
-      // Reload after a short delay to let Firestore write settle
       setTimeout(loadTickets, 800);
       return result;
     };
@@ -2335,7 +2412,63 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
     setTimeout(bootstrap, 50);
   }
 })();
-</script>
+
+/* ── Admin Support: search by Order ID ── */
+let _allAdminTickets = [];   // cache set by renderAdminSupportPage / real-time listener
+
+(function patchAdminSupportSearch() {
+  /* Intercept the existing renderAdminSupportPage to cache ticket data */
+  const origRender = window.renderAdminSupportPage;
+  window.renderAdminSupportPage = function(...args) {
+    if (typeof origRender === 'function') origRender.apply(this, args);
+    /* After render, start a real-time listener to keep _allAdminTickets fresh */
+    if (!db) return;
+    db.collection('supportTickets').orderBy('createdAt', 'desc').limit(200)
+      .onSnapshot(snap => {
+        _allAdminTickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        /* Re-apply current search if any */
+        const q = (document.getElementById('admin-support-search')?.value || '').trim();
+        if (q) filterAdminSupportByOrderId(q);
+      }, () => {});
+  };
+})();
+
+function filterAdminSupportByOrderId(query) {
+  const list = document.getElementById('admin-support-list');
+  if (!list) return;
+  const q = (query || '').trim().toUpperCase();
+  if (!q) {
+    /* Clear filter — reload all */
+    if (typeof renderAdminSupportPage === 'function') renderAdminSupportPage();
+    return;
+  }
+  if (!_allAdminTickets.length) {
+    list.innerHTML = '<div class="empty-cat-msg"><div class="big">🔍</div>No tickets loaded yet.</div>';
+    return;
+  }
+  const matched = _allAdminTickets.filter(t =>
+    (t.orderId || '').toUpperCase().includes(q)
+  );
+  if (!matched.length) {
+    list.innerHTML = `<div class="empty-cat-msg"><div class="big">🔍</div>No tickets found for Order ID "<strong>${q}</strong>".</div>`;
+    return;
+  }
+  list.innerHTML = matched.map(t => {
+    const col = t.status === 'resolved' ? '#2e7d32' : '#e8820c';
+    return `<div class="menu-card" style="padding:14px;border-left:4px solid ${col}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-weight:800;color:var(--brown)">${t.type || 'Support'}</div>
+          <div style="font-size:.75rem;color:#888">Order ID: ${t.orderId || '—'} · ${t.customerEmail || t.customerName || '—'}</div>
+        </div>
+        <span style="background:${col}18;color:${col};border:1.5px solid ${col};border-radius:12px;padding:3px 10px;font-size:.7rem;font-weight:800">${(t.status || 'open').toUpperCase()}</span>
+      </div>
+      <div style="margin-top:8px;font-size:.85rem;color:#444">${t.description || ''}</div>
+      ${t.adminReply ? `<div style="margin-top:8px;background:var(--cream);padding:8px;border-radius:6px;font-size:.8rem"><strong>Admin Reply:</strong> ${t.adminReply}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
 
 <!-- ===== GUEST ORDER NOTIFICATION PATCH ===== -->
 <!-- Fixes: customers who order without sign-in don't receive status popup notifications -->
@@ -2996,6 +3129,105 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 400);
 });
+</script>
+
+<!-- ═══════════════════════════════════════════════
+     PAGE PERSISTENCE — saves & restores active page
+     across browser refresh / reload via localStorage
+     ═══════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  const STORAGE_KEY  = 'chapati_active_page';
+  const DEFAULT_PAGE = 'menu';
+
+  /* Pages that require admin role — fall back to menu for guests */
+  const ADMIN_ONLY_PAGES = new Set([
+    'dashboard', 'manage', 'orders', 'customers',
+    'payments', 'admin-support', 'delivery-settings', 'business-hours'
+  ]);
+
+  /* ── 1. Wrap showPage() to save state on every navigation ── */
+  function patchShowPage () {
+    if (typeof window.showPage !== 'function') {
+      /* showPage not yet defined — retry shortly */
+      setTimeout(patchShowPage, 80);
+      return;
+    }
+
+    const _original = window.showPage;
+    window.showPage = function (pageId) {
+      /* Call the original navigation logic first */
+      _original.call(this, pageId);
+      /* Then persist the page id */
+      try {
+        localStorage.setItem(STORAGE_KEY, pageId);
+      } catch (e) { /* storage blocked — ignore */ }
+    };
+  }
+
+  /* ── 2. Restore saved page on load ── */
+  function restorePage () {
+    let saved = DEFAULT_PAGE;
+    try {
+      saved = localStorage.getItem(STORAGE_KEY) || DEFAULT_PAGE;
+    } catch (e) { /* storage blocked */ }
+
+    /* Determine role — currentRole may already be set by main JS */
+    const role = (typeof currentRole !== 'undefined') ? currentRole : 'customer';
+
+    /* Fall back to menu if saved page requires admin and user is not admin */
+    if (ADMIN_ONLY_PAGES.has(saved) && role !== 'admin') {
+      saved = DEFAULT_PAGE;
+    }
+
+    /* Only navigate if we're not already on the right page */
+    if (typeof window.showPage === 'function') {
+      window.showPage(saved);
+    }
+  }
+
+  /* ── 3. Also update storage when admin sidebar buttons are clicked ── */
+  function patchAdminSidebarGo () {
+    if (typeof window.adminSidebarGo !== 'function') return;
+    const _orig = window.adminSidebarGo;
+    window.adminSidebarGo = function (pageId) {
+      _orig.call(this, pageId);
+      try { localStorage.setItem(STORAGE_KEY, pageId); } catch (e) {}
+    };
+  }
+
+  /* ── 4. Bootstrap ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    /* Patch as soon as possible */
+    patchShowPage();
+    patchAdminSidebarGo();
+
+    /*
+     * Wait for Firebase auth + main JS to finish initialising
+     * before attempting to restore (auth state affects which
+     * pages are accessible).
+     */
+    const MAX_WAIT = 6000; /* ms */
+    const TICK     = 150;  /* ms */
+    let   elapsed  = 0;
+
+    const waitForReady = setInterval(function () {
+      elapsed += TICK;
+      const authReady = (typeof currentUser !== 'undefined');
+      const fnReady   = (typeof window.showPage === 'function');
+
+      if ((authReady && fnReady) || elapsed >= MAX_WAIT) {
+        clearInterval(waitForReady);
+        patchShowPage();      /* ensure wrapper is applied */
+        patchAdminSidebarGo();
+        restorePage();
+      }
+    }, TICK);
+  });
+
+})();
 </script>
 
 </html>
