@@ -2949,62 +2949,72 @@ let _menuItemsLoaded = false;
 
 /* Load menu items from Firestore in real-time */
 function startMenuItemsListener() {
-  if (!db) { 
-    setTimeout(startMenuItemsListener, 500); 
-    return; 
+  // Safety check: don't start if already running or no db
+  if (!db || _menuItemsUnsub) {
+    console.log('[MenuItems] Listener skipped - db not ready or already running');
+    return;
   }
   
-  if (_menuItemsUnsub) return;  // Already listening
-  
-  console.log('[MenuItems] Starting real-time listener for menu items...');
-  
-  _menuItemsUnsub = db.collection('menu_items')
-    .where('active', '==', true)
-    .orderBy('order', 'asc')
-    .onSnapshot(
-      snapshot => {
-        console.log('[MenuItems] Snapshot received:', snapshot.size, 'documents');
-        
-        // Firestore listener callback
-        const firestoreItems = [];
-        snapshot.forEach(doc => {
-          firestoreItems.push({
-            id: doc.id,
-            catId: doc.data().catId,
-            name: doc.data().name,
-            type: doc.data().type || '',
-            price: Number(doc.data().price) || 0,
-            emoji: doc.data().emoji || '🍽',
-            inStock: doc.data().inStock !== false,
-            rating: Number(doc.data().rating) || 0,
-            ratingCount: Number(doc.data().ratingCount) || 0,
-            description: doc.data().description || ''
-          });
-        });
-        
-        // Always update items array, even if empty
-        items.length = 0;
-        items.push(...firestoreItems);
-        _menuItemsLoaded = true;
-        
-        console.log('[MenuItems] Updated items array with', items.length, 'items from Firestore');
-        
-        // Always refresh UI when snapshot changes
-        if (typeof renderMenuPage === 'function') {
-          renderMenuPage();  // Refresh customer menu page
-        } else if (typeof refreshInventoryUI === 'function') {
-          refreshInventoryUI();  // Fallback for admin panel
+  try {
+    console.log('[MenuItems] Starting real-time listener for menu items...');
+    
+    _menuItemsUnsub = db.collection('menu_items')
+      .where('active', '==', true)
+      .orderBy('order', 'asc')
+      .onSnapshot(
+        snapshot => {
+          try {
+            console.log('[MenuItems] Snapshot received:', snapshot.size, 'documents');
+            
+            // Firestore listener callback
+            const firestoreItems = [];
+            snapshot.forEach(doc => {
+              try {
+                const data = doc.data();
+                firestoreItems.push({
+                  id: doc.id,
+                  catId: data.catId || '',
+                  name: data.name || 'Unknown Item',
+                  type: data.type || '',
+                  price: Number(data.price) || 0,
+                  emoji: data.emoji || '🍽',
+                  inStock: data.inStock !== false,
+                  rating: Number(data.rating) || 0,
+                  ratingCount: Number(data.ratingCount) || 0,
+                  description: data.description || ''
+                });
+              } catch (docError) {
+                console.warn('[MenuItems] Error processing document:', doc.id, docError);
+              }
+            });
+            
+            // Always update items array, even if empty
+            items.length = 0;
+            items.push(...firestoreItems);
+            _menuItemsLoaded = true;
+            
+            console.log('[MenuItems] Updated items array with', items.length, 'items from Firestore');
+            
+            // Always refresh UI when snapshot changes
+            if (typeof renderMenuPage === 'function') {
+              renderMenuPage();  // Refresh customer menu page
+            } else if (typeof refreshInventoryUI === 'function') {
+              refreshInventoryUI();  // Fallback for admin panel
+            }
+          } catch (snapshotError) {
+            console.error('[MenuItems] Error processing snapshot:', snapshotError);
+          }
+        },
+        error => {
+          console.error('[MenuItems] Listener error:', error);
+          // Don't set _menuItemsLoaded = true on error, allow retry
         }
-      },
-      error => {
-        console.error('[MenuItems] Listener error:', error);
-        // Fallback: keep existing items if listener fails
-        if (!_menuItemsLoaded) {
-          console.log('[MenuItems] Using fallback: keeping hardcoded items');
-          _menuItemsLoaded = true;
-        }
-      }
-    );
+      );
+  } catch (listenerError) {
+    console.error('[MenuItems] Failed to start listener:', listenerError);
+    // Fallback: mark as loaded to prevent infinite retries
+    _menuItemsLoaded = true;
+  }
 }
 
 /* Hook into the admin's saveNewItem function to also save to Firestore */
@@ -3113,13 +3123,40 @@ window.migrateHardcodedItemsToFirestore = async function() {
 
 /* Bootstrap: Start listener after Firebase ready */
 document.addEventListener('DOMContentLoaded', () => {
+  let attempts = 0;
+  const maxAttempts = 50; // Max 20 seconds (50 * 400ms)
+  
   const waitForDb = setInterval(() => {
+    attempts++;
+    
     if (typeof db !== 'undefined' && db) {
       clearInterval(waitForDb);
+      console.log('[MenuItems] Firebase ready, starting sync...');
       startMenuItemsListener();      // Start real-time sync
       hookSaveNewItemToFirestore();  // Hook admin save function
+    } else if (attempts >= maxAttempts) {
+      clearInterval(waitForDb);
+      console.warn('[MenuItems] Firebase not available after 20s, using fallback items');
+      // Fallback: ensure items are loaded even without Firestore
+      if (!_menuItemsLoaded && items.length === 0) {
+        _menuItemsLoaded = true;
+        if (typeof renderMenuPage === 'function') {
+          renderMenuPage();
+        }
+      }
     }
   }, 400);
+  
+  // Emergency timeout: Always load something after 30 seconds
+  setTimeout(() => {
+    if (!_menuItemsLoaded) {
+      console.warn('[EMERGENCY] 30s timeout reached, force loading menu');
+      _menuItemsLoaded = true;
+      if (typeof renderMenuPage === 'function') {
+        renderMenuPage();
+      }
+    }
+  }, 30000);
 });
 
 /* Debug function: Manually test menu items sync */
@@ -3129,19 +3166,33 @@ window.testMenuItemsSync = function() {
   console.log('Listener active:', _menuItemsUnsub ? 'YES' : 'NO');
   console.log('Items loaded from Firestore:', _menuItemsLoaded ? 'YES' : 'NO');
   
-  // Test Firestore connection
-  db.collection('menu_items').where('active', '==', true).orderBy('order', 'asc').get()
-    .then(snapshot => {
-      console.log('Firestore query successful:', snapshot.size, 'items');
-      snapshot.forEach(doc => {
-        console.log('  -', doc.data().name, '(catId:', doc.data().catId + ')');
+  if (typeof db !== 'undefined' && db) {
+    // Test Firestore connection
+    db.collection('menu_items').where('active', '==', true).orderBy('order', 'asc').get()
+      .then(snapshot => {
+        console.log('Firestore query successful:', snapshot.size, 'items');
+        snapshot.forEach(doc => {
+          console.log('  -', doc.data().name, '(catId:', doc.data().catId + ')');
+        });
+      })
+      .catch(error => {
+        console.error('Firestore query failed:', error.message);
       });
-    })
-    .catch(error => {
-      console.error('Firestore query failed:', error.message);
-    });
+  } else {
+    console.warn('Firestore (db) not available');
+  }
   
   console.log('=== END TEST ===');
+};
+
+/* Emergency fallback: Ensure page loads even if everything fails */
+window.forceLoadMenu = function() {
+  console.log('[EMERGENCY] Force loading menu items...');
+  _menuItemsLoaded = true;
+  if (typeof renderMenuPage === 'function') {
+    renderMenuPage();
+  }
+  console.log('Items available:', items.length);
 };
 </script>
 
