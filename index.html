@@ -417,6 +417,12 @@
     .promo-banner .pb-content .pb-body{font-size:.78rem;color:#f5ddb5;margin-top:2px;line-height:1.4}
     .promo-banner .pb-close{background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:.95rem;padding:0;margin-left:auto;flex-shrink:0}
 
+    /* ===== CLOSED HOURS BANNER ===== */
+    .closed-banner{position:fixed;top:64px;left:0;right:0;z-index:998;background:linear-gradient(135deg,#fce4ec,#ffebee);border-bottom:2px solid var(--red);color:var(--red);padding:8px 16px;text-align:center;font-weight:700;font-size:.85rem;display:none}
+    .closed-banner.visible{display:block}
+    .promo-banner-wrap{top:74px}
+    .closed-banner.visible ~ .promo-banner-wrap{top:94px}
+
     /* ===== ORDERS MODAL ===== */
     .orders-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:center;justify-content:center;padding:10px}
     .orders-overlay.open{display:flex}
@@ -580,6 +586,7 @@
       .toast{bottom:72px}
       .scroll-top-btn{bottom:78px;right:12px}
       .promo-banner-wrap{top:68px;right:8px;left:8px;max-width:100%}
+      .closed-banner{top:58px;font-size:.8rem;padding:6px 12px}
       .main{padding:16px 10px 130px}
       .hero{padding:32px 14px 28px}
       .hero h1{font-size:1.65rem}
@@ -807,14 +814,6 @@
     .bh-preview-box{background:linear-gradient(135deg,#fff8ef,#fff3e0);border:1.5px solid var(--saffron);border-radius:13px;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
     .bh-preview-label{font-size:.78rem;color:var(--brown);font-weight:700;}
     .bh-preview-time{font-family:'Yeseva One',serif;font-size:1.2rem;color:var(--brown);}
-    /* Customer closed overlay */
-    .bh-closed-overlay{display:none;position:fixed;inset:0;z-index:3000;background:linear-gradient(160deg,#1a0a00 0%,#3b1a06 40%,#7a3b10 100%);flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center;}
-    .bh-closed-overlay.visible{display:flex;animation:camFadeIn .4s ease;}
-    .bh-closed-icon{font-size:5rem;margin-bottom:16px;animation:float 3s ease-in-out infinite;}
-    .bh-closed-title{font-family:'Yeseva One',serif;font-size:1.9rem;color:var(--turmeric);margin-bottom:12px;line-height:1.2;}
-    .bh-closed-msg{color:#f5ddb5;font-size:.98rem;line-height:1.75;margin-bottom:22px;max-width:420px;}
-    .bh-closed-badge{background:rgba(245,166,35,.15);border:2px solid var(--turmeric);border-radius:16px;padding:12px 28px;margin-bottom:28px;font-family:'Yeseva One',serif;font-size:1.3rem;color:var(--turmeric);display:inline-block;}
-    .bh-closed-footer{color:rgba(245,221,181,.5);font-size:.78rem;letter-spacing:.5px;}
 
     /* ===== PAYMENT TOGGLE ===== */
     .pay-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:13px 16px;background:var(--cream);border:1.5px solid var(--border);border-radius:12px;margin-bottom:10px;gap:10px}
@@ -1154,6 +1153,9 @@
 
 <!-- PROMO NOTIFICATIONS -->
 <div class="promo-banner-wrap" id="promo-banner-wrap"></div>
+
+<!-- CLOSED HOURS BANNER -->
+<div class="closed-banner" id="closed-banner">We're closed now. Ordering is available from 9:00 AM – 9:00 PM.</div>
 
 <!-- CUSTOMER ALERT MODAL (order status notifications) -->
 <div class="customer-alert-overlay" id="customer-alert-modal-overlay">
@@ -1761,19 +1763,6 @@
   </div>
 
 </div><!-- end .main -->
-
-<!-- BUSINESS HOURS CLOSED OVERLAY -->
-<div class="bh-closed-overlay" id="bh-closed-overlay">
-  <div class="bh-closed-icon">🫓</div>
-  <div class="bh-closed-title">Our Kitchen is Resting!</div>
-  <div class="bh-closed-msg">
-    We're not taking orders right now, but don't worry —<br>
-    fresh, hot chapatis will be waiting for you when we open.<br>
-    See you soon! 🔥
-  </div>
-  <div class="bh-closed-badge" id="bh-closed-badge">Open 9:00 AM – 9:00 PM</div>
-  <div class="bh-closed-footer">Chapati Express · Peddha Baazar, Sircilla · Pure Veg</div>
-</div>
 
 <footer style="background:var(--brown);color:#f5ddb5;text-align:center;padding:22px 16px 80px;font-size:.82rem">
   <strong>Chapati Express</strong> · 📍 Peddha Baazar, Sircilla · 🕐 9 AM – 10 PM<br/>
@@ -3044,20 +3033,71 @@ function startBhListener() {
     }, err => console.error('BH listener error:', err));
 }
 
-/* Customer gate — show/hide closed overlay (admin always bypasses) */
+/* Customer gate — show banner and disable ordering when closed (admin always bypasses) */
 function applyBhToCustomer() {
-  const overlay = document.getElementById('bh-closed-overlay');
-  if (!overlay) return;
+  const banner = document.getElementById('closed-banner');
+  if (!banner) return;
   if (typeof currentRole !== 'undefined' && currentRole === 'admin') {
-    overlay.classList.remove('visible');   // admin always sees site open
-    document.body.style.overflow = '';
+    banner.classList.remove('visible');   // admin always sees site open
+    enableOrderButtons(true);
     return;
   }
   const open = isBhOpen();
-  overlay.classList.toggle('visible', !open);
-  document.body.style.overflow = open ? '' : 'hidden';
-  const badge = document.getElementById('bh-closed-badge');
-  if (badge) badge.textContent = `Open ${bhFmt(_bhSettings.openTime)} – ${bhFmt(_bhSettings.closeTime)}`;
+  banner.classList.toggle('visible', !open);
+  enableOrderButtons(open);
+
+  // Adjust promo banner position
+  const promoWrap = document.getElementById('promo-banner-wrap');
+  if (promoWrap) {
+    const isMobile = window.innerWidth <= 768;
+    const baseTop = isMobile ? 68 : 74;
+    promoWrap.style.top = !open ? (baseTop + 30) + 'px' : baseTop + 'px';
+  }
+}
+
+/* Enable/disable all order buttons based on business hours */
+function enableOrderButtons(enabled) {
+  // Disable add buttons
+  const addBtns = document.querySelectorAll('.add-btn');
+  addBtns.forEach(btn => {
+    btn.disabled = !enabled;
+    btn.style.opacity = enabled ? '1' : '0.5';
+    btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+    if (!enabled) {
+      btn.title = 'Ordering is currently unavailable';
+    } else {
+      btn.removeAttribute('title');
+    }
+  });
+
+  // Disable quantity buttons
+  const qtyBtns = document.querySelectorAll('.card-qty-btn');
+  qtyBtns.forEach(btn => {
+    btn.disabled = !enabled;
+    btn.style.opacity = enabled ? '1' : '0.5';
+    btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+  });
+
+  // Disable checkout button
+  const checkoutBtn = document.querySelector('.checkout-btn');
+  if (checkoutBtn) {
+    checkoutBtn.disabled = !enabled;
+    checkoutBtn.style.opacity = enabled ? '1' : '0.5';
+    checkoutBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+    if (!enabled) {
+      checkoutBtn.title = 'Ordering is currently unavailable';
+    } else {
+      checkoutBtn.removeAttribute('title');
+    }
+  }
+
+  // Disable float order bar button
+  const floatBtn = document.querySelector('.float-order-bar .checkout-btn');
+  if (floatBtn) {
+    floatBtn.disabled = !enabled;
+    floatBtn.style.opacity = enabled ? '1' : '0.5';
+    floatBtn.style.cursor = enabled ? 'pointer' : 'not-allowed';
+  }
 }
 
 /* Admin page: sync form fields from Firestore data */
