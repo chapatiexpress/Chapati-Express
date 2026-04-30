@@ -1156,7 +1156,7 @@
 <div class="promo-banner-wrap" id="promo-banner-wrap"></div>
 
 <!-- CLOSED HOURS BANNER -->
-<div class="closed-banner" id="closed-banner">We're closed now. Ordering is available from 9:00 AM – 9:00 PM.</div>
+<div class="closed-banner" id="closed-banner"></div>
 
 <!-- CUSTOMER ALERT MODAL (order status notifications) -->
 <div class="customer-alert-overlay" id="customer-alert-modal-overlay">
@@ -3044,15 +3044,22 @@ function applyBhToCustomer() {
     return;
   }
   const open = isBhOpen();
-  banner.classList.toggle('visible', !open);
   enableOrderButtons(open);
+
+  if (!open && _bhSettings.enabled) {
+    banner.classList.add('visible');
+    banner.textContent = `We're closed now. Ordering is available from ${bhFmt(_bhSettings.openTime)} – ${bhFmt(_bhSettings.closeTime)}.`;
+  } else {
+    banner.classList.remove('visible');
+    banner.textContent = '';
+  }
 
   // Adjust promo banner position
   const promoWrap = document.getElementById('promo-banner-wrap');
   if (promoWrap) {
     const isMobile = window.innerWidth <= 768;
     const baseTop = isMobile ? 68 : 74;
-    promoWrap.style.top = !open ? (baseTop + 30) + 'px' : baseTop + 'px';
+    promoWrap.style.top = !open && _bhSettings.enabled ? (baseTop + 30) + 'px' : baseTop + 'px';
   }
 }
 
