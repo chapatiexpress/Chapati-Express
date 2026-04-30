@@ -1050,6 +1050,69 @@
   }
 })();
 </script>
+<script>
+(function patchAdminOrderPopupRealtime(){
+  function stopAdminPopup() {
+    if (typeof window.stopPopupCountdown === 'function') window.stopPopupCountdown();
+    if (typeof window.stopZomatoRingtone === 'function') window.stopZomatoRingtone();
+  }
+
+  function clearAdminOrderListener() {
+    if (window._adminOrderStatusUnsub) {
+      try { window._adminOrderStatusUnsub(); } catch (err) {}
+      window._adminOrderStatusUnsub = null;
+    }
+  }
+
+  function startAdminOrderListener(orderId) {
+    clearAdminOrderListener();
+    if (!window.db || !orderId || typeof window.db.collection !== 'function') return;
+
+    try {
+      window._adminOrderStatusUnsub = window.db
+        .collection('orders')
+        .doc(orderId)
+        .onSnapshot(function(doc) {
+          if (!doc || !doc.exists) return;
+          var data = doc.data ? doc.data() : null;
+          if (!data || !data.status) return;
+          if (data.status !== 'pending') {
+            stopAdminPopup();
+            clearAdminOrderListener();
+            if (typeof window.closeAdminOrderPopup === 'function') {
+              try { window.closeAdminOrderPopup(); } catch (err) {}
+            }
+          }
+        });
+    } catch (err) {
+      console.warn('[AdminPopupPatch] listener failed', err);
+    }
+  }
+
+  function patchFunction(name, patcher) {
+    var original = window[name];
+    if (typeof original !== 'function') {
+      setTimeout(function() { patchFunction(name, patcher); }, 300);
+      return;
+    }
+    window[name] = patcher(original);
+  }
+
+  patchFunction('showAdminOrderPopup', function(orig) {
+    return function(order) {
+      if (order && order.id) startAdminOrderListener(order.id);
+      return orig.apply(this, arguments);
+    };
+  });
+
+  patchFunction('closeAdminOrderPopup', function(orig) {
+    return function() {
+      clearAdminOrderListener();
+      return orig.apply(this, arguments);
+    };
+  });
+})();
+</script>
   <h1 style="display:none;">Chapati Express Sircilla</h1>
 
 <!-- MOBILE SEARCH OVERLAY -->
