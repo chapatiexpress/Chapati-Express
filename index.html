@@ -2983,91 +2983,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
 <script>
 /* =====================================================
-   BUSINESS HOURS — Admin Config + Customer Gate
-   Firestore path: settings/businessHours
-   Fields: { enabled: bool, openTime: "09:00", closeTime: "21:00" }
+   STORE STATUS — Admin Config + Customer Gate
+   Firestore path: settings/storeSettings
+   Fields: { isStoreOpen: bool }
    ===================================================== */
 
-let _bhSettings = { enabled: true, openTime: '09:00', closeTime: '21:00' };
-let _bhUnsub    = null;
+let _storeSettings = { isStoreOpen: true };
+let _storeSettingsUnsub = null;
 
-/* Format "HH:MM" → "9:00 AM" */
-function bhFmt(t) {
-  if (!t || typeof t !== 'string') return '';
-  const parts = t.split(':');
-  const hh = Number(parts[0]);
-  const mm = parts.length > 1 ? Number(parts[1]) : 0;
-  if (Number.isNaN(hh) || Number.isNaN(mm)) return String(t);
-  const ampm = hh < 12 ? 'AM' : 'PM';
-  const h    = hh % 12 || 12;
-  return `${h}:${String(mm).padStart(2,'0')} ${ampm}`;
-}
-
-/* Is the store open right now? */
-function isBhOpen() {
-  if (!_bhSettings.enabled) return true;
-  const now  = new Date();
-  const cur  = now.getHours() * 60 + now.getMinutes();
-  const [oh, om] = _bhSettings.openTime.split(':').map(Number);
-  const [ch, cm] = _bhSettings.closeTime.split(':').map(Number);
-  return cur >= (oh * 60 + om) && cur < (ch * 60 + cm);
-}
-
-/* Firestore real-time listener */
-function startBhListener() {
-  if (!db) { setTimeout(startBhListener, 500); return; }
-  if (_bhUnsub) return;
-  _bhUnsub = db.collection('settings').doc('businessHours')
+function startStoreSettingsListener() {
+  if (!db) { setTimeout(startStoreSettingsListener, 500); return; }
+  if (_storeSettingsUnsub) return;
+  _storeSettingsUnsub = db.collection('settings').doc('storeSettings')
     .onSnapshot(snap => {
       if (snap.exists) {
-        const d = snap.data();
-        const enabledValue = d.enabled;
-        _bhSettings = {
-          enabled: enabledValue !== false && enabledValue !== 'false' && enabledValue !== 0 && enabledValue !== '0',
-          openTime: parseTimeString(d.openTime),
-          closeTime: parseTimeString(d.closeTime)
-        };
+        const data = snap.data();
+        _storeSettings.isStoreOpen = data?.isStoreOpen === true;
       } else {
-        _bhSettings = { enabled: true, openTime: '09:00', closeTime: '21:00' };
+        _storeSettings.isStoreOpen = true;
       }
-      applyBhToCustomer();
-      applyBhToAdminPage();
-    }, err => console.error('BH listener error:', err));
+      applyStoreSettingsToCustomer();
+      applyStoreSettingsToAdminPage();
+    }, err => console.error('storeSettings listener error:', err));
 }
 
-/* Customer gate — show banner and disable ordering when closed (admin always bypasses) */
-function applyBhToCustomer() {
+function applyStoreSettingsToCustomer() {
   const banner = document.getElementById('closed-banner');
   if (!banner) return;
   if (typeof currentRole !== 'undefined' && currentRole === 'admin') {
-    banner.classList.remove('visible');   // admin always sees site open
+    banner.classList.remove('visible');
     enableOrderButtons(true);
     return;
   }
-  const open = isBhOpen();
-  enableOrderButtons(open);
 
-  const isScheduleActive = _bhSettings.enabled;
-  if (!open && isScheduleActive) {
+  const open = _storeSettings.isStoreOpen;
+  if (!open) {
     banner.classList.add('visible');
-    banner.textContent = `We're closed now. Ordering is available from ${bhFmt(_bhSettings.openTime)} – ${bhFmt(_bhSettings.closeTime)}.`;
+    banner.textContent = "We're currently closed. Ordering is available from 9:00 AM – 9:00 PM.";
   } else {
     banner.classList.remove('visible');
     banner.textContent = '';
   }
+  enableOrderButtons(open);
 
-  // Adjust promo banner position
   const promoWrap = document.getElementById('promo-banner-wrap');
   if (promoWrap) {
     const isMobile = window.innerWidth <= 768;
     const baseTop = isMobile ? 68 : 74;
-    promoWrap.style.top = !open && isScheduleActive ? (baseTop + 30) + 'px' : baseTop + 'px';
+    promoWrap.style.top = !open ? (baseTop + 30) + 'px' : baseTop + 'px';
   }
 }
 
-/* Enable/disable all order buttons based on business hours */
+/* Enable/disable all order buttons based on store status */
 function enableOrderButtons(enabled) {
-  // Disable add buttons
   const addBtns = document.querySelectorAll('.add-btn');
   addBtns.forEach(btn => {
     btn.disabled = !enabled;
@@ -3080,7 +3048,6 @@ function enableOrderButtons(enabled) {
     }
   });
 
-  // Disable quantity buttons
   const qtyBtns = document.querySelectorAll('.card-qty-btn');
   qtyBtns.forEach(btn => {
     btn.disabled = !enabled;
@@ -3088,7 +3055,6 @@ function enableOrderButtons(enabled) {
     btn.style.cursor = enabled ? 'pointer' : 'not-allowed';
   });
 
-  // Disable checkout button
   const checkoutBtn = document.querySelector('.checkout-btn');
   if (checkoutBtn) {
     checkoutBtn.disabled = !enabled;
@@ -3101,7 +3067,6 @@ function enableOrderButtons(enabled) {
     }
   }
 
-  // Disable float order bar button
   const floatBtn = document.querySelector('.float-order-bar .checkout-btn');
   if (floatBtn) {
     floatBtn.disabled = !enabled;
@@ -3110,56 +3075,57 @@ function enableOrderButtons(enabled) {
   }
 }
 
-/* Admin page: sync form fields from Firestore data */
-function applyBhToAdminPage() {
-  const tog  = document.getElementById('bh-enabled-toggle');
-  const opIn = document.getElementById('bh-open-time');
-  const clIn = document.getElementById('bh-close-time');
-  if (!tog) return;
-  tog.checked  = _bhSettings.enabled;
-  opIn.value   = _bhSettings.openTime;
-  clIn.value   = _bhSettings.closeTime;
-  updateBhPreview();
+function applyStoreSettingsToAdminPage() {
+  const tog = document.getElementById('bh-enabled-toggle');
+  const pill = document.getElementById('bh-status-pill');
+  if (tog) tog.checked = _storeSettings.isStoreOpen;
+  if (pill) {
+    pill.textContent = _storeSettings.isStoreOpen ? '🟢 Open Now' : '🔴 Closed Now';
+    pill.className = 'bh-status-pill ' + (_storeSettings.isStoreOpen ? 'open' : 'closed');
+  }
+  updateStoreSettingsPreview(_storeSettings.isStoreOpen);
 }
 
-/* Admin: toggle changed */
-function onBhToggleChange() { updateBhPreview(); }
-
-/* Admin: live preview */
-function updateBhPreview() {
+function onBhToggleChange() {
   const enabled = document.getElementById('bh-enabled-toggle')?.checked ?? true;
-  const openT   = document.getElementById('bh-open-time')?.value  || '09:00';
-  const closeT  = document.getElementById('bh-close-time')?.value || '21:00';
-  const prev    = document.getElementById('bh-preview-time');
-  const sub     = document.getElementById('bh-preview-sub');
-  const pill    = document.getElementById('bh-status-pill');
-  if (prev) prev.textContent = enabled ? `${bhFmt(openT)} – ${bhFmt(closeT)}` : '24/7 (Always Open)';
-  if (sub)  sub.textContent  = enabled ? `Open ${bhFmt(openT)} – ${bhFmt(closeT)}` : 'No restrictions — store is always open';
-  const open = isBhOpen();
-  if (pill) { pill.textContent = open ? '🟢 Open Now' : '🔴 Closed Now'; pill.className = 'bh-status-pill ' + (open ? 'open' : 'closed'); }
+  updateStoreSettingsPreview(enabled);
+  updateStoreOpenStatus(enabled);
 }
 
-/* Save to Firestore */
+function updateStoreSettingsPreview(isOpen) {
+  const prev = document.getElementById('bh-preview-time');
+  const sub = document.getElementById('bh-preview-sub');
+  const pill = document.getElementById('bh-status-pill');
+  if (prev) prev.textContent = isOpen ? 'Open Now' : 'Closed Now';
+  if (sub) sub.textContent = isOpen ? 'Ordering is enabled' : 'Ordering is disabled';
+  if (pill) {
+    pill.textContent = isOpen ? '🟢 Open Now' : '🔴 Closed Now';
+    pill.className = 'bh-status-pill ' + (isOpen ? 'open' : 'closed');
+  }
+}
+
+async function updateStoreOpenStatus(isOpen) {
+  if (!db || currentRole !== 'admin') { showToast('⚠️ Only admin can update store status'); return; }
+  try {
+    await db.collection('settings').doc('storeSettings').set({
+      isStoreOpen: isOpen,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: currentUser?.email || 'admin'
+    }, { merge: true });
+    showToast(isOpen ? '✅ Store opened for orders' : '✅ Store closed for orders');
+  } catch (e) {
+    console.error('updateStoreOpenStatus error:', e);
+    showToast('❌ Unable to save store status');
+  }
+}
+
 async function saveBhSettings() {
-  if (!db || currentRole !== 'admin') { showToast('⚠️ Only admin can update business hours'); return; }
-  const enabled   = document.getElementById('bh-enabled-toggle').checked;
-  const openTime  = document.getElementById('bh-open-time').value  || '09:00';
-  const closeTime = document.getElementById('bh-close-time').value || '21:00';
-  if (enabled && openTime >= closeTime) { showToast('⚠️ Opening time must be before closing time'); return; }
+  if (!db || currentRole !== 'admin') { showToast('⚠️ Only admin can update store status'); return; }
+  const isOpen = document.getElementById('bh-enabled-toggle')?.checked ?? true;
   const btn = document.getElementById('bh-save-btn');
   if (btn) { btn.textContent = '⏳ Saving...'; btn.disabled = true; }
-  try {
-    await db.collection('settings').doc('businessHours').set(
-      { enabled, openTime, closeTime, updatedAt: firebase.firestore.FieldValue.serverTimestamp(), updatedBy: currentUser?.email || 'admin' },
-      { merge: true }
-    );
-    showToast(enabled ? `✅ Hours saved: ${bhFmt(openTime)} – ${bhFmt(closeTime)}` : '✅ 24/7 mode activated');
-  } catch(e) {
-    console.error('saveBhSettings error:', e);
-    showToast('❌ Failed to save: ' + (e.message || 'unknown error'));
-  } finally {
-    if (btn) { btn.textContent = '💾 Save Business Hours'; btn.disabled = false; }
-  }
+  await updateStoreOpenStatus(isOpen);
+  if (btn) { btn.textContent = '💾 Save Business Hours'; btn.disabled = false; }
 }
 
 /* Wire showPage for business-hours */
@@ -3169,7 +3135,7 @@ async function saveBhSettings() {
     if (page === 'business-hours') {
       if (currentRole !== 'admin') { showToast('⚠️ Only admin can access Business Hours'); return; }
       if (typeof origShow === 'function') origShow('business-hours', ...rest);
-      setTimeout(applyBhToAdminPage, 60);
+      setTimeout(applyStoreSettingsToAdminPage, 60);
       return;
     }
     if (typeof origShow === 'function') origShow(page, ...rest);
@@ -3182,35 +3148,33 @@ async function saveBhSettings() {
   };
 })();
 
-/* Block order modal — require sign-in + business hours (admin bypasses BH) */
+/* Block order modal — require sign-in + store open state (admin bypasses) */
 (function() {
   const origOpen = window.openOrderModal;
   window.openOrderModal = function(...args) {
-    // 1. Must be signed in
     if (!currentUser) {
       showToast('🔐 Please sign in to place an order', 2500);
       const overlay = document.getElementById('auth-overlay');
       if (overlay) overlay.classList.add('open');
       return;
     }
-    // 2. Business hours — admin is exempt
-    if (currentRole !== 'admin' && !isBhOpen()) {
-      showToast(`🕐 We're closed! Open ${bhFmt(_bhSettings.openTime)} – ${bhFmt(_bhSettings.closeTime)}`, 3500);
+    if (currentRole !== 'admin' && !_storeSettings.isStoreOpen) {
+      showToast('🕐 We are currently closed. Please try again later.', 3500);
       return;
     }
     if (typeof origOpen === 'function') origOpen.apply(this, args);
   };
 })();
 
-/* Auto-check every minute (handles exact open/close transitions) */
-setInterval(applyBhToCustomer, 60000);
+/* Auto-check every minute (not required but safe) */
+setInterval(applyStoreSettingsToCustomer, 60000);
 
 /* Bootstrap after Firebase ready */
 document.addEventListener('DOMContentLoaded', () => {
   const waitForDb = setInterval(() => {
     if (typeof db !== 'undefined' && db) {
       clearInterval(waitForDb);
-      startBhListener();
+      startStoreSettingsListener();
     }
   }, 400);
 });
