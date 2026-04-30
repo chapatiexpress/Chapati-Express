@@ -2959,7 +2959,6 @@ function startMenuItemsListener() {
     console.log('[MenuItems] Starting real-time listener for menu items...');
     
     _menuItemsUnsub = db.collection('menu_items')
-      .where('active', '==', true)
       .orderBy('order', 'asc')
       .onSnapshot(
         snapshot => {
@@ -2970,10 +2969,14 @@ function startMenuItemsListener() {
             const firestoreItems = [];
             snapshot.forEach(doc => {
               try {
-                const data = doc.data();
+                const data = doc.data() || {};
+                const isActive = data.active !== false;
+                if (!isActive) return; // skip inactive items
+                const resolvedCatId = data.catId || (categories[0] && categories[0].id) || 'all';
+                const orderValue = Number(data.order);
                 firestoreItems.push({
                   id: doc.id,
-                  catId: data.catId || '',
+                  catId: resolvedCatId,
                   name: data.name || 'Unknown Item',
                   type: data.type || '',
                   price: Number(data.price) || 0,
@@ -2981,12 +2984,15 @@ function startMenuItemsListener() {
                   inStock: data.inStock !== false,
                   rating: Number(data.rating) || 0,
                   ratingCount: Number(data.ratingCount) || 0,
-                  description: data.description || ''
+                  description: data.description || '',
+                  order: Number.isFinite(orderValue) ? orderValue : Number.MAX_SAFE_INTEGER
                 });
               } catch (docError) {
                 console.warn('[MenuItems] Error processing document:', doc.id, docError);
               }
             });
+            
+            firestoreItems.sort((a, b) => a.order - b.order);
             
             // Always update items array, even if empty
             items.length = 0;
@@ -3123,6 +3129,11 @@ window.migrateHardcodedItemsToFirestore = async function() {
 
 /* Bootstrap: Start listener after Firebase ready */
 document.addEventListener('DOMContentLoaded', () => {
+  // Render initial menu immediately so customers see something while Firestore loads
+  if (typeof renderMenuPage === 'function') {
+    renderMenuPage();
+  }
+
   let attempts = 0;
   const maxAttempts = 50; // Max 20 seconds (50 * 400ms)
   
@@ -3138,7 +3149,7 @@ document.addEventListener('DOMContentLoaded', () => {
       clearInterval(waitForDb);
       console.warn('[MenuItems] Firebase not available after 20s, using fallback items');
       // Fallback: ensure items are loaded even without Firestore
-      if (!_menuItemsLoaded && items.length === 0) {
+      if (!_menuItemsLoaded) {
         _menuItemsLoaded = true;
         if (typeof renderMenuPage === 'function') {
           renderMenuPage();
