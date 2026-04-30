@@ -3021,10 +3021,11 @@ function startBhListener() {
     .onSnapshot(snap => {
       if (snap.exists) {
         const d = snap.data();
+        const enabledValue = d.enabled;
         _bhSettings = {
-          enabled   : d.enabled !== false,
-          openTime  : d.openTime  || '09:00',
-          closeTime : d.closeTime || '21:00'
+          enabled: enabledValue !== false && enabledValue !== 'false' && enabledValue !== 0 && enabledValue !== '0',
+          openTime: parseTimeString(d.openTime),
+          closeTime: parseTimeString(d.closeTime)
         };
       } else {
         _bhSettings = { enabled: true, openTime: '09:00', closeTime: '21:00' };
@@ -3046,7 +3047,8 @@ function applyBhToCustomer() {
   const open = isBhOpen();
   enableOrderButtons(open);
 
-  if (!open && _bhSettings.enabled) {
+  const isScheduleActive = _bhSettings.enabled;
+  if (!open && isScheduleActive) {
     banner.classList.add('visible');
     banner.textContent = `We're closed now. Ordering is available from ${bhFmt(_bhSettings.openTime)} – ${bhFmt(_bhSettings.closeTime)}.`;
   } else {
@@ -3059,7 +3061,7 @@ function applyBhToCustomer() {
   if (promoWrap) {
     const isMobile = window.innerWidth <= 768;
     const baseTop = isMobile ? 68 : 74;
-    promoWrap.style.top = !open && _bhSettings.enabled ? (baseTop + 30) + 'px' : baseTop + 'px';
+    promoWrap.style.top = !open && isScheduleActive ? (baseTop + 30) + 'px' : baseTop + 'px';
   }
 }
 
