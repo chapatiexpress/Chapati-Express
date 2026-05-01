@@ -2180,14 +2180,298 @@ window.showPromoNotification = function(title, body, emoji){
   }catch(e){}
 };
 
-/* Ensure closeCustomerAlertModal always works (defined again as a global
-   in case the obfuscated block below hasn't run yet) */
-if(!window.closeCustomerAlertModal){
-  window.closeCustomerAlertModal = function(){
-    var el = document.getElementById('customer-alert-modal-overlay');
-    if(el){ el.classList.remove('open'); el.style.display='none'; }
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOMER ORDER NOTIFICATION — Complete Override
+   Watches orders by BOTH customerUid AND localStorage orderId.
+   This guarantees popups even for guest orders (customerUid=null).
+   Runs AFTER the obfuscated JS so it fully replaces the watcher.
+════════════════════════════════════════════════════════════════ */
+(function setupCustomerNotifications(){
+
+  /* ---------- helpers ---------- */
+  var _unsub1 = null;   // uid-based watcher
+  var _unsub2 = null;   // orderId-based watcher
+  var _seenStatus = {}; // orderId → last seen status
+
+  /* Status configs */
+  var STATUS_CONFIG = {
+    'accepted': {
+      title : '✅ Order Accepted!',
+      body  : '🫓 Great news! Your chapati is being freshly prepared now. Estimated delivery ~30 mins.',
+      type  : 'success',
+      toast : '✅ Your order was accepted! Preparing now 🍳',
+      sound : true
+    },
+    'ready': {
+      title : '🍳 Order Ready!',
+      body  : '📦 Your chapati is packed and ready! Our delivery partner will pick it up shortly.',
+      type  : 'info',
+      toast : '🍳 Your order is ready! On its way soon 🚴',
+      sound : true
+    },
+    'out_for_delivery': {
+      title : '🚴 Out for Delivery!',
+      body  : '🛵 Your chapati is on its way — get ready to enjoy!',
+      type  : 'info',
+      toast : '🚴 Your order is out for delivery!',
+      sound : true
+    },
+    'completed': {
+      title : '🎉 Order Delivered!',
+      body  : '🫓 Your fresh chapati has arrived! Enjoy your meal and don\'t forget to leave a review.',
+      type  : 'success',
+      toast : '🎉 Order delivered! Enjoy your meal!',
+      sound : false
+    },
+    'delivered': {
+      title : '🎉 Order Delivered!',
+      body  : '🫓 Your fresh chapati has arrived! Enjoy your meal and don\'t forget to leave a review.',
+      type  : 'success',
+      toast : '🎉 Order delivered! Enjoy your meal!',
+      sound : false
+    },
+    'rejected': {
+      title : '❌ Order Rejected',
+      body  : '😔 Sorry, your order was rejected. Please contact us or try placing a new order.',
+      type  : 'error',
+      toast : '❌ Your order was rejected',
+      sound : false
+    },
+    'cancelled': {
+      title : '🚫 Order Cancelled',
+      body  : 'Your order was automatically cancelled because no one responded in time. Please place a new order.',
+      type  : 'cancelled',
+      toast : '🚫 Order auto-cancelled',
+      sound : false
+    }
   };
-}
+
+  /* Fire the beautiful popup notification */
+  function fireNotification(cfg, orderId) {
+    if (!cfg) return;
+
+    /* 1. Top banner strip */
+    try {
+      var strip = document.getElementById('cust-status-promo');
+      var txt   = document.getElementById('cust-promo-text');
+      if (strip && txt) {
+        txt.textContent = cfg.toast;
+        var colors = {
+          success    : 'linear-gradient(90deg,#2e7d32,#43a047)',
+          info       : 'linear-gradient(90deg,#1565c0,#1976d2)',
+          error      : 'linear-gradient(90deg,#c62828,#e53935)',
+          cancelled  : 'linear-gradient(90deg,#555,#777)'
+        };
+        strip.style.background = colors[cfg.type] || colors.success;
+        strip.style.display = 'block';
+        clearTimeout(strip._t);
+        strip._t = setTimeout(function(){ strip.style.display='none'; }, 7000);
+      }
+    } catch(e){}
+
+    /* 2. Vibrate */
+    try{ if(navigator.vibrate) navigator.vibrate([100,50,100]); }catch(e){}
+
+    /* 3. Sound */
+    if (cfg.sound && typeof playOrderPlacedSound === 'function') {
+      try{ playOrderPlacedSound(); }catch(e){}
+    }
+
+    /* 4. Full-screen alert modal */
+    try {
+      var overlay = document.getElementById('customer-alert-modal-overlay');
+      var iconEl  = document.getElementById('cam-icon-ring');
+      var topBar  = document.getElementById('cam-top-bar');
+      var titleEl = document.getElementById('cam-title');
+      var bodyEl  = document.getElementById('cam-body');
+      var okBtn   = document.getElementById('cam-ok-btn');
+
+      if (!overlay || !titleEl || !bodyEl) return;
+
+      /* Set icon */
+      var icons = { success:'✅', info:'📦', error:'❌', cancelled:'🚫' };
+      if (iconEl) {
+        iconEl.textContent = icons[cfg.type] || '📦';
+        iconEl.className   = 'cam-icon-ring ' + cfg.type;
+      }
+
+      /* Set top colour bar */
+      var barColors = {
+        success   : 'linear-gradient(90deg,#2e7d32,#43a047)',
+        info      : 'linear-gradient(90deg,#1565c0,#1976d2)',
+        error     : 'linear-gradient(90deg,#c62828,#e53935)',
+        cancelled : 'linear-gradient(90deg,#555,#777)'
+      };
+      if (topBar) {
+        topBar.className = 'cam-top-bar ' + cfg.type;
+        topBar.style.background = barColors[cfg.type] || barColors.success;
+      }
+
+      /* Title & body */
+      titleEl.textContent = cfg.title;
+      titleEl.style.color = cfg.type === 'error' ? '#c62828'
+                          : cfg.type === 'cancelled' ? '#555'
+                          : cfg.type === 'info' ? '#1565c0'
+                          : '#2e7d32';
+      bodyEl.innerHTML = cfg.body
+        + (orderId ? '<br><br><small style="color:#aaa">Order ID: ' + orderId + '</small>' : '');
+
+      /* OK button */
+      if (okBtn) {
+        okBtn.style.background = barColors[cfg.type] || barColors.success;
+        okBtn.onclick = function() {
+          overlay.classList.remove('open');
+          /* For delivered → open rating */
+          if (cfg.type === 'success' && orderId &&
+              (okBtn._status === 'completed' || okBtn._status === 'delivered')) {
+            setTimeout(function(){
+              if(typeof openRatingModal === 'function') openRatingModal(orderId);
+            }, 300);
+          } else {
+            if(typeof showPage === 'function') showPage('tracking');
+            if(typeof setMobNav === 'function') setMobNav('track');
+          }
+        };
+        okBtn._status = cfg._rawStatus;
+      }
+
+      /* Open! */
+      overlay.classList.add('open');
+
+    } catch(err) {
+      console.error('fireNotification modal error:', err);
+    }
+  }
+
+  /* Handle a status change for one order doc */
+  function handleDocChange(docSnap, changeType) {
+    if (changeType !== 'modified' && changeType !== 'added') return;
+    var data     = docSnap.data() || {};
+    var status   = (data.status || '').toLowerCase();
+    var orderId  = data.orderId || docSnap.id;
+
+    /* Skip if we already showed this status */
+    if (_seenStatus[orderId] === status) return;
+    _seenStatus[orderId] = status;
+
+    var cfg = STATUS_CONFIG[status];
+    if (!cfg) return;   /* pending / preparing — no popup */
+
+    cfg._rawStatus = status;
+    fireNotification(cfg, orderId);
+
+    /* Also update localStorage so tracking page refreshes */
+    try {
+      var raw = localStorage.getItem('lastOrder');
+      if (raw) {
+        var lo = JSON.parse(raw);
+        if (lo.orderId === orderId) {
+          lo.status = status;
+          localStorage.setItem('lastOrder', JSON.stringify(lo));
+        }
+      }
+    } catch(e) {}
+  }
+
+  /* Build initial "seen" snapshot — no popups for existing state */
+  function initSeen(snapshot) {
+    snapshot.docs.forEach(function(doc) {
+      var d = doc.data() || {};
+      var oid = d.orderId || doc.id;
+      _seenStatus[oid] = (d.status || '').toLowerCase();
+    });
+  }
+
+  /* ── Watcher 1: by customerUid (signed-in users) ── */
+  function startUidWatcher() {
+    if (_unsub1) { _unsub1(); _unsub1 = null; }
+    if (!db || !window.currentUser || !window.currentUser.uid) return;
+    if (window.currentRole === 'admin') return;
+
+    var ready = false;
+    _unsub1 = db.collection('orders')
+      .where('customerUid', '==', window.currentUser.uid)
+      .orderBy('createdAt', 'desc')
+      .limit(30)
+      .onSnapshot(function(snap) {
+        if (!ready) { initSeen(snap); ready = true; return; }
+        snap.docChanges().forEach(function(change) {
+          handleDocChange(change.doc, change.type);
+        });
+      }, function(err) {
+        console.error('Customer uid watcher error:', err.code, err.message);
+      });
+  }
+
+  /* ── Watcher 2: by orderId from localStorage (guest orders too) ── */
+  function startOrderIdWatcher() {
+    if (_unsub2) { _unsub2 = null; }  /* will re-set */
+    if (!db) return;
+    if (window.currentRole === 'admin') return;
+
+    try {
+      var raw = localStorage.getItem('lastOrder');
+      if (!raw) return;
+      var lo  = JSON.parse(raw);
+      var oid = lo.orderId;
+      if (!oid) return;
+
+      var ready = false;
+      _unsub2 = db.collection('orders')
+        .where('orderId', '==', oid)
+        .limit(5)
+        .onSnapshot(function(snap) {
+          if (!ready) { initSeen(snap); ready = true; return; }
+          snap.docChanges().forEach(function(change) {
+            handleDocChange(change.doc, change.type);
+          });
+        }, function(err) {
+          console.error('Customer orderId watcher error:', err.code);
+        });
+    } catch(e) {}
+  }
+
+  /* ── Public: called from updateRoleUI (already in obfuscated JS) ── */
+  window.syncCustomerOrderWatcher = function() {
+    /* Clean up old watchers */
+    try{ if(_unsub1){ _unsub1(); _unsub1=null; } }catch(e){}
+    try{ if(_unsub2){ _unsub2(); _unsub2=null; } }catch(e){}
+    _seenStatus = {};
+
+    if (window.currentRole === 'admin') return;
+
+    /* Wait for Firebase db to be ready */
+    if (!db) {
+      var waitDb = setInterval(function() {
+        if (typeof db !== 'undefined' && db) {
+          clearInterval(waitDb);
+          startUidWatcher();
+          startOrderIdWatcher();
+        }
+      }, 400);
+      return;
+    }
+
+    startUidWatcher();
+    startOrderIdWatcher();
+  };
+
+  /* ── Also expose closeCustomerAlertModal globally ── */
+  window.closeCustomerAlertModal = function() {
+    var el = document.getElementById('customer-alert-modal-overlay');
+    if (el) el.classList.remove('open');
+  };
+
+  /* ── Re-check when localStorage changes (order just placed) ── */
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'lastOrder' && window.currentRole !== 'admin') {
+      /* Restart orderId watcher for new order */
+      try{ if(_unsub2){ _unsub2(); _unsub2=null; } }catch(e){}
+      startOrderIdWatcher();
+    }
+  });
+
+})(); /* end IIFE */
 
 /* ═══════════════════════════════════════════════
    submitSupportTicket — robust override
@@ -3171,6 +3455,293 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }, 400);
 });
+</script>
+
+<!-- ══════════════════════════════════════════════════════════════
+     FINAL CUSTOMER NOTIFICATION OVERRIDE
+     Must be LAST script so it replaces the obfuscated version.
+══════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+
+  /* ── Status display config ── */
+  var NOTIF = {
+    accepted        : { title:'✅ Order Accepted!',       body:'🫓 Your chapati is being freshly prepared. ~30 min delivery.',  type:'success',   sound:true,  rate:false },
+    ready           : { title:'🍳 Order Ready!',          body:'📦 Packed & ready! Delivery partner picking up shortly.',        type:'info',      sound:true,  rate:false },
+    out_for_delivery: { title:'🚴 Out for Delivery!',     body:'🛵 Your chapati is on the way — get ready!',                    type:'info',      sound:true,  rate:false },
+    completed       : { title:'🎉 Order Delivered!',      body:'🫓 Your fresh chapati has arrived! Tap OK to rate your order.', type:'success',   sound:false, rate:true  },
+    delivered       : { title:'🎉 Order Delivered!',      body:'🫓 Your fresh chapati has arrived! Tap OK to rate your order.', type:'success',   sound:false, rate:true  },
+    rejected        : { title:'❌ Order Rejected',        body:'😔 Your order was rejected. Please contact us or reorder.',     type:'error',     sound:false, rate:false },
+    cancelled       : { title:'🚫 Order Cancelled',       body:'⏰ Order auto-cancelled due to no response. Please reorder.',   type:'cancelled', sound:false, rate:false }
+  };
+
+  var BAR_COLOR = {
+    success  : 'linear-gradient(90deg,#2e7d32,#43a047)',
+    info     : 'linear-gradient(90deg,#1565c0,#1976d2)',
+    error    : 'linear-gradient(90deg,#c62828,#e53935)',
+    cancelled: 'linear-gradient(90deg,#555,#777)'
+  };
+
+  var _seen   = {};   /* orderId → last known status */
+  var _sub1   = null; /* uid watcher unsubscribe */
+  var _sub2   = null; /* orderId watcher unsubscribe */
+
+  /* ── Show popup + banner ── */
+  function notify(cfg, orderId, rawStatus) {
+    /* 1 — top banner */
+    var strip = document.getElementById('cust-status-promo');
+    var stxt  = document.getElementById('cust-promo-text');
+    if (strip && stxt) {
+      stxt.textContent      = cfg.title;
+      strip.style.background = BAR_COLOR[cfg.type] || BAR_COLOR.success;
+      strip.style.display   = 'block';
+      clearTimeout(strip._nt);
+      strip._nt = setTimeout(function(){ strip.style.display='none'; }, 8000);
+    }
+
+    /* 2 — vibrate */
+    try{ navigator.vibrate && navigator.vibrate([80,40,80]); }catch(_){}
+
+    /* 3 — sound */
+    if (cfg.sound) try{ playOrderPlacedSound && playOrderPlacedSound(); }catch(_){}
+
+    /* 4 — full modal */
+    var ov   = document.getElementById('customer-alert-modal-overlay');
+    var icon = document.getElementById('cam-icon-ring');
+    var bar  = document.getElementById('cam-top-bar');
+    var ttl  = document.getElementById('cam-title');
+    var bdy  = document.getElementById('cam-body');
+    var btn  = document.getElementById('cam-ok-btn');
+
+    if (!ov || !ttl || !bdy) return;
+
+    var icons = { success:'✅', info:'🚴', error:'❌', cancelled:'🚫' };
+    if (icon) { icon.textContent = icons[cfg.type]||'📦'; icon.className='cam-icon-ring '+cfg.type; }
+    if (bar)  { bar.className='cam-top-bar '+cfg.type; bar.style.background=BAR_COLOR[cfg.type]||BAR_COLOR.success; }
+
+    ttl.textContent = cfg.title;
+    ttl.style.color = cfg.type==='error'?'#c62828': cfg.type==='cancelled'?'#555': cfg.type==='info'?'#1565c0': '#2e7d32';
+    bdy.innerHTML   = cfg.body + (orderId?'<br><br><small style="color:#aaa;font-size:.75rem">Order ID: '+orderId+'</small>':'');
+
+    if (btn) {
+      btn.style.background = BAR_COLOR[cfg.type]||BAR_COLOR.success;
+      btn.onclick = function(){
+        ov.classList.remove('open');
+        if (cfg.rate && orderId && typeof openRatingModal==='function') {
+          setTimeout(function(){ openRatingModal(orderId); }, 300);
+        } else {
+          typeof showPage==='function'   && showPage('tracking');
+          typeof setMobNav==='function'  && setMobNav('track');
+        }
+      };
+    }
+
+    ov.classList.add('open');
+  }
+
+  /* ── Handle a Firestore doc change ── */
+  function onDocChange(docSnap, changeType) {
+    if (changeType !== 'modified' && changeType !== 'added') return;
+    var d      = docSnap.data() || {};
+    var status = (d.status || '').toLowerCase();
+    var oid    = d.orderId || docSnap.id;
+
+    if (_seen[oid] === status) return; /* already showed */
+    _seen[oid] = status;
+
+    var cfg = NOTIF[status];
+    if (!cfg) return; /* pending / preparing — silent */
+
+    notify(cfg, oid, status);
+
+    /* keep localStorage in sync */
+    try{
+      var lo = JSON.parse(localStorage.getItem('lastOrder')||'{}');
+      if (lo.orderId === oid) { lo.status = status; localStorage.setItem('lastOrder', JSON.stringify(lo)); }
+    }catch(_){}
+  }
+
+  /* ── Seed seen statuses (no popup for existing state) ── */
+  function seedSeen(snap) {
+    snap.docs.forEach(function(doc){
+      var d=doc.data()||{}, oid=d.orderId||doc.id;
+      _seen[oid]=(d.status||'').toLowerCase();
+    });
+  }
+
+  /* ── Watcher A: by customerUid ── */
+  function watchByUid() {
+    if (_sub1) { try{_sub1();}catch(_){} _sub1=null; }
+    if (!db || !window.currentUser || !window.currentUser.uid) return;
+    if (window.currentRole==='admin') return;
+    var ready=false;
+    try{
+      _sub1 = db.collection('orders')
+        .where('customerUid','==',window.currentUser.uid)
+        .orderBy('createdAt','desc').limit(30)
+        .onSnapshot(function(snap){
+          if(!ready){seedSeen(snap);ready=true;return;}
+          snap.docChanges().forEach(function(c){onDocChange(c.doc,c.type);});
+        }, function(e){console.warn('notif-uid:',e.code);});
+    }catch(e){console.warn('notif-uid-setup:',e);}
+  }
+
+  /* ── Watcher B: by orderId from localStorage ── */
+  function watchByOrderId() {
+    if (_sub2) { try{_sub2();}catch(_){} _sub2=null; }
+    if (!db) return;
+    if (window.currentRole==='admin') return;
+    try{
+      var lo  = JSON.parse(localStorage.getItem('lastOrder')||'{}');
+      var oid = lo.orderId;
+      if (!oid) return;
+      var ready=false;
+      _sub2 = db.collection('orders')
+        .where('orderId','==',oid).limit(5)
+        .onSnapshot(function(snap){
+          if(!ready){seedSeen(snap);ready=true;return;}
+          snap.docChanges().forEach(function(c){onDocChange(c.doc,c.type);});
+        }, function(e){console.warn('notif-oid:',e.code);});
+    }catch(e){console.warn('notif-oid-setup:',e);}
+  }
+
+  /* ── Main entry point — replaces obfuscated version ── */
+  function startWatcher() {
+    try{if(_sub1){_sub1();_sub1=null;}}catch(_){}
+    try{if(_sub2){_sub2();_sub2=null;}}catch(_){}
+    _seen = {};
+    if (window.currentRole==='admin') return;
+    watchByUid();
+    watchByOrderId();
+  }
+
+  /* Override with retry-on-db-ready wrapper */
+  window.syncCustomerOrderWatcher = function(){
+    if (typeof db!=='undefined' && db) {
+      startWatcher();
+    } else {
+      var iv = setInterval(function(){
+        if (typeof db!=='undefined' && db){ clearInterval(iv); startWatcher(); }
+      },400);
+    }
+  };
+
+  window.closeCustomerAlertModal = function(){
+    var el=document.getElementById('customer-alert-modal-overlay');
+    if(el) el.classList.remove('open');
+  };
+
+  /* Re-init watcher B whenever a new order is placed */
+  window.addEventListener('storage', function(e){
+    if (e.key==='lastOrder' && window.currentRole!=='admin') watchByOrderId();
+  });
+
+  /* Also call it now in case user is already logged in */
+  document.addEventListener('DOMContentLoaded', function(){
+    var iv=setInterval(function(){
+      if(typeof db!=='undefined'&&db&&typeof currentRole!=='undefined'){
+        clearInterval(iv);
+        if(currentRole!=='admin') startWatcher();
+      }
+    },600);
+  });
+
+  /* ════════════════════════════════════════════════
+     submitSupportTicket — FINAL OVERRIDE
+     Replaces the obfuscated version that incorrectly
+     validates orderId and shows "Ticket validation failed"
+  ════════════════════════════════════════════════ */
+  window.submitSupportTicket = function() {
+    var typeEl = document.getElementById('support-type');
+    var oidEl  = document.getElementById('support-order-id');
+    var descEl = document.getElementById('support-desc');
+    var btn    = document.querySelector('#support-form-section .place-order-btn');
+
+    var issueType = typeEl ? typeEl.value.trim() : 'General';
+    var orderId   = oidEl  ? oidEl.value.trim()  : '';
+    var desc      = descEl ? descEl.value.trim()  : '';
+
+    /* Validate description only */
+    if (!desc) {
+      if (typeof showToast === 'function') showToast('⚠️ Please describe your issue', 2500);
+      if (descEl) descEl.focus();
+      return;
+    }
+
+    /* Require sign-in */
+    if (!window.currentUser) {
+      if (typeof showToast === 'function') showToast('🔐 Please sign in to submit a ticket', 2500);
+      var authOv = document.getElementById('auth-overlay');
+      if (authOv) authOv.classList.add('open');
+      return;
+    }
+
+    /* Need Firestore */
+    if (typeof db === 'undefined' || !db) {
+      if (typeof showToast === 'function') showToast('⚠️ Connection not ready. Try again.', 2500);
+      return;
+    }
+
+    /* Loading state */
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting...'; }
+
+    var ticket = {
+      type          : issueType || 'General',
+      orderId       : orderId   || '',
+      description   : desc,
+      status        : 'open',
+      customerUid   : window.currentUser.uid   || null,
+      customerEmail : window.currentUser.email || null,
+      customerName  : (window.currentUserProfile && window.currentUserProfile.name)
+                        || window.currentUser.displayName
+                        || window.currentUser.email
+                        || 'Customer',
+      customerPhone : (window.currentUserProfile && window.currentUserProfile.phone) || '',
+      createdAt     : firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt     : firebase.firestore.FieldValue.serverTimestamp(),
+      read          : false,
+      reply         : ''
+    };
+
+    db.collection('support_tickets').add(ticket)
+      .then(function(docRef) {
+        /* Success */
+        if (typeof showToast === 'function') showToast('✅ Ticket submitted! We\'ll reply soon.', 3500);
+
+        /* Show the green success modal */
+        var ov   = document.getElementById('customer-alert-modal-overlay');
+        var icon = document.getElementById('cam-icon-ring');
+        var bar  = document.getElementById('cam-top-bar');
+        var ttl  = document.getElementById('cam-title');
+        var bdy  = document.getElementById('cam-body');
+        var okb  = document.getElementById('cam-ok-btn');
+        if (ov && ttl && bdy) {
+          if (icon) { icon.textContent='✅'; icon.className='cam-icon-ring success'; }
+          if (bar)  { bar.className='cam-top-bar success'; bar.style.background='linear-gradient(90deg,#2e7d32,#43a047)'; }
+          ttl.textContent = '✅ Ticket Submitted!';
+          ttl.style.color = '#2e7d32';
+          bdy.innerHTML   = '📋 <strong>Issue:</strong> '+(issueType||'General')
+            + (orderId ? '<br>🆔 <strong>Order ID:</strong> '+orderId : '')
+            + '<br><br>Our team will review and reply to your ticket shortly.'
+            + '<br><small style="color:#aaa;font-size:.75rem">Ref: '+docRef.id+'</small>';
+          if (okb) { okb.style.background='linear-gradient(90deg,#2e7d32,#43a047)'; okb.onclick=function(){ ov.classList.remove('open'); }; }
+          ov.classList.add('open');
+        }
+
+        /* Reset form */
+        if (descEl) descEl.value = '';
+        if (oidEl)  oidEl.value  = '';
+        if (typeEl) typeEl.selectedIndex = 0;
+      })
+      .catch(function(err) {
+        console.error('submitSupportTicket error:', err);
+        if (typeof showToast === 'function') showToast('❌ Could not submit. Please try again.', 3000);
+        if (btn) { btn.disabled = false; btn.textContent = '📩 Submit Ticket'; }
+      });
+  };
+
+})();
 </script>
 
 </body>
