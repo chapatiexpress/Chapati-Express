@@ -3180,4 +3180,242 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<!-- ============================================================
+     SUPPORT TICKET VALIDATION + ADMIN SEARCH
+     ============================================================ -->
+<script>
+/* ── Wait for Firebase + app core to be ready ─────────────────── */
+(function () {
+  'use strict';
+
+  /* ── 1. submitSupportTicket — with order validation ─────────── */
+  function hookSubmitSupportTicket() {
+    // If the obfuscated core hasn't defined it yet, retry in 400 ms
+    const origFn = window.submitSupportTicket;
+
+    window.submitSupportTicket = async function () {
+      if (!db) { showToast('⚠️ Not connected. Please wait.', 2000); return; }
+      if (!currentUser) { showToast('⚠️ Please sign in first', 2000); openAuthModal(); return; }
+
+      const typeEl  = document.getElementById('support-type');
+      const orderEl = document.getElementById('support-order-id');
+      const descEl  = document.getElementById('support-desc');
+
+      const issueType = typeEl  ? typeEl.value.trim()  : '';
+      const orderId   = orderEl ? orderEl.value.trim() : '';
+      const desc      = descEl  ? descEl.value.trim()  : '';
+
+      if (!orderId) { showToast('⚠️ Please enter your Order ID', 2200); orderEl && orderEl.focus(); return; }
+      if (!desc)    { showToast('⚠️ Please describe your issue', 2200); descEl  && descEl.focus();  return; }
+
+      /* ── Step 1: verify the order exists and belongs to this user ── */
+      let orderDoc;
+      try {
+        const snap = await db.collection('orders')
+          .where('orderId', '==', orderId)
+          .limit(1)
+          .get();
+
+        if (snap.empty) {
+          showToast('❌ Invalid Order ID. We could not find this order.', 3000, 'error');
+          orderEl && orderEl.focus();
+          return;
+        }
+
+        const orderData = snap.docs[0].data() || {};
+        const ownerEmail = (orderData.customerEmail || '').toLowerCase().trim();
+        const ownerUid   = orderData.customerUid || '';
+        const myEmail    = (currentUser.email || '').toLowerCase().trim();
+        const myUid      = currentUser.uid || '';
+
+        // The order must belong to the signed-in user (match by UID or email)
+        const isOwner = (myUid && ownerUid && myUid === ownerUid) ||
+                        (myEmail && ownerEmail && myEmail === ownerEmail);
+
+        if (!isOwner) {
+          showToast('❌ This Order ID doesn\'t match your account.', 3000, 'error');
+          orderEl && orderEl.focus();
+          return;
+        }
+
+        orderDoc = { id: snap.docs[0].id, ...orderData };
+      } catch (err) {
+        console.error('[Ticket] Order validation error:', err);
+        showToast('❌ Could not verify order. Try again.', 2500, 'error');
+        return;
+      }
+
+      /* ── Step 2: check for an already-open ticket for this order ── */
+      try {
+        const existing = await db.collection('support')
+          .where('orderId', '==', orderId)
+          .where('status', 'in', ['open', 'pending', 'Open', 'Pending'])
+          .limit(1)
+          .get();
+
+        if (!existing.empty) {
+          showToast('⚠️ A ticket for this order is already open. Please wait for it to be resolved.', 4000, 'error');
+          return;
+        }
+      } catch (err) {
+        // If the 'in' query fails (e.g., missing index), fall through and allow submission
+        console.warn('[Ticket] Duplicate check skipped:', err);
+      }
+
+      /* ── Step 3: all validations passed — submit the ticket ──── */
+      try {
+        await db.collection('support').add({
+          orderId       : orderId,
+          issueType     : issueType,
+          message       : desc,
+          status        : 'open',
+          customerUid   : currentUser.uid   || null,
+          customerEmail : currentUser.email || null,
+          customerName  : orderDoc.customerName  || currentUser.displayName || '',
+          customerPhone : orderDoc.customerPhone || '',
+          createdAt     : firebase.firestore.FieldValue.serverTimestamp(),
+          updatedAt     : firebase.firestore.FieldValue.serverTimestamp(),
+        });
+
+        showToast('✅ Ticket submitted!', 2500);
+
+        // Clear the form
+        if (orderEl) orderEl.value = '';
+        if (descEl)  descEl.value  = '';
+
+        // Refresh the customer tickets list if the original function handles that part
+        if (typeof origFn === 'function') {
+          // Call original only for UI refresh, not re-submission; we skip it
+          // to avoid double writes — instead refresh the tickets list directly
+        }
+        if (typeof renderSupportPage === 'function') renderSupportPage();
+
+      } catch (err) {
+        console.error('[Ticket] Submit error:', err);
+        showToast('❌ Failed to submit ticket. Try again.', 2500, 'error');
+      }
+    };
+  }
+
+  /* ── 2. Admin support search ─────────────────────────────────── */
+  let _allAdminTickets = []; // populated by renderAdminSupportPage
+
+  /* Patch renderAdminSupportPage to cache rendered tickets */
+  function hookRenderAdminSupportPage() {
+    const orig = window.renderAdminSupportPage;
+    if (typeof orig !== 'function') {
+      setTimeout(hookRenderAdminSupportPage, 400);
+      return;
+    }
+    window.renderAdminSupportPage = function (...args) {
+      // Call original first so the list is rendered
+      orig.apply(this, args);
+      // After render, cache current list DOM for filtering
+      // We also subscribe to live data for filtering
+      if (db) {
+        db.collection('support')
+          .orderBy('createdAt', 'desc')
+          .limit(200)
+          .onSnapshot(snap => {
+            _allAdminTickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          }, () => {});
+      }
+    };
+  }
+
+  window.filterAdminSupportTickets = function () {
+    const input = document.getElementById('admin-support-search');
+    const list  = document.getElementById('admin-support-list');
+    if (!input || !list) return;
+
+    const query = input.value.trim().toLowerCase();
+
+    // If no query, re-render the full admin support page
+    if (!query) {
+      if (typeof renderAdminSupportPage === 'function') renderAdminSupportPage();
+      return;
+    }
+
+    // Filter the cached tickets by orderId (or any text field)
+    const matched = _allAdminTickets.filter(t =>
+      (t.orderId      || '').toLowerCase().includes(query) ||
+      (t.customerEmail|| '').toLowerCase().includes(query) ||
+      (t.customerName || '').toLowerCase().includes(query) ||
+      (t.issueType    || '').toLowerCase().includes(query) ||
+      (t.message      || '').toLowerCase().includes(query)
+    );
+
+    if (!matched.length) {
+      list.innerHTML = '<div class="empty-cat-msg"><div class="big">🔍</div>No tickets match "<strong>' +
+        input.value.trim().replace(/</g, '&lt;') + '</strong>".</div>';
+      return;
+    }
+
+    // Rebuild the list HTML using the same card style as the full render
+    list.innerHTML = matched.map(t => {
+      const dateStr = t.createdAt && t.createdAt.toDate
+        ? t.createdAt.toDate().toLocaleString()
+        : '—';
+      const statusColor = t.status === 'resolved' ? '#2e7d32' : '#e8820c';
+      const replyHtml = t.adminReply
+        ? `<div style="margin-top:8px;background:var(--cream);padding:8px;border-radius:6px;font-size:.8rem"><strong>Admin Reply:</strong> ${t.adminReply}</div>`
+        : '';
+      return `
+        <div class="menu-card" style="padding:14px;border-left:4px solid ${statusColor}">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+            <div style="flex:1;min-width:180px">
+              <div style="font-weight:900;color:var(--brown);font-size:.95rem">
+                ${(t.issueType || 'Issue').replace(/</g,'&lt;')}
+                <span class="om-route-badge" style="font-size:.7rem;margin-left:6px;background:${statusColor}20;color:${statusColor};border-color:${statusColor}40">${t.status || 'open'}</span>
+              </div>
+              <div style="font-size:.8rem;color:#555;margin-top:4px">🆔 Order: <strong>${(t.orderId || '—').replace(/</g,'&lt;')}</strong></div>
+              <div style="font-size:.78rem;color:#777;margin-top:2px">✉️ ${(t.customerEmail || '—').replace(/</g,'&lt;')}</div>
+              <div style="margin-top:6px;font-size:.82rem;color:#333;line-height:1.45">${(t.message || '—').replace(/</g,'&lt;')}</div>
+              ${replyHtml}
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0;align-items:flex-end">
+              <div style="font-size:.72rem;color:#aaa">🕒 ${dateStr}</div>
+              ${t.status !== 'resolved' ? `
+                <button class="cat-save-btn" style="font-size:.72rem;padding:5px 8px" onclick="resolveTicket('${t.id}')">✅ Resolve</button>` : ''}
+            </div>
+          </div>
+          <div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap">
+            <input type="text" id="reply-${t.id}" class="aip-input" placeholder="Type a reply..." style="flex:1;font-size:.8rem;padding:6px;"/>
+            <button class="place-order-btn" style="padding:6px 12px;font-size:.8rem;width:auto" onclick="replyToTicket('${t.id}')">Reply</button>
+          </div>
+        </div>`;
+    }).join('');
+  };
+
+  window.clearAdminSupportSearch = function () {
+    const input = document.getElementById('admin-support-search');
+    if (input) input.value = '';
+    if (typeof renderAdminSupportPage === 'function') renderAdminSupportPage();
+  };
+
+  /* ── Bootstrap ───────────────────────────────────────────────── */
+  function bootstrap() {
+    // Hook submitSupportTicket immediately
+    hookSubmitSupportTicket();
+    // Hook renderAdminSupportPage once the core is ready
+    hookRenderAdminSupportPage();
+    // Re-hook after auth state resolves (ensures db is ready)
+    const waitForAuth = setInterval(() => {
+      if (typeof auth !== 'undefined' && auth) {
+        clearInterval(waitForAuth);
+        auth.onAuthStateChanged(() => {
+          hookSubmitSupportTicket();
+        });
+      }
+    }, 400);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrap);
+  } else {
+    setTimeout(bootstrap, 100);
+  }
+})();
+</script>
+
 </html>
