@@ -2514,17 +2514,56 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
 document.addEventListener('DOMContentLoaded', function() {
     const pageLoadTime = new Date();
 
-    // 1. Function to play the sound
+    function ensureAdminNotificationAudio() {
+        let sound = document.getElementById("adminNotificationSound");
+        if (!sound) {
+            sound = document.createElement("audio");
+            sound.id = "adminNotificationSound";
+            sound.preload = "auto";
+            sound.loop = true;
+            sound.volume = 1;
+            sound.style.display = "none";
+            sound.src = "./zomato_ring_3.mp3";
+            document.body.appendChild(sound);
+        }
+        return sound;
+    }
+
     window.playNotificationSound = function() {
-        const sound = document.getElementById("adminNotificationSound");
+        const sound = ensureAdminNotificationAudio();
         if (sound) {
-            sound.play().catch(error => console.log("Autoplay blocked. Click page to enable sound."));
+            sound.muted = false;
+            sound.volume = 1;
+            const playPromise = sound.play();
+            if (playPromise && playPromise.catch) {
+                playPromise.catch(error => console.log("Autoplay blocked. Click page to enable sound.", error));
+            }
         }
     };
+
+    function startOrderWatcher() {
+        if (!db || currentRole !== 'admin') return;
+        db.collection("orders")
+          .orderBy("createdAt", "desc")
+          .limit(1)
+          .onSnapshot((snapshot) => {
+              snapshot.docChanges().forEach((change) => {
+                  if (change.type === "added" && !snapshot.metadata.hasPendingWrites) {
+                      const data = change.doc.data() || {};
+                      const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
+                      if (createdAt > pageLoadTime) {
+                          playNotificationSound();
+                          showToast("🔔 New order received", 4000);
+                      }
+                  }
+              });
+          }, err => console.error("Order watcher error:", err));
+    }
 
     setTimeout(() => {
         if (typeof db !== 'undefined') {
             console.log("📡 Notification Watcher active for Sircilla Admin...");
+            startOrderWatcher();
 
             db.collection("support")
               .orderBy("createdAt", "desc")
