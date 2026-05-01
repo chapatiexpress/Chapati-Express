@@ -2135,15 +2135,21 @@
   </div>
   <div id="admin-order-popup-body" style="padding:12px 16px;color:#333;font-size:.85rem;line-height:1.5"></div>
   <div class="popup-actions" style="padding-bottom:6px">
-    <button class="popup-accept" onclick="adminPopupUpdateStatus('accepted')">✅ Accept</button>
+    <button class="popup-accept" onclick="adminPopupUpdateStatus('accepted'); showStatusPopup('Accepted')">✅ Accept</button>
     <button class="popup-reject" onclick="adminPopupUpdateStatus('rejected')">❌ Reject</button>
   </div>
   <div class="popup-actions" style="padding-top:0">
-    <button class="popup-ready" onclick="adminPopupUpdateStatus('ready')">🍳 Ready</button>
-    <button class="popup-ofd" onclick="adminPopupUpdateStatus('out_for_delivery')">🚴 Out for Delivery</button>
-    <button class="popup-delivered" onclick="adminPopupUpdateStatus('completed')">🎉 Delivered</button>
+    <button class="popup-ready" onclick="adminPopupUpdateStatus('ready'); showStatusPopup('Ready')">🍳 Ready</button>
+    <button class="popup-ofd" onclick="adminPopupUpdateStatus('out_for_delivery'); showStatusPopup('Out for Delivery')">🚴 Out for Delivery</button>
+    <button class="popup-delivered" onclick="adminPopupUpdateStatus('completed'); showStatusPopup('Delivered')">🎉 Delivered</button>
   </div>
 </div>
+
+<script>
+function showStatusPopup(status) {
+  alert(status + ' ✅');
+}
+</script>
 
 <script>
 // Save delivery fees to Firestore using the existing compat SDK db instance
