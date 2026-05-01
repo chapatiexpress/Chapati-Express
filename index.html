@@ -1197,6 +1197,28 @@
 <!-- PROMO NOTIFICATIONS -->
 <div class="promo-banner-wrap" id="promo-banner-wrap"></div>
 
+<!-- Customer order-status promo strip (shown by showPromoNotification) -->
+<div id="cust-status-promo" style="
+  display:none;
+  position:fixed;
+  top:0;left:0;right:0;
+  z-index:99998;
+  color:#fff;
+  padding:11px 16px;
+  font-size:.88rem;
+  font-weight:700;
+  text-align:center;
+  box-shadow:0 2px 12px rgba(0,0,0,.25);
+">
+  <span id="cust-promo-text"></span>
+  <button onclick="this.parentElement.style.display='none'" style="
+    background:rgba(255,255,255,.2);
+    border:none;border-radius:8px;
+    color:#fff;padding:2px 10px;
+    margin-left:10px;cursor:pointer;font-weight:700;font-size:.82rem;
+  ">✕</button>
+</div>
+
 <!-- CLOSED HOURS BANNER -->
 <div class="closed-banner" id="closed-banner"></div>
 
@@ -2128,6 +2150,136 @@
 
 
 <script>
+/* ═══════════════════════════════════════════════
+   showPromoNotification – thin banner at top of screen
+   Called from syncCustomerOrderWatcher for each status change
+══════════════════════════════════════════════ */
+window.showPromoNotification = function(title, body, emoji){
+  try{
+    var strip = document.getElementById('cust-status-promo');
+    var txt   = document.getElementById('cust-promo-text');
+    if(!strip || !txt) return;
+    txt.textContent = (emoji ? emoji + ' ' : '') + title + ' — ' + body;
+    // Color-code by status type
+    var t = (title || '').toLowerCase();
+    if(t.indexOf('accept') !== -1 || t.indexOf('delivered') !== -1 || t.indexOf('done') !== -1){
+      strip.style.background = 'linear-gradient(90deg,#2e7d32,#43a047)';
+    } else if(t.indexOf('reject') !== -1 || t.indexOf('cancel') !== -1){
+      strip.style.background = 'linear-gradient(90deg,#c62828,#e53935)';
+    } else if(t.indexOf('delivery') !== -1 || t.indexOf('way') !== -1 || t.indexOf('ofd') !== -1){
+      strip.style.background = 'linear-gradient(90deg,#1565c0,#1976d2)';
+    } else if(t.indexOf('ready') !== -1 || t.indexOf('prepar') !== -1){
+      strip.style.background = 'linear-gradient(90deg,#e65100,#f57c00)';
+    } else {
+      strip.style.background = 'linear-gradient(90deg,#e8820c,#f5a623)';
+    }
+    strip.style.display = 'block';
+    // auto-hide after 7 seconds
+    clearTimeout(strip._hideDelay);
+    strip._hideDelay = setTimeout(function(){ strip.style.display='none'; }, 7000);
+  }catch(e){}
+};
+
+/* Ensure closeCustomerAlertModal always works (defined again as a global
+   in case the obfuscated block below hasn't run yet) */
+if(!window.closeCustomerAlertModal){
+  window.closeCustomerAlertModal = function(){
+    var el = document.getElementById('customer-alert-modal-overlay');
+    if(el){ el.classList.remove('open'); el.style.display='none'; }
+  };
+}
+
+/* ═══════════════════════════════════════════════
+   submitSupportTicket — robust override
+   Replaces the obfuscated version to ensure tickets
+   always save correctly to Firestore.
+══════════════════════════════════════════════ */
+window.submitSupportTicket = async function() {
+  /* --- Read form fields --- */
+  var typeEl  = document.getElementById('support-type');
+  var oidEl   = document.getElementById('support-order-id');
+  var descEl  = document.getElementById('support-desc');
+  var btn     = document.querySelector('#support-form-section .place-order-btn');
+
+  var issueType = typeEl  ? typeEl.value.trim()  : '';
+  var orderId   = oidEl   ? oidEl.value.trim()   : '';
+  var desc      = descEl  ? descEl.value.trim()  : '';
+
+  /* --- Validate --- */
+  if (!desc) {
+    showToast('⚠️ Please describe your issue', 2500);
+    if (descEl) descEl.focus();
+    return;
+  }
+
+  /* --- Require sign-in --- */
+  if (!currentUser) {
+    showToast('🔐 Please sign in to submit a ticket', 2500);
+    var overlay = document.getElementById('auth-overlay');
+    if (overlay) overlay.classList.add('open');
+    return;
+  }
+
+  /* --- Guard: need Firestore --- */
+  if (!db) {
+    showToast('⚠️ Connection not ready. Try again in a moment.', 2500);
+    return;
+  }
+
+  /* --- Disable button while saving --- */
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Submitting...'; }
+
+  try {
+    var ticketData = {
+      type:          issueType || 'General',
+      orderId:       orderId   || '',
+      description:   desc,
+      status:        'open',
+      customerUid:   currentUser.uid   || null,
+      customerEmail: currentUser.email || null,
+      customerName:  (currentUserProfile && currentUserProfile.name)
+                       || currentUser.displayName
+                       || currentUser.email
+                       || 'Customer',
+      customerPhone: (currentUserProfile && currentUserProfile.phone) || '',
+      createdAt:     firebase.firestore.FieldValue.serverTimestamp(),
+      updatedAt:     firebase.firestore.FieldValue.serverTimestamp(),
+      read:          false,
+      reply:         ''
+    };
+
+    await db.collection('support_tickets').add(ticketData);
+
+    /* --- Success UI --- */
+    showToast('✅ Ticket submitted! We\'ll reply soon.', 3000);
+
+    /* Show the customer alert modal for a polished experience */
+    if (typeof showCustomerAlertModal === 'function') {
+      showCustomerAlertModal(
+        '✅ Ticket Submitted!',
+        '📋 <strong>Issue Type:</strong> ' + (issueType || 'General') +
+        (orderId ? '<br>🆔 <strong>Order ID:</strong> ' + orderId : '') +
+        '<br><br>Our team will review and reply to your ticket shortly.',
+        'success',
+        null,
+        '📩 Support ticket submitted!',
+        3000
+      );
+    }
+
+    /* --- Reset form --- */
+    if (descEl)  descEl.value  = '';
+    if (oidEl)   oidEl.value   = '';
+    if (typeEl)  typeEl.selectedIndex = 0;
+
+  } catch (err) {
+    console.error('submitSupportTicket error:', err);
+    showToast('❌ Could not submit ticket. Please try again.', 3000);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📩 Submit Ticket'; }
+  }
+};
+
 // Save delivery fees to Firestore using the existing compat SDK db instance
 window.saveDeliverySettings = async function() {
     if (!db) { alert("Firebase not ready. Please try again."); return; }
