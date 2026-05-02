@@ -1251,6 +1251,7 @@
     <button class="admin-sb-item" id="asb-support" onclick="adminSidebarGo('admin-support')">
       <span class="admin-sb-icon">💬</span>
       <span class="admin-sb-label">Support Tickets</span>
+      <span class="admin-sb-badge" id="asb-support-badge">0</span>
     </button>
 
     <hr class="admin-sb-divider"/>
@@ -1640,7 +1641,7 @@
       </div>
       <div style="display:flex;gap:10px;margin-top:14px">
         <button class="om-cancel" id="support-cancel-btn" style="display:none;flex:1" onclick="closeSupportForm()">Cancel</button>
-        <button class="place-order-btn" style="flex:2" onclick="submitSupportTicket()">📩 Submit Ticket</button>
+        <button id="custom-support-btn-safe" style="flex:2;width:100%;background:linear-gradient(90deg,var(--brown),var(--saffron));color:#fff;border:none;border-radius:12px;padding:14px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Yeseva One',serif;letter-spacing:.8px;" onclick="submitSupportTicket()">📩 Submit Ticket</button>
       </div>
     </div>
   </div>
@@ -2151,10 +2152,8 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
   /* ── show form (for new ticket) ── */
   function showTicketForm() {
     const tl = ticketsList(), fs = formSection();
-    if (tl && tl.innerHTML.trim() !== '' && !tl.innerHTML.includes('Loading')) {
-      if (tl) tl.style.display = 'grid';   // keep list visible above form
-    }
-    if (fs) { fs.style.display = 'block'; }
+    if (tl) tl.style.display = 'none';
+    if (fs) fs.style.display = 'block';
     if (cancelBtn()) cancelBtn().style.display = 'inline-flex';
     if (newBtn())    newBtn().style.display    = 'none';
   }
@@ -2170,18 +2169,20 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
       ? `<div style="margin-top:8px;background:#f0fff4;border:1px solid #b2dfdb;border-radius:8px;padding:8px 11px;font-size:.8rem"><strong style="color:#2e7d32">💬 Admin Reply:</strong> ${d.adminReply}</div>`
       : '';
     return `
-      <div style="background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)">
+      <div data-tcr="1" style="background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow)">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;flex-wrap:wrap">
           <div>
-            <div style="font-weight:800;color:var(--brown);font-size:.92rem">${d.type || 'Issue'}</div>
+            <div style="font-weight:800;color:var(--brown);font-size:.92rem">${d.issueType || d.type || d.issue || 'Issue'}</div>
             <div style="font-size:.75rem;color:#888;margin-top:2px">${ts}${d.orderId ? ' · Order: '+d.orderId : ''}</div>
           </div>
           <span style="background:${col}18;color:${col};border:1.5px solid ${col};border-radius:12px;padding:3px 10px;font-size:.7rem;font-weight:800;text-transform:uppercase">${(d.status||'open').toUpperCase()}</span>
         </div>
-        <div style="margin-top:8px;font-size:.85rem;color:#444;line-height:1.5">${d.description || ''}</div>
+        <div style="margin-top:8px;font-size:.85rem;color:#444;line-height:1.5">${d.message || d.description || d.desc || d.details || ('<span style="color:red">MISSING MSG:</span> ' + JSON.stringify(d))}</div>
         ${adminReply}
       </div>`;
   }
+  // Expose globally so admin script block can access it
+  window.renderTicketCard = renderTicketCard;
 
   /* ── load tickets from Firestore for current user ── */
   async function loadTickets() {
@@ -2190,7 +2191,7 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
 
     // Wait for db + auth to be ready (Firebase loads deferred)
     if (typeof db === 'undefined' || !db) {
-      tl.innerHTML = '<div class="empty-cat-msg"><div class="big">⏳</div>Loading...</div>';
+      tl.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">⏳</div>Loading...</div>';
       tl.style.display = 'grid';
       setTimeout(loadTickets, 1200);
       return;
@@ -2208,13 +2209,12 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
     // Signed in — show the "Create Ticket" button
     if (newBtn()) newBtn().style.display = 'inline-flex';
 
-    tl.innerHTML = '<div class="empty-cat-msg"><div class="big">⏳</div>Loading your tickets...</div>';
+    tl.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">⏳</div>Loading your tickets...</div>';
     tl.style.display = 'grid';
 
     try {
-      const snap = await db.collection('support_tickets')
+      const snap = await db.collection('support')
         .where('customerUid', '==', user.uid)
-        .orderBy('createdAt', 'desc')
         .get();
 
       if (snap.empty) {
@@ -2224,7 +2224,13 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
         if (newBtn()) newBtn().style.display = 'none';
       } else {
         let html = '';
-        snap.forEach(doc => { html += renderTicketCard(doc); });
+        const docs = snap.docs.map(d => d);
+        docs.sort((a, b) => {
+          const tA = a.data().createdAt ? (typeof a.data().createdAt.toMillis === 'function' ? a.data().createdAt.toMillis() : 0) : 0;
+          const tB = b.data().createdAt ? (typeof b.data().createdAt.toMillis === 'function' ? b.data().createdAt.toMillis() : 0) : 0;
+          return tB - tA;
+        });
+        docs.forEach(doc => { html += renderTicketCard(doc); });
         tl.innerHTML = html;
         showTicketList();
       }
@@ -2323,8 +2329,10 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
 
     window.closeSupportForm = function(...args) {
       if (typeof origClose === 'function') origClose.apply(this, args);
-      // After closing form, reload tickets so the list shows
-      setTimeout(loadTickets, 100);
+      const fs = formSection();
+      if (fs) fs.style.display = 'none';
+      // Always reload tickets from Firestore so newly created tickets show with their message
+      loadTickets();
     };
   }
 
@@ -2384,7 +2392,7 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
         return false;
       }
 
-      const supportSnap = await db.collection('support_tickets').where('orderId', '==', cleaned).get();
+      const supportSnap = await db.collection('support').where('orderId', '==', cleaned).get();
       const existingOpen = supportSnap.docs.some(doc => {
         const status = doc.data()?.status || '';
         return status !== 'resolved';
@@ -2414,22 +2422,22 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
       return;
     }
 
-    list.innerHTML = '<div class="empty-cat-msg"><div class="big">⏳</div>Searching tickets...</div>';
+    list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">⏳</div>Searching tickets...</div>';
     if (!db || currentRole !== 'admin') {
-      list.innerHTML = '<div class="empty-cat-msg"><div class="big">⚠️</div>Admin search is unavailable.</div>';
+      list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">⚠️</div>Admin search is unavailable.</div>';
       return;
     }
 
     try {
-      const snap = await db.collection('support_tickets').where('orderId', '==', query).orderBy('createdAt', 'desc').get();
+      const snap = await db.collection('support').where('orderId', '==', query).orderBy('createdAt', 'desc').get();
       if (snap.empty) {
-        list.innerHTML = '<div class="empty-cat-msg"><div class="big">🔎</div>No tickets found for that Order ID.</div>';
+        list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">🔎</div>No tickets found for that Order ID.</div>';
         return;
       }
       list.innerHTML = snap.docs.map(doc => renderTicketCard(doc)).join('');
     } catch (err) {
       console.warn('Admin support search failed:', err);
-      list.innerHTML = '<div class="empty-cat-msg"><div class="big">⚠️</div>Search failed. Please try again.</div>';
+      list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">⚠️</div>Search failed. Please try again.</div>';
     }
   }
 
@@ -2439,29 +2447,24 @@ const a0_0x24f4ad=a0_0x4387;(function(_0x13ab94,_0x4cc12e){const _0x17127a=a0_0x
     if (typeof renderAdminSupportPage === 'function') renderAdminSupportPage();
   }
 
-  /* ── patch submitSupportTicket to reload list after submit ── */
-  function hookSubmitTicket() {
-    const orig = window.submitSupportTicket;
-    window.submitSupportTicket = async function(...args) {
-      const orderInput = document.getElementById('support-order-id');
-      const orderId = orderInput ? orderInput.value.trim() : '';
-      const validated = await validateSupportTicketOrder(orderId);
-      if (!validated) return;
-
-      let result;
-      if (typeof orig === 'function') result = await orig.apply(this, args);
-      // Reload after a short delay to let Firestore write settle
-      setTimeout(loadTickets, 800);
-      return result;
-    };
-  }
+  /* ── old hook removed ── */
 
   /* ── bootstrap: run after DOM + Firebase ready ── */
   function bootstrap() {
     hookShowPage();
     hookOpenSupportForm();
-    hookSubmitTicket();
     restoreSavedPage();
+
+    // Prevent "Choose UPI App:" text from showing anywhere
+    setInterval(() => {
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+      let node;
+      while (node = walker.nextNode()) {
+        if (node.nodeValue.includes("Choose UPI App:")) {
+          node.nodeValue = node.nodeValue.replace("Choose UPI App:", "");
+        }
+      }
+    }, 500);
 
     // If page loads directly on the support tab, trigger loading
     const activePage = document.querySelector('.page.active');
@@ -2752,31 +2755,31 @@ document.addEventListener('DOMContentLoaded', function() {
         if (typeof db !== 'undefined') {
             console.log("📡 Notification Watcher active for Sircilla Admin...");
 
+            let supportLastViewed = parseInt(localStorage.getItem('admin_support_last_viewed')) || pageLoadTime.getTime();
+
             db.collection("support")
+              .where("createdAt", ">", new Date(supportLastViewed))
               .orderBy("createdAt", "desc")
-              .limit(1)
               .onSnapshot((snapshot) => {
+                const supportNewCount = snapshot.docs.length;
+                const badge = document.getElementById('asb-support-badge');
+                if (badge) {
+                    badge.textContent = supportNewCount;
+                    if (supportNewCount > 0) badge.classList.add('visible');
+                    else badge.classList.remove('visible');
+                }
+
                 snapshot.docChanges().forEach((change) => {
                     if (change.type === "added" && !snapshot.metadata.hasPendingWrites) {
                         const data = change.doc.data();
                         const createdAt = data.createdAt ? data.createdAt.toDate() : new Date();
 
-                        // Only trigger for tickets created AFTER refresh
-                        if (createdAt > pageLoadTime) {
-                            
-                            // A. PLAY RINGTONE
+                        if (createdAt > pageLoadTime && !data._alerted) {
+                            data._alerted = true;
                             playNotificationSound();
-
-                            // B. SHOW POPUP ALERT
-                            // Using a confirm box so you can click 'View' to refresh
-                            const userAction = confirm("🔔 NEW SUPPORT TICKET RECEIVED!\n\nMessage: " + data.message + "\n\nClick OK to refresh the list.");
-                            
-                            if (userAction) {
-                                if (typeof renderSupportPage === "function") {
-                                    renderSupportPage();
-                                } else {
-                                    location.reload(); // Hard refresh if function is missing
-                                }
+                            showToast("🔔 NEW TICKET: " + (data.message || data.description || data.issueType || "New issue reported"), 5000);
+                            if (typeof renderAdminSupportPage === "function") {
+                                renderAdminSupportPage();
                             }
                         }
                     }
@@ -3188,6 +3191,84 @@ document.addEventListener('DOMContentLoaded', () => {
 (function () {
   'use strict';
 
+  /* ── 0. Intercept Firestore writes to enforce ticket fields ──── */
+  function enforceTicketFields() {
+    if (window._ticketFieldsEnforced) return;
+    if (typeof firebase === 'undefined' || !firebase.firestore) return;
+
+    const origAdd = firebase.firestore.CollectionReference.prototype.add;
+    firebase.firestore.CollectionReference.prototype.add = function(data) {
+      if (this.id === 'support' || this.id === 'support_tickets') {
+        const descEl = document.getElementById('support-desc');
+        const typeEl = document.getElementById('support-type');
+        const textVal = descEl ? descEl.value.trim() : '';
+        const typeVal = typeEl ? typeEl.value.trim() : '';
+        
+        data.message = data.message || data.description || data.desc || data.details || data.text || textVal || 'No message provided';
+        data.description = data.message;
+        
+        data.issueType = data.issueType || data.type || data.issue || typeVal || 'Issue';
+        data.type = data.issueType;
+      }
+      return origAdd.apply(this, arguments);
+    };
+
+    const origSet = firebase.firestore.DocumentReference.prototype.set;
+    firebase.firestore.DocumentReference.prototype.set = function(data, options) {
+      if (this.parent && (this.parent.id === 'support' || this.parent.id === 'support_tickets')) {
+        const descEl = document.getElementById('support-desc');
+        const typeEl = document.getElementById('support-type');
+        const textVal = descEl ? descEl.value.trim() : '';
+        const typeVal = typeEl ? typeEl.value.trim() : '';
+        
+        data.message = data.message || data.description || data.desc || data.details || data.text || textVal || 'No message provided';
+        data.description = data.message;
+        
+        data.issueType = data.issueType || data.type || data.issue || typeVal || 'Issue';
+        data.type = data.issueType;
+      }
+      return origSet.apply(this, arguments);
+    };
+
+    window._ticketFieldsEnforced = true;
+    console.log("[Ticket Enforcer] Firestore hooks attached! ✅");
+  }
+  setInterval(enforceTicketFields, 500);
+
+  /* ── 0.5 MutationObserver to re-render lists after obfuscated overwrites ── */
+  (function watchTicketLists() {
+    let _custDebounce = null;
+    let _adminDebounce = null;
+
+    const observer = new MutationObserver((mutations) => {
+      for (const m of mutations) {
+        if (m.type !== 'childList') continue;
+        const el = m.target;
+
+        // Check CONTENT for our marker (data-tcr), not an attribute on the element
+        // innerHTML replaces children but preserves element attributes, so we must check content
+        if (el.id === 'support-tickets-list' && !el.innerHTML.includes('data-tcr')) {
+          if (_custDebounce) clearTimeout(_custDebounce);
+          _custDebounce = setTimeout(() => {
+            _custDebounce = null;
+            if (typeof loadTickets === 'function') loadTickets();
+          }, 300);
+        }
+
+        if (el.id === 'admin-support-list' && !el.innerHTML.includes('data-tcr')) {
+          if (_adminDebounce) clearTimeout(_adminDebounce);
+          _adminDebounce = setTimeout(() => {
+            _adminDebounce = null;
+            if (typeof renderAdminSupportPage === 'function') renderAdminSupportPage();
+          }, 300);
+        }
+      }
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    console.log('[Ticket Enforcer] MutationObserver watching lists ✅');
+  })();
+
   /* ── 1. submitSupportTicket — with order validation ─────────── */
   function hookSubmitSupportTicket() {
     // If the obfuscated core hasn't defined it yet, retry in 400 ms
@@ -3300,7 +3381,9 @@ document.addEventListener('DOMContentLoaded', () => {
         await db.collection('support').add({
           orderId       : orderId,
           issueType     : issueType,
+          type          : issueType,
           message       : desc,
+          description   : desc,
           status        : 'open',
           customerUid   : currentUser.uid   || null,
           customerEmail : currentUser.email || null,
@@ -3312,16 +3395,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         showToast('✅ Ticket submitted!', 2500);
 
-        // Clear the form
+        // Clear/reset the form fields — keep showing the form
         if (orderEl) orderEl.value = '';
         if (descEl)  descEl.value  = '';
-
-        // Refresh the customer tickets list if the original function handles that part
-        if (typeof origFn === 'function') {
-          // Call original only for UI refresh, not re-submission; we skip it
-          // to avoid double writes — instead refresh the tickets list directly
-        }
-        if (typeof renderSupportPage === 'function') renderSupportPage();
+        if (typeEl)  typeEl.selectedIndex = 0;
 
       } catch (err) {
         console.error('[Ticket] Submit error:', err);
@@ -3333,28 +3410,45 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ── 2. Admin support search ─────────────────────────────────── */
   let _allAdminTickets = []; // populated by renderAdminSupportPage
 
-  /* Patch renderAdminSupportPage to cache rendered tickets */
-  function hookRenderAdminSupportPage() {
-    const orig = window.renderAdminSupportPage;
-    if (typeof orig !== 'function') {
-      setTimeout(hookRenderAdminSupportPage, 400);
+  /* ── Fully override renderAdminSupportPage (locked so obfuscated code can't overwrite) ── */
+  const _customRenderAdminSupport = async function () {
+    const list = document.getElementById('admin-support-list');
+    if (!list) return;
+
+    // Wait for db if it isn't ready yet
+    if (typeof db === 'undefined' || !db) {
+      list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">⏳</div>Waiting for database...</div>';
+      setTimeout(() => { if (typeof renderAdminSupportPage === 'function') renderAdminSupportPage(); }, 1000);
       return;
     }
-    window.renderAdminSupportPage = function (...args) {
-      // Call original first so the list is rendered
-      orig.apply(this, args);
-      // After render, cache current list DOM for filtering
-      // We also subscribe to live data for filtering
-      if (db) {
-        db.collection('support')
-          .orderBy('createdAt', 'desc')
-          .limit(200)
-          .onSnapshot(snap => {
-            _allAdminTickets = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-          }, () => {});
+
+    list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">⏳</div>Loading tickets...</div>';
+    try {
+      const snap = await db.collection('support').orderBy('createdAt', 'desc').limit(200).get();
+      _allAdminTickets = snap.docs.map(d => ({ id: d.id, ...d.data() })); // Cache for filtering
+      if (snap.empty) {
+        list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">📭</div>No tickets found.</div>';
+        return;
       }
-    };
+      list.innerHTML = snap.docs.map(doc => renderTicketCard(doc)).join('');
+    } catch (err) {
+      console.warn('Admin ticket load failed:', err);
+      list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">⚠️</div>Error: ' + (err.code || err.message || 'Unknown') + '</div>';
+    }
+  };
+
+  // Lock the function so the obfuscated code cannot overwrite it
+  try {
+    Object.defineProperty(window, 'renderAdminSupportPage', {
+      get: () => _customRenderAdminSupport,
+      set: (v) => { console.log('[Ticket Enforcer] Blocked overwrite of renderAdminSupportPage'); },
+      configurable: true
+    });
+  } catch (e) {
+    window.renderAdminSupportPage = _customRenderAdminSupport;
   }
+
+  function hookRenderAdminSupportPage() { /* Kept empty so bootstrap call doesn't fail */ }
 
   window.filterAdminSupportTickets = function () {
     const input = document.getElementById('admin-support-search');
@@ -3379,7 +3473,7 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 
     if (!matched.length) {
-      list.innerHTML = '<div class="empty-cat-msg"><div class="big">🔍</div>No tickets match "<strong>' +
+      list.innerHTML = '<div data-tcr="1" class="empty-cat-msg"><div class="big">🔍</div>No tickets match "<strong>' +
         input.value.trim().replace(/</g, '&lt;') + '</strong>".</div>';
       return;
     }
@@ -3394,7 +3488,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ? `<div style="margin-top:8px;background:var(--cream);padding:8px;border-radius:6px;font-size:.8rem"><strong>Admin Reply:</strong> ${t.adminReply}</div>`
         : '';
       return `
-        <div class="menu-card" style="padding:14px;border-left:4px solid ${statusColor}">
+        <div data-tcr="1" class="menu-card" style="padding:14px;border-left:4px solid ${statusColor}">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
             <div style="flex:1;min-width:180px">
               <div style="font-weight:900;color:var(--brown);font-size:.95rem">
@@ -3447,8 +3541,60 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
+  /* ── Patch adminSidebarGo to clear badges ── */
+  function hookAdminSidebarGo() {
+    const orig = window.adminSidebarGo;
+    if (typeof orig !== 'function') {
+      setTimeout(hookAdminSidebarGo, 400);
+      return;
+    }
+    window.adminSidebarGo = function(page) {
+      if (typeof orig === 'function') orig.apply(this, arguments);
+      if (page === 'customers') {
+        const badge = document.getElementById('asb-customers-badge');
+        if (badge && badge.dataset.realTotal) {
+          localStorage.setItem('admin_cust_last_total', badge.dataset.realTotal);
+          badge.dataset.updating = 'true';
+          badge.textContent = '0';
+          badge.classList.remove('visible');
+          setTimeout(() => { badge.dataset.updating = 'false'; }, 50);
+        }
+      }
+      if (page === 'admin-support') {
+        localStorage.setItem('admin_support_last_viewed', Date.now().toString());
+        const badge = document.getElementById('asb-support-badge');
+        if (badge) { badge.textContent = '0'; badge.classList.remove('visible'); }
+      }
+    };
+  }
+
+  /* ── Custom Badge Logic for Customers ── */
+  (function initCustomerBadge() {
+    let lastSeenTotal = parseInt(localStorage.getItem('admin_cust_last_total')) || 0;
+    const badge = document.getElementById('asb-customers-badge');
+    if (badge) {
+      const observer = new MutationObserver((mutations) => {
+        mutations.forEach(m => {
+          if (m.type === 'childList' && badge.dataset.updating !== 'true') {
+            const currentTotal = parseInt(badge.textContent) || 0;
+            if (currentTotal === 0 && badge.textContent === '0') return;
+            const newCount = Math.max(0, currentTotal - lastSeenTotal);
+            badge.dataset.updating = 'true';
+            badge.textContent = newCount.toString();
+            if (newCount > 0) badge.classList.add('visible');
+            else badge.classList.remove('visible');
+            setTimeout(() => { badge.dataset.updating = 'false'; }, 50);
+            badge.dataset.realTotal = currentTotal;
+          }
+        });
+      });
+      observer.observe(badge, { childList: true, characterData: true, subtree: true });
+    }
+  })();
+
   /* ── Bootstrap ───────────────────────────────────────────────── */
   function bootstrap() {
+    hookAdminSidebarGo();
     // Hook submitSupportTicket immediately
     hookSubmitSupportTicket();
     // Hook renderAdminSupportPage once the core is ready
