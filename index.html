@@ -3418,4 +3418,186 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 </script>
 
+
+<script>
+/* ================================================================
+   DELIVERY FEE → finalTotal  (SINGLE AUTHORITATIVE PATCH v3)
+   Source of truth for finalTotal:
+     1. om-grand-total DOM element  (set by updateCartDeliveryFee)
+     2. Fallback: calcDeliveryFee() + cart
+   Hooks (each guarded against double-wrapping with __dfHooked):
+     finalizeOrder, deepLinkUPI, launchUPIApp,
+     openRazorpayCheckout, showPhonePeQR, openOrderModal
+   ================================================================ */
+(function () {
+  'use strict';
+
+  if (window.__dfPatchDone) return;   // guard: run only once
+  window.__dfPatchDone = true;
+
+  /* ── Source of truth: read finalTotal from DOM, fallback to calc ── */
+  function getFinalTotal() {
+    // Primary: read the grand total the UI already shows (avoids race with Firestore)
+    const grandEl = document.getElementById('om-grand-total');
+    if (grandEl) {
+      const domVal = parseInt(grandEl.textContent.replace(/[^\d]/g, ''), 10);
+      if (domVal > 0) {
+        const subEl       = document.getElementById('om-total');
+        const cartTotal   = subEl ? (parseInt(subEl.textContent.replace(/[^\d]/g,''),10)||0) : domVal;
+        const deliveryFee = domVal - cartTotal;
+        console.log('%c[DeliveryFee] DOM → Cart:₹'+cartTotal+' Fee:₹'+deliveryFee+' Final:₹'+domVal,
+          'background:#fff3e0;color:#e8820c;font-weight:bold;padding:2px 4px');
+        return { cartTotal, deliveryFee, finalTotal: domVal };
+      }
+    }
+    // Fallback: calculate directly
+    const keys        = Object.keys(window.cart || {});
+    const cartTotal   = keys.reduce((s, k) => s + (cart[k].price||0)*(cart[k].qty||0), 0);
+    const deliveryFee = (typeof calcDeliveryFee === 'function') ? calcDeliveryFee(cartTotal) : 0;
+    const finalTotal  = cartTotal + deliveryFee;
+    console.log('%c[DeliveryFee] CALC → Cart:₹'+cartTotal+' Fee:₹'+deliveryFee+' Final:₹'+finalTotal,
+      'background:#fff3e0;color:#e8820c;font-weight:bold;padding:2px 4px');
+    return { cartTotal, deliveryFee, finalTotal };
+  }
+
+  /* ── Patch Firestore + localStorage after order is saved ── */
+  function patchOrderRecord(oid, cartTotal, deliveryFee, finalTotal) {
+    if (!oid || !window.db) return;
+    db.collection('orders').where('orderId','==',oid).limit(1).get()
+      .then(snap => {
+        if (!snap.empty) {
+          snap.docs[0].ref.set({
+            cartSubtotal : cartTotal,
+            deliveryFee  : deliveryFee,
+            total        : finalTotal,
+            finalTotal   : finalTotal,
+            updatedAt    : firebase.firestore.FieldValue.serverTimestamp()
+          }, { merge: true });
+          console.log('%c[DeliveryFee] ✅ Firestore orderId:'+oid+' total:₹'+finalTotal,'color:#2e7d32;font-weight:bold');
+        }
+      }).catch(e => console.warn('[DeliveryFee] Firestore error:', e));
+    try {
+      const raw = localStorage.getItem('lastOrder');
+      if (raw) {
+        const obj = JSON.parse(raw);
+        obj.total = obj.finalTotal = finalTotal;
+        obj.deliveryFee = deliveryFee;
+        obj.cartSubtotal = cartTotal;
+        localStorage.setItem('lastOrder', JSON.stringify(obj));
+      }
+    } catch(_) {}
+  }
+
+  /* ── 1. finalizeOrder ── */
+  function hookFinalizeOrder() {
+    const orig = window.finalizeOrder;
+    if (typeof orig !== 'function') { setTimeout(hookFinalizeOrder, 400); return; }
+    if (orig.__dfHooked) return;
+    window.finalizeOrder = async function(pm, pd, rzp) {
+      const { cartTotal, deliveryFee, finalTotal } = getFinalTotal();
+      const result = await orig.apply(this, arguments);
+      setTimeout(() => patchOrderRecord(window.currentOrderId, cartTotal, deliveryFee, finalTotal), 800);
+      return result;
+    };
+    window.finalizeOrder.__dfHooked = true;
+    console.log('[DeliveryFee] finalizeOrder ✅');
+  }
+
+  /* ── 2. deepLinkUPI ── */
+  function hookDeepLinkUPI() {
+    const orig = window.deepLinkUPI;
+    if (typeof orig !== 'function') { setTimeout(hookDeepLinkUPI, 400); return; }
+    if (orig.__dfHooked) return;
+    window.deepLinkUPI = function(appName) {
+      const { finalTotal } = getFinalTotal();
+      const upiId = window.UPI_ID || 'chapatiexpress@ybl';
+      const q = 'pa='+upiId+'&pn=Chapati+Express&am='+finalTotal+'&cu=INR&tn=ChapatiExpressOrder';
+      const links = {
+        gpay:'gpay://upi/pay?'+q, phonepe:'phonepe://pay?'+q,
+        paytm:'paytmmp://pay?'+q, bhim:'bhim://upi/pay?'+q, upi:'upi://pay?'+q
+      };
+      const el = document.getElementById('upi-amount-display');
+      if (el) el.textContent = '₹' + finalTotal;
+      console.log('%c[DeliveryFee] UPI '+appName+' → ₹'+finalTotal,'color:#1565c0;font-weight:bold');
+      try { window.location.href = links[appName] || links['upi']; } catch(_) {}
+    };
+    window.deepLinkUPI.__dfHooked = true;
+    console.log('[DeliveryFee] deepLinkUPI ✅');
+  }
+
+  /* ── 3. launchUPIApp ── */
+  function hookLaunchUPIApp() {
+    const orig = window.launchUPIApp;
+    if (typeof orig !== 'function') { setTimeout(hookLaunchUPIApp, 400); return; }
+    if (orig.__dfHooked) return;
+    window.launchUPIApp = function(appName) {
+      const { finalTotal } = getFinalTotal();
+      if (typeof showUPIRedirect === 'function') showUPIRedirect(finalTotal, appName);
+      else deepLinkUPI(appName);
+    };
+    window.launchUPIApp.__dfHooked = true;
+    console.log('[DeliveryFee] launchUPIApp ✅');
+  }
+
+  /* ── 4. openRazorpayCheckout ── */
+  function hookRazorpay() {
+    const orig = window.openRazorpayCheckout;
+    if (typeof orig !== 'function') { setTimeout(hookRazorpay, 400); return; }
+    if (orig.__dfHooked) return;
+    window.openRazorpayCheckout = function(_amt, name, phone) {
+      const { finalTotal } = getFinalTotal();
+      console.log('%c[DeliveryFee] Razorpay ₹'+_amt+' → ₹'+finalTotal,'color:#6a1b9a;font-weight:bold');
+      return orig.call(this, finalTotal, name, phone);
+    };
+    window.openRazorpayCheckout.__dfHooked = true;
+    console.log('[DeliveryFee] openRazorpayCheckout ✅');
+  }
+
+  /* ── 5. showPhonePeQR ── */
+  function hookPhonePeQR() {
+    const orig = window.showPhonePeQR;
+    if (typeof orig !== 'function') { setTimeout(hookPhonePeQR, 400); return; }
+    if (orig.__dfHooked) return;
+    window.showPhonePeQR = function(_amt) {
+      const { finalTotal } = getFinalTotal();
+      console.log('%c[DeliveryFee] PhonePeQR ₹'+_amt+' → ₹'+finalTotal,'color:#1b5e20;font-weight:bold');
+      return orig.call(this, finalTotal);
+    };
+    window.showPhonePeQR.__dfHooked = true;
+    console.log('[DeliveryFee] showPhonePeQR ✅');
+  }
+
+  /* ── 6. openOrderModal — refresh fee UI on open ── */
+  function hookOpenOrderModal() {
+    const orig = window.openOrderModal;
+    if (typeof orig !== 'function') { setTimeout(hookOpenOrderModal, 400); return; }
+    if (orig.__dfHooked) return;
+    window.openOrderModal = function(...args) {
+      const result = orig.apply(this, args);
+      setTimeout(() => {
+        if (typeof updateCartDeliveryFee === 'function') updateCartDeliveryFee();
+        const { finalTotal } = getFinalTotal();
+        const el = document.getElementById('upi-amount-display');
+        if (el) el.textContent = '₹' + finalTotal;
+      }, 200);
+      return result;
+    };
+    window.openOrderModal.__dfHooked = true;
+    console.log('[DeliveryFee] openOrderModal ✅');
+  }
+
+  function boot() {
+    hookFinalizeOrder();
+    hookDeepLinkUPI();
+    hookLaunchUPIApp();
+    hookRazorpay();
+    hookPhonePeQR();
+    hookOpenOrderModal();
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else setTimeout(boot, 80);
+})();
+</script>
+
 </html>
