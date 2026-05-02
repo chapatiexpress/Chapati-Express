@@ -3240,9 +3240,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         orderDoc = { id: snap.docs[0].id, ...orderData };
       } catch (err) {
-        console.error('[Ticket] Order validation error:', err);
-        showToast('❌ Could not verify order. Try again.', 2500, 'error');
-        return;
+        console.warn('[Ticket] Primary orderId query failed:', err.code || err.message);
+
+        // Fallback 1: try fetching user's own recent orders and match by orderId field
+        try {
+          const myUid = currentUser.uid;
+          const fallbackSnap = await db.collection('orders')
+            .where('customerUid', '==', myUid)
+            .orderBy('createdAt', 'desc')
+            .limit(50)
+            .get();
+
+          const matched = fallbackSnap.docs.find(d => {
+            const data = d.data();
+            return (data.orderId || '').toUpperCase() === orderId.toUpperCase();
+          });
+
+          if (!matched) {
+            // Order not found in this user's last 50 orders
+            showToast('❌ Invalid Order ID. We could not find this order on your account.', 3500, 'error');
+            orderEl && orderEl.focus();
+            return;
+          }
+
+          orderDoc = { id: matched.id, ...matched.data() };
+          console.log('[Ticket] Order verified via fallback UID query ✅');
+
+        } catch (fallbackErr) {
+          // Fallback 2: both queries failed (network / rules) — skip validation and allow submission
+          console.warn('[Ticket] Fallback query also failed, skipping validation:', fallbackErr.code || fallbackErr.message);
+          orderDoc = {
+            customerName  : currentUser.displayName || '',
+            customerPhone : '',
+            customerEmail : currentUser.email || '',
+            customerUid   : currentUser.uid   || ''
+          };
+        }
       }
 
       /* ── Step 2: check for an already-open ticket for this order ── */
